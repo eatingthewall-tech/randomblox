@@ -1,0 +1,19 @@
+# OS
+.DS_Store
+
+# local dev / tooling (not part of the published site)
+.claude/
+data/
+docs/
+tools/
+js/items.js
+
+# unused & work-in-progress asset folders (site only uses am/, cleaned/, hd/, wiki/)
+assets/_am/
+assets/_am_fix/
+assets/hd2/
+assets/wiki_hd/
+assets/clean/
+assets/final/
+assets/items/
+assets/recrop-*.png
