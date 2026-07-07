@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260707c";                       // bump when item art changes
+const IMG_V = "20260707d";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -13,6 +13,7 @@ const PILL = {
   Legendary: "legendary", Rare: "rare", Uncommon: "uncommon", Common: "common",
   Egg: "uncommon", Vehicle: "rare", Toy: "vintage",
 };
+const RARITY_ORDER = ["Chroma","Godly","Ancient","Vintage","Legendary","Rare","Uncommon","Common","Egg","Vehicle","Toy"];
 const CATS = {
   mm2: [["all", "Everything"], ["knife", "Knives"], ["gun", "Guns"], ["pet", "Pets"], ["collectible", "Collectibles"]],
   am:  [["all", "Everything"], ["pet", "Pets"], ["egg", "Eggs"], ["vehicle", "Vehicles"], ["toy", "Toys & items"]],
@@ -20,7 +21,7 @@ const CATS = {
 const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me" };
 
 const state = {
-  game: "mm2", cat: "all", rarity: "", q: "", sort: "price-desc",
+  game: "mm2", cat: "all", rarity: new Set(), inStock: false, q: "", sort: "rarity",
   cart: load("rbx-cart", {}),
 };
 function load(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } }
@@ -54,48 +55,123 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
   }).join("");
 })();
 
-/* ---------- nav / filters ---------- */
+/* ---------- sticky offsets (header + browse bar) ---------- */
+function setStickyVars() {
+  const root = document.documentElement;
+  root.style.setProperty("--hdr", ($(".topbar")?.offsetHeight || 56) + "px");
+  root.style.setProperty("--browse", ($("#browsebar")?.offsetHeight || 0) + "px");
+}
+window.addEventListener("resize", setStickyVars);
+
+function scrollToShop() {
+  const y = $("#shop").offsetTop - ($(".topbar")?.offsetHeight || 56) - 8;
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+/* ---------- game switch ---------- */
 function setGame(g) {
   state.game = g;
   state.cat = "all";
-  state.rarity = "";
-  $$(".topnav-link[data-nav]").forEach(b => b.classList.toggle("is-on", b.dataset.nav === g));
+  state.rarity = new Set();
+  state.inStock = false;
+  $$(".game-tab[data-nav]").forEach(b => {
+    const on = b.dataset.nav === g;
+    b.classList.toggle("is-on", on);
+    b.setAttribute("aria-selected", on);
+  });
+  $$(".botnav-item[data-bot]").forEach(b => {
+    if (b.dataset.bot === "mm2" || b.dataset.bot === "am") b.classList.toggle("is-on", b.dataset.bot === g);
+  });
   $("#shopTitle").textContent = GAME_LABEL[g];
+  syncInStockUI();
   buildCatTabs();
-  buildRaritySelect();
+  buildRarityChips();
   render();
 }
-$$(".topnav-link[data-nav]").forEach(b => b.addEventListener("click", () => {
-  setGame(b.dataset.nav);
-  $("#shop").scrollIntoView({ block: "start" });
-}));
-$$("[data-jump]").forEach(b => b.addEventListener("click", () => {
-  setGame(b.dataset.jump);
-  $("#shop").scrollIntoView({ block: "start" });
+$$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(); }));
+$$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(); }));
+$$(".botnav-item[data-bot]").forEach(b => b.addEventListener("click", () => {
+  const t = b.dataset.bot;
+  if (t === "home") window.scrollTo({ top: 0, behavior: "smooth" });
+  else if (t === "cart") openDrawer();
+  else { setGame(t); scrollToShop(); }
 }));
 
+/* ---------- category tabs ---------- */
 function buildCatTabs() {
   $("#catTabs").innerHTML = CATS[state.game].map(([v, label]) =>
-    `<button class="cat-tab ${state.cat === v ? "is-on" : ""}" role="tab" data-cat="${v}">${label}</button>`).join("");
+    `<button class="cat-tab ${state.cat === v ? "is-on" : ""}" role="tab" aria-selected="${state.cat === v}" data-cat="${v}">${label}</button>`).join("");
   $$("#catTabs .cat-tab").forEach(t => t.addEventListener("click", () => {
     state.cat = t.dataset.cat;
-    $$("#catTabs .cat-tab").forEach(x => x.classList.toggle("is-on", x === t));
+    buildCatTabs();
+    buildRarityChips();
     render();
   }));
 }
-function buildRaritySelect() {
-  const rs = [...new Set(CATALOG.filter(i => i.game === state.game).map(i => i.rarity))];
-  const order = ["Chroma","Godly","Ancient","Vintage","Legendary","Rare","Uncommon","Common","Egg","Vehicle","Toy"];
-  rs.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  $("#raritySel").innerHTML = `<option value="">All rarities</option>` +
-    rs.map(r => `<option value="${r}">${r}</option>`).join("");
-  $("#raritySel").value = "";
-}
-$("#raritySel").addEventListener("change", e => { state.rarity = e.target.value; render(); });
-$("#sortSel").addEventListener("change", e => { state.sort = e.target.value; render(); });
-$("#searchInput").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
 
-/* ---------- grid ---------- */
+/* ---------- rarity chips (with live facet counts) ---------- */
+function raritiesFor(game) {
+  const present = [...new Set(CATALOG.filter(i => i.game === game).map(i => i.rarity))];
+  present.sort((a, b) => RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b));
+  return present;
+}
+function facetCount(rar) {
+  return CATALOG.filter(i =>
+    i.game === state.game &&
+    (state.cat === "all" || catOf(i) === state.cat) &&
+    (!state.inStock || i.stock > 0) &&
+    (!state.q || i.name.toLowerCase().includes(state.q)) &&
+    i.rarity === rar).length;
+}
+function chipHTML(rar) {
+  const pill = PILL[rar] || "common";
+  const on = state.rarity.has(rar);
+  const n = facetCount(rar);
+  const dis = n === 0 && !on ? "disabled" : "";
+  return `<button class="rarity-chip ${on ? "is-on" : ""}" data-rar="${rar}" aria-pressed="${on}" ${dis}
+    style="--pill-bg:var(--pill-${pill}-bg);--pill-ink:var(--pill-${pill}-ink)">
+    <span class="rc-dot"></span>${rar}<span class="rc-n">${n}</span></button>`;
+}
+function buildRarityChips() {
+  const html = raritiesFor(state.game).map(chipHTML).join("");
+  $("#rarityChips").innerHTML = html;
+  $("#sheetRarity").innerHTML = html;
+  $$(".rarity-chip").forEach(c => c.addEventListener("click", () => toggleRarity(c.dataset.rar)));
+}
+function toggleRarity(r) {
+  if (state.rarity.has(r)) state.rarity.delete(r); else state.rarity.add(r);
+  buildRarityChips();
+  render();
+}
+
+/* ---------- in-stock / sort / search ---------- */
+function syncInStockUI() {
+  ["#inStockBtn", "#sheetInStock"].forEach(sel => {
+    const el = $(sel); if (!el) return;
+    el.setAttribute("aria-pressed", state.inStock);
+    el.classList.toggle("is-on", state.inStock);
+  });
+}
+function setInStock(v) { state.inStock = v; syncInStockUI(); buildRarityChips(); render(); }
+$("#inStockBtn").addEventListener("click", () => setInStock(!state.inStock));
+$("#sheetInStock").addEventListener("click", () => setInStock(!state.inStock));
+
+function setSort(v) {
+  state.sort = v;
+  $("#sortSel").value = v;
+  $$("#sheetSort [data-sort]").forEach(b => b.setAttribute("aria-checked", b.dataset.sort === v));
+  render();
+}
+$("#sortSel").addEventListener("change", e => setSort(e.target.value));
+$$("#sheetSort [data-sort]").forEach(b => b.addEventListener("click", () => setSort(b.dataset.sort)));
+
+$("#searchInput").addEventListener("input", e => {
+  state.q = e.target.value.trim().toLowerCase();
+  buildRarityChips();
+  render();
+});
+
+/* ---------- filtering ---------- */
 function catOf(i) {
   if (i.kind === "knife" || i.kind === "gun" || i.kind === "collectible") return i.kind;
   if (i.game === "mm2" && i.kind === "pet") return "pet";
@@ -104,15 +180,18 @@ function catOf(i) {
 function visible() {
   let list = CATALOG.filter(i => i.game === state.game);
   if (state.cat !== "all") list = list.filter(i => catOf(i) === state.cat);
-  if (state.rarity) list = list.filter(i => i.rarity === state.rarity);
+  if (state.rarity.size) list = list.filter(i => state.rarity.has(i.rarity));
+  if (state.inStock) list = list.filter(i => i.stock > 0);
   if (state.q) list = list.filter(i => i.name.toLowerCase().includes(state.q));
-  list.sort((a, b) =>
-    state.sort === "price-asc" ? a.price - b.price :
-    state.sort === "name" ? a.name.localeCompare(b.name) :
-    b.price - a.price);
-  return list;
+  const cmp =
+    state.sort === "price-asc" ? (a, b) => a.price - b.price :
+    state.sort === "name" ? (a, b) => a.name.localeCompare(b.name) :
+    state.sort === "rarity" ? (a, b) => (RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity)) || (b.price - a.price) :
+    (a, b) => b.price - a.price;
+  return list.sort(cmp);
 }
 
+/* ---------- card ---------- */
 function cardHTML(i) {
   const left = i.stock - (state.cart[i.id] || 0);
   const inCart = (state.cart[i.id] || 0) > 0;
@@ -147,18 +226,48 @@ function bindBuyButtons(root) {
   $$("[data-add]", root).forEach(b => b.addEventListener("click", () => addToCart(b.dataset.add)));
 }
 
+/* ---------- render ---------- */
 function render() {
   const list = visible();
-  const bits = [`${list.length} items`, GAME_LABEL[state.game]];
+  const grid = $("#grid");
+
+  // result line
+  const bits = [`${list.length} item${list.length !== 1 ? "s" : ""}`];
   if (state.cat !== "all") bits.push(CATS[state.game].find(c => c[0] === state.cat)[1].toLowerCase());
-  if (state.rarity) bits.push(state.rarity.toLowerCase());
-  if (state.q) bits.push(`matching "${state.q}"`);
-  $("#resultLine").textContent = bits.join(" — ");
-  $("#grid").innerHTML = list.length
-    ? list.map(cardHTML).join("")
-    : `<div class="grid-empty"><b>Nothing matches that.</b>Clear the search or pick another category.</div>`;
-  bindBuyButtons($("#grid"));
-  // refresh featured buttons state too
+  if (state.q) bits.push(`matching “${state.q}”`);
+  $("#resultLine").textContent = bits.join(" · ");
+  $("#sheetCount").textContent = list.length;
+
+  if (!list.length) {
+    grid.classList.remove("grouped");
+    grid.innerHTML = `<div class="grid-empty">
+      <b>Nothing matches that.</b>
+      <span>Try clearing a filter or picking another category.</span>
+      <button class="btn-clear" id="clearEmpty">Clear filters</button></div>`;
+    const ce = $("#clearEmpty"); if (ce) ce.addEventListener("click", clearFilters);
+  } else if (state.sort === "rarity") {
+    grid.classList.add("grouped");
+    const order = RARITY_ORDER.filter(r => list.some(i => i.rarity === r));
+    grid.innerHTML = order.map(r => {
+      const items = list.filter(i => i.rarity === r);
+      const pill = PILL[r] || "common";
+      return `<section class="rar-group">
+        <header class="rar-group-head" style="--pill-ink:var(--pill-${pill}-ink)">
+          <span class="rg-dot"></span><h3>${r}</h3><span class="rg-n">${items.length}</span>
+        </header>
+        <div class="subgrid">${items.map(cardHTML).join("")}</div>
+      </section>`;
+    }).join("");
+  } else {
+    grid.classList.remove("grouped");
+    grid.innerHTML = list.map(cardHTML).join("");
+  }
+  bindBuyButtons(grid);
+  renderApplied();
+  updateFiltersBadge();
+  setStickyVars();
+
+  // keep featured buttons in sync
   $$("#featuredRow [data-add]").forEach(b => {
     const i = byId[b.dataset.add];
     const left = i.stock - (state.cart[i.id] || 0);
@@ -167,6 +276,49 @@ function render() {
     b.classList.toggle("in-cart", (state.cart[i.id] || 0) > 0);
   });
 }
+
+/* ---------- applied filters + badges ---------- */
+function renderApplied() {
+  const chips = [];
+  if (state.cat !== "all")
+    chips.push(`<button class="applied-chip" data-clear="cat">${CATS[state.game].find(c => c[0] === state.cat)[1]}<span aria-hidden="true">✕</span></button>`);
+  [...state.rarity].sort((a, b) => RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b))
+    .forEach(r => chips.push(`<button class="applied-chip" data-clear="rar:${r}">${r}<span aria-hidden="true">✕</span></button>`));
+  if (state.inStock) chips.push(`<button class="applied-chip" data-clear="instock">In stock<span aria-hidden="true">✕</span></button>`);
+
+  const box = $("#applied");
+  if (!chips.length) { box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+  box.innerHTML = `<span class="applied-label">Filtering by</span>${chips.join("")}<button class="applied-clear" data-clear="all">Clear all</button>`;
+  $$("#applied [data-clear]").forEach(b => b.addEventListener("click", () => clearOne(b.dataset.clear)));
+}
+function clearOne(k) {
+  if (k === "all") return clearFilters();
+  if (k === "cat") { state.cat = "all"; buildCatTabs(); }
+  else if (k === "instock") { state.inStock = false; syncInStockUI(); }
+  else if (k.startsWith("rar:")) state.rarity.delete(k.slice(4));
+  buildRarityChips();
+  render();
+}
+function clearFilters() {
+  state.cat = "all"; state.rarity = new Set(); state.inStock = false;
+  syncInStockUI(); buildCatTabs(); buildRarityChips(); render();
+}
+function updateFiltersBadge() {
+  const n = (state.cat !== "all" ? 1 : 0) + state.rarity.size + (state.inStock ? 1 : 0);
+  const b = $("#filtersBadge");
+  if (n) { b.hidden = false; b.textContent = n; } else b.hidden = true;
+  $("#filtersBtn").classList.toggle("has-filters", n > 0);
+}
+
+/* ---------- mobile filter sheet ---------- */
+const filterSheet = $("#filterSheet"), scrim = $("#scrim");
+function openSheet() { filterSheet.hidden = false; scrim.hidden = false; $("#closeSheet").focus(); }
+function closeSheet() { filterSheet.hidden = true; if ($("#drawer").hidden) scrim.hidden = true; }
+$("#filtersBtn").addEventListener("click", openSheet);
+$("#closeSheet").addEventListener("click", closeSheet);
+$("#applyFilters").addEventListener("click", closeSheet);
+$("#sheetClear").addEventListener("click", clearFilters);
 
 /* ---------- cart ---------- */
 const entries = () => Object.entries(state.cart).filter(([, q]) => q > 0);
@@ -190,8 +342,11 @@ function setQty(id, q) {
 }
 function syncCount() {
   const n = cartCount();
-  $("#cartCount").hidden = n === 0;
-  $("#cartCount").textContent = n;
+  ["#cartCount", "#botCartCount"].forEach(sel => {
+    const el = $(sel); if (!el) return;
+    el.hidden = n === 0;
+    el.textContent = n;
+  });
 }
 
 function renderDrawer() {
@@ -231,12 +386,12 @@ function renderDrawer() {
   $("#goCheckout").addEventListener("click", openCheckout);
 }
 
-const drawer = $("#drawer"), scrim = $("#scrim");
+const drawer = $("#drawer");
 function openDrawer() { renderDrawer(); drawer.hidden = false; scrim.hidden = false; $("#closeDrawer").focus(); }
-function closeDrawer() { drawer.hidden = true; scrim.hidden = true; $("#cartBtn").focus(); }
+function closeDrawer() { drawer.hidden = true; if (filterSheet.hidden) scrim.hidden = true; }
 $("#cartBtn").addEventListener("click", openDrawer);
 $("#closeDrawer").addEventListener("click", closeDrawer);
-scrim.addEventListener("click", closeDrawer);
+scrim.addEventListener("click", () => { closeSheet(); closeDrawer(); });
 
 /* ---------- checkout ---------- */
 const co = $("#checkout"), coBody = $("#checkoutBody");
@@ -360,12 +515,15 @@ $("#orderLookupBtn").addEventListener("click", () => {
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
   if (!co.hidden) closeCheckout();
+  else if (!filterSheet.hidden) closeSheet();
   else if (!drawer.hidden) closeDrawer();
 });
 
 /* ---------- boot ---------- */
 buildCatTabs();
-buildRaritySelect();
+buildRarityChips();
 syncCount();
-render();
+setStickyVars();
+$("#searchInput").value = "";
+setSort(state.sort);   // sync sort control + first render (grouped by rarity)
 })();
