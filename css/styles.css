@@ -43,6 +43,15 @@
   --pill-rare-bg: #d5e3ff;     --pill-rare-ink: #163b96;
   --pill-uncommon-bg: #d1f3da; --pill-uncommon-ink: #10603a;
   --pill-common-bg: #e7edf6;   --pill-common-ink: #334158;
+  /* NFL Universe tiers — match the in-game card colours */
+  --pill-nflmvp-bg: #cdeff5;     --pill-nflmvp-ink: #0b5566;   /* VI cyan */
+  --pill-nflallpro-bg: #e7ddff;  --pill-nflallpro-ink: #4a1a9e;/* V purple */
+  --pill-nflpro-bg: #ffd9de;     --pill-nflpro-ink: #9c1330;   /* IV crimson */
+  --pill-nflstarter-bg: #f9e7b3; --pill-nflstarter-ink: #6f4a05;/* III gold */
+  --pill-nflrookie-bg: #e4e8ef;  --pill-nflrookie-ink: #3a4657;/* II silver */
+
+  --pill-bdlegend-bg: #ffe7b0;   --pill-bdlegend-ink: #8a5300; /* Baddies Legend — gold */
+  --pill-bdepic-bg: #efdcff;     --pill-bdepic-ink: #6a1fb0;   /* Baddies Epic — violet */
 
   /* --- shape & depth (never border + big-shadow on one element) --- */
   --r-card: 16px;
@@ -373,6 +382,11 @@ button { font-family: inherit; }
   box-shadow: var(--shadow-sm);
 }
 .card-noart { font: 800 2.6rem var(--font-display); color: var(--line-2); }
+.card-glyph {
+  font-size: 3.1rem; line-height: 1; filter: saturate(1.05) drop-shadow(0 3px 6px rgba(0,0,0,.14));
+  transition: transform .28s var(--ease-out, ease);
+}
+.card:hover .card-glyph { transform: scale(1.08) rotate(-3deg); }
 .card-body { padding: 13px 14px 14px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
 .card-name { font: 650 .98rem/1.28 var(--font); letter-spacing: -0.012em; }
 .card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
@@ -747,8 +761,9 @@ button { font-family: inherit; }
     flex: 1; position: relative;
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     background: none; border: none; cursor: pointer;
-    font: 600 .68rem var(--font); color: var(--ink-3);
-    padding: 6px 4px; border-radius: 10px;
+    font: 600 .64rem var(--font); color: var(--ink-3);
+    padding: 6px 2px; border-radius: 10px;
+    white-space: nowrap;
   }
   .botnav-item svg { opacity: .82; }
   .botnav-item.is-on { color: var(--brand); }

@@ -1,7 +1,7 @@
 # Randomblox
 
-A fan-run item shop for **Murder Mystery 2** and **Adopt Me** — every item is sold
-from one real inventory and delivered by in-game trade.
+A fan-run item shop for **Murder Mystery 2**, **Adopt Me**, **NFL Universe** and
+**Baddies** — every item is sold from one real inventory and delivered by in-game trade.
 
 Static site (plain HTML / CSS / JS), no build step. Hosted on GitHub Pages.
 
