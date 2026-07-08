@@ -52,6 +52,7 @@
 
   --pill-bdlegend-bg: #ffe7b0;   --pill-bdlegend-ink: #8a5300; /* Baddies Legend — gold */
   --pill-bdepic-bg: #efdcff;     --pill-bdepic-ink: #6a1fb0;   /* Baddies Epic — violet */
+  --pill-bdbasic-bg: #d5e6ff;    --pill-bdbasic-ink: #17458c;  /* Baddies Basic — blue */
 
   /* --- shape & depth (never border + big-shadow on one element) --- */
   --r-card: 16px;

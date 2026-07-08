@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260708a";                       // bump when item art changes
+const IMG_V = "20260708b";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -13,9 +13,9 @@ const PILL = {
   Legendary: "legendary", Rare: "rare", Uncommon: "uncommon", Common: "common",
   Egg: "uncommon", Vehicle: "rare", Toy: "vintage",
   MVP: "nflmvp", "All-Pro": "nflallpro", Pro: "nflpro", Starter: "nflstarter", Rookie: "nflrookie",
-  Legend: "bdlegend", Epic: "bdepic",
+  Legend: "bdlegend", Epic: "bdepic", Basic: "bdbasic",
 };
-const RARITY_ORDER = ["Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Uncommon","Common","Egg","Vehicle","Toy",
+const RARITY_ORDER = ["Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Basic","Uncommon","Common","Egg","Vehicle","Toy",
   "MVP","All-Pro","Pro","Starter","Rookie"];
 const CATS = {
   mm2: [["all", "Everything"], ["knife", "Knives"], ["gun", "Guns"], ["pet", "Pets"], ["collectible", "Collectibles"]],
@@ -48,7 +48,7 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
   const top = [...CATALOG].sort((a, b) => b.price - a.price).slice(0, 2);
   box.innerHTML = top.map(i => {
     const pill = PILL[i.rarity] || "common";
-    const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/"));
+    const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/"));
     return `<div class="grail" style="--rar:var(--pill-${pill}-ink)">
       <div class="grail-stage">
         ${i.img ? `<img class="${crop ? "is-crop" : ""}" src="${imgSrc(i.img)}" alt="">` : ""}
@@ -202,16 +202,14 @@ function cardHTML(i) {
   const left = i.stock - (state.cart[i.id] || 0);
   const inCart = (state.cart[i.id] || 0) > 0;
   const pill = PILL[i.rarity] || "common";
-  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/"));
+  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/"));
   const variant = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   const fx = i.badge === "FX" ? `<span class="pill">FX</span>` : "";
   return `<article class="card" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
     <div class="card-art ${crop ? "is-crop" : ""}">
       ${i.img ? `<img loading="lazy" src="${imgSrc(i.img)}" alt="">`
-              : i.game === "baddies"
-                ? `<span class="card-glyph" aria-hidden="true">${BADDIE_GLYPH[i.kind] || "✨"}</span>`
-                : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
+              : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
       ${i.stock > 1 ? `<span class="card-stock">×${i.stock} in stock</span>` : ""}
     </div>
     <div class="card-body">
