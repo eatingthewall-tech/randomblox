@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260708c";                       // bump when item art changes
+const IMG_V = "20260708b";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -34,9 +34,9 @@ function load(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 
-/* ---------- featured shelf: priciest items across both games ---------- */
+/* ---------- featured shelf: priciest MM2/AM grails (NFL & Baddies keep their own tabs) ---------- */
 (function featured() {
-  const top = [...CATALOG].sort((a, b) => b.price - a.price).slice(0, 8);
+  const top = [...CATALOG].filter(i => i.game === "mm2" || i.game === "am").sort((a, b) => b.price - a.price).slice(0, 8);
   $("#featuredRow").innerHTML = top.map(cardHTML).join("");
   bindBuyButtons($("#featuredRow"));
 })();
@@ -45,7 +45,7 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 (function heroCase() {
   const box = $("#heroCase");
   if (!box) return;
-  const top = [...CATALOG].sort((a, b) => b.price - a.price).slice(0, 2);
+  const top = [...CATALOG].filter(i => i.game === "mm2" || i.game === "am").sort((a, b) => b.price - a.price).slice(0, 2);
   box.innerHTML = top.map(i => {
     const pill = PILL[i.rarity] || "common";
     const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/"));
