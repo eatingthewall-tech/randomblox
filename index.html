@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260708f">
+<link rel="stylesheet" href="css/styles.css?v=20260710b">
 </head>
 <body>
 
@@ -41,6 +41,10 @@
     </div>
   </div>
 </header>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
 
 <section class="hero">
   <div class="hero-bg" aria-hidden="true">
@@ -82,7 +86,9 @@
 
 <main class="shop" id="shop">
   <div class="shop-head">
+    <span class="shop-ghost" id="shopGhost" aria-hidden="true">MM2</span>
     <h2 id="shopTitle">Murder Mystery 2</h2>
+    <span class="shop-accent" aria-hidden="true"></span>
   </div>
 
   <div class="browsebar" id="browsebar">
@@ -166,6 +172,7 @@
 </section>
 
 <footer class="footer">
+  <p class="footer-word" aria-hidden="true">RANDOMBLOX</p>
   <div class="footer-in">
     <div class="footer-brand">
       <span class="logo-mark" aria-hidden="true">
@@ -256,7 +263,7 @@
   </div>
 </div>
 
-<script src="js/catalog.js?v=20260708f"></script>
-<script src="js/app.js?v=20260708f"></script>
+<script src="js/catalog.js?v=20260710b"></script>
+<script src="js/app.js?v=20260710b"></script>
 </body>
 </html>

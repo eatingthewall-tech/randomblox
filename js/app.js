@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260708e";                       // bump when item art changes
+const IMG_V = "20260710b";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -24,6 +24,8 @@ const CATS = {
   baddies: [["all", "Everything"], ["knuckles", "Brass Knuckles"], ["taser", "Tasers"], ["pan", "Frying Pans"], ["purse", "Purses"], ["board", "Hoverboards"], ["mace", "Maces & Whips"], ["rpg", "RPGs"], ["bat", "Spiked Bats"], ["flamethrower", "Flamethrowers"], ["finisher", "Finishers"], ["style", "Fighting Styles"], ["more", "More Skins"]],
 };
 const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies" };
+const GAME_GHOST = { mm2: "MM2", am: "ADOPT ME", nfl: "NFL UF", baddies: "BADDIES" };
+const MOTION_OK = matchMedia("(prefers-reduced-motion: no-preference)").matches;
 const BADDIE_GLYPH = { knuckles: "🥊", taser: "⚡", pan: "🍳", purse: "👛", board: "🛹", mace: "🔨", rpg: "🚀", toilet: "🚽", style: "🥋", more: "✨" };
 
 const state = {
@@ -61,6 +63,57 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
   }).join("");
 })();
 
+/* ---------- grail ticker: live-feel price strip across all four games ---------- */
+(function ticker() {
+  const t = $("#tickerTrack");
+  if (!t) return;
+  const picks = [];
+  ["mm2", "am", "nfl", "baddies"].forEach(g => {
+    picks.push(...CATALOG.filter(i => i.game === g).sort((a, b) => b.price - a.price).slice(0, 6));
+  });
+  const html = picks.map(i =>
+    `<span class="tk"><i class="tk-dot" data-g="${i.game}"></i>${i.name}<em>${money(i.price)}</em></span>`).join("");
+  t.innerHTML = html + html;   // duplicated for a seamless loop
+})();
+
+/* ---------- holo tilt on product cards (fine pointers only) ---------- */
+if (matchMedia("(pointer: fine)").matches && MOTION_OK) {
+  document.addEventListener("pointermove", e => {
+    const card = e.target.closest(".card");
+    document.querySelectorAll(".card.is-tilt").forEach(c => {
+      if (c !== card) { c.classList.remove("is-tilt"); c.style.removeProperty("--rx"); c.style.removeProperty("--ry"); }
+    });
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    card.classList.add("is-tilt");
+    card.style.setProperty("--rx", ((0.5 - py) * 7).toFixed(2) + "deg");
+    card.style.setProperty("--ry", ((px - 0.5) * 9).toFixed(2) + "deg");
+    card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+    card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+  }, { passive: true });
+}
+
+/* ---------- fly-to-cart ---------- */
+function flyToCart(fromBtn) {
+  if (!MOTION_OK || !fromBtn) return;
+  const img = fromBtn.closest(".card")?.querySelector(".card-art img");
+  const target = innerWidth <= 900 ? $('.botnav-item[data-bot="cart"]') : $("#cartBtn");
+  if (!img || !target) return;
+  const a = img.getBoundingClientRect(), b = target.getBoundingClientRect();
+  const ghost = img.cloneNode();
+  Object.assign(ghost.style, {
+    position: "fixed", left: a.left + "px", top: a.top + "px",
+    width: a.width + "px", height: a.height + "px",
+    borderRadius: "12px", zIndex: 90, pointerEvents: "none", objectFit: "cover",
+  });
+  document.body.appendChild(ghost);
+  ghost.animate([
+    { transform: "translate(0,0) scale(1)", opacity: 1 },
+    { transform: `translate(${b.left + b.width / 2 - a.left - a.width / 2}px, ${b.top + b.height / 2 - a.top - a.height / 2}px) scale(0.08)`, opacity: 0.4 },
+  ], { duration: 550, easing: "cubic-bezier(.2,.8,.2,1)" }).onfinish = () => ghost.remove();
+}
+
 /* ---------- sticky offsets (header + browse bar) ---------- */
 function setStickyVars() {
   const root = document.documentElement;
@@ -89,6 +142,9 @@ function setGame(g) {
     if (["mm2", "am", "nfl", "baddies"].includes(b.dataset.bot)) b.classList.toggle("is-on", b.dataset.bot === g);
   });
   $("#shopTitle").textContent = GAME_LABEL[g];
+  document.body.dataset.game = g;
+  const ghost = $("#shopGhost");
+  if (ghost) ghost.textContent = GAME_GHOST[g] || "";
   syncInStockUI();
   buildCatTabs();
   buildRarityChips();
@@ -229,7 +285,7 @@ function cardHTML(i) {
 }
 
 function bindBuyButtons(root) {
-  $$("[data-add]", root).forEach(b => b.addEventListener("click", () => addToCart(b.dataset.add)));
+  $$("[data-add]", root).forEach(b => b.addEventListener("click", () => addToCart(b.dataset.add, b)));
 }
 
 /* ---------- render ---------- */
@@ -331,12 +387,13 @@ const entries = () => Object.entries(state.cart).filter(([, q]) => q > 0);
 const cartTotal = () => entries().reduce((n, [id, q]) => n + byId[id].price * q, 0);
 const cartCount = () => entries().reduce((n, [, q]) => n + q, 0);
 
-function addToCart(id) {
+function addToCart(id, btn) {
   const item = byId[id];
   const q = state.cart[id] || 0;
   if (q >= item.stock) return;
   state.cart[id] = q + 1;
   save("rbx-cart", state.cart);
+  flyToCart(btn);
   syncCount();
   render();
 }
@@ -526,6 +583,9 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- boot ---------- */
+document.body.dataset.game = state.game;
+const bootGhost = $("#shopGhost");
+if (bootGhost) bootGhost.textContent = GAME_GHOST[state.game];
 buildCatTabs();
 buildRarityChips();
 syncCount();
