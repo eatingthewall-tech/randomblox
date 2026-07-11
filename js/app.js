@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260710b";                       // bump when item art changes
+const IMG_V = "20260710c";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -61,19 +61,6 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
       </div>
     </div>`;
   }).join("");
-})();
-
-/* ---------- grail ticker: live-feel price strip across all four games ---------- */
-(function ticker() {
-  const t = $("#tickerTrack");
-  if (!t) return;
-  const picks = [];
-  ["mm2", "am", "nfl", "baddies"].forEach(g => {
-    picks.push(...CATALOG.filter(i => i.game === g).sort((a, b) => b.price - a.price).slice(0, 6));
-  });
-  const html = picks.map(i =>
-    `<span class="tk"><i class="tk-dot" data-g="${i.game}"></i>${i.name}<em>${money(i.price)}</em></span>`).join("");
-  t.innerHTML = html + html;   // duplicated for a seamless loop
 })();
 
 /* ---------- holo tilt on product cards (fine pointers only) ---------- */
@@ -149,6 +136,12 @@ function setGame(g) {
   buildCatTabs();
   buildRarityChips();
   render();
+  // animate individual cards, never #grid itself — the full grid is >20k px
+  // tall and promoting it to a compositor layer blanks the renderer
+  if (MOTION_OK) [...$("#grid").children].slice(0, 18).forEach((c, i) =>
+    c.animate(
+      [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "translateY(0)" }],
+      { duration: 260, delay: i * 22, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" }));
 }
 $$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(); }));
 $$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(); }));
