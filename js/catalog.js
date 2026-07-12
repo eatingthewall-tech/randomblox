@@ -5106,7 +5106,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 9.74,
+   "price": 3.99,
    "img": "assets/baddies/bd-ashen-wrath.png",
    "stock": 1,
    "badge": ""
@@ -5118,7 +5118,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.72,
+   "price": 3.49,
    "img": "assets/baddies/bd-bat-spray.png",
    "stock": 1,
    "badge": ""
@@ -5130,7 +5130,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Legend",
    "variant": "base",
-   "price": 26.68,
+   "price": 12.99,
    "img": "assets/baddies/bd-golden-snowball-launcher.png",
    "stock": 1,
    "badge": ""
@@ -5142,7 +5142,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 38.11,
+   "price": 20,
    "img": "assets/baddies/bd-kitty-purse.png",
    "stock": 1,
    "badge": ""
@@ -5154,7 +5154,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Legend",
    "variant": "base",
-   "price": 80.0,
+   "price": 40,
    "img": "assets/baddies/bd-loveboard.png",
    "stock": 1,
    "badge": ""
@@ -5166,7 +5166,7 @@ const CATALOG = [
    "kind": "mace",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.77,
+   "price": 3.49,
    "img": "assets/baddies/bd-moo-mace.png",
    "stock": 1,
    "badge": ""
@@ -5178,7 +5178,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.72,
+   "price": 3.49,
    "img": "assets/baddies/bd-grunge-trash-bag.png",
    "stock": 1,
    "badge": ""
@@ -5190,7 +5190,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Legend",
    "variant": "base",
-   "price": 16.18,
+   "price": 7.99,
    "img": "assets/baddies/bd-snowball-launcher.png",
    "stock": 1,
    "badge": ""
@@ -5202,7 +5202,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 20.34,
+   "price": 9.99,
    "img": "assets/baddies/bd-spiked-purse.png",
    "stock": 1,
    "badge": ""
@@ -5214,7 +5214,7 @@ const CATALOG = [
    "kind": "flamethrower",
    "rarity": "Legend",
    "variant": "base",
-   "price": 9.21,
+   "price": 3.99,
    "img": "assets/baddies/bd-solar-flare-flamethrower.png",
    "stock": 1,
    "badge": ""
@@ -5226,7 +5226,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 10.65,
+   "price": 4.49,
    "img": "assets/baddies/bd-pink-rebel-brass-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5238,7 +5238,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-reality-glitch-finisher.png",
    "stock": 1,
    "badge": ""
@@ -5250,7 +5250,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 26.68,
+   "price": 12.99,
    "img": "assets/baddies/bd-breakdance-finisher.png",
    "stock": 1,
    "badge": ""
@@ -5262,7 +5262,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 30.66,
+   "price": 14.99,
    "img": "assets/baddies/bd-cheerleader-finisher.png",
    "stock": 1,
    "badge": ""
@@ -5274,7 +5274,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.8,
+   "price": 3.49,
    "img": "assets/baddies/bd-egg-zecution-finisher.png",
    "stock": 1,
    "badge": ""
@@ -5286,7 +5286,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-midnight-stomp.png",
    "stock": 1,
    "badge": ""
@@ -5298,7 +5298,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.06,
+   "price": 4.49,
    "img": "assets/baddies/bd-tag-team-finisher.png",
    "stock": 1,
    "badge": ""
@@ -5310,7 +5310,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 10.52,
+   "price": 4.49,
    "img": "assets/baddies/bd-rainbow-finisher.png",
    "stock": 1,
    "badge": ""
@@ -5322,7 +5322,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.6,
+   "price": 2.49,
    "img": "assets/baddies/bd-golden-dragon-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5334,7 +5334,7 @@ const CATALOG = [
    "kind": "style",
    "rarity": "Legend",
    "variant": "base",
-   "price": 12.88,
+   "price": 4.99,
    "img": "assets/baddies/bd-boxing-style.png",
    "stock": 1,
    "badge": ""
@@ -5346,7 +5346,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Epic",
    "variant": "base",
-   "price": 11.19,
+   "price": 4.49,
    "img": "assets/baddies/bd-bubblegum-bat.png",
    "stock": 1,
    "badge": ""
@@ -5358,7 +5358,7 @@ const CATALOG = [
    "kind": "style",
    "rarity": "Legend",
    "variant": "base",
-   "price": 38.11,
+   "price": 20,
    "img": "assets/baddies/bd-glitter-style.png",
    "stock": 1,
    "badge": ""
@@ -5370,7 +5370,7 @@ const CATALOG = [
    "kind": "style",
    "rarity": "Legend",
    "variant": "base",
-   "price": 14.68,
+   "price": 5.99,
    "img": "assets/baddies/bd-kickboxing-style.png",
    "stock": 1,
    "badge": ""
@@ -5382,7 +5382,7 @@ const CATALOG = [
    "kind": "style",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.79,
+   "price": 4.99,
    "img": "assets/baddies/bd-mma-fighting-style.png",
    "stock": 1,
    "badge": ""
@@ -5394,7 +5394,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 13.56,
+   "price": 5.99,
    "img": "assets/baddies/bd-venom-bunny-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5406,7 +5406,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.17,
+   "price": 3.49,
    "img": "assets/baddies/bd-candy-pop-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5418,7 +5418,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.54,
+   "price": 2.49,
    "img": "assets/baddies/bd-cozy-patchwork-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5430,7 +5430,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.67,
+   "price": 3.49,
    "img": "assets/baddies/bd-crystal-shard-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5442,7 +5442,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Rare",
    "variant": "base",
-   "price": 9.39,
+   "price": 3.99,
    "img": "assets/baddies/bd-slime-brass-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5454,7 +5454,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.8,
+   "price": 3.49,
    "img": "assets/baddies/bd-celestial-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5466,7 +5466,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.27,
+   "price": 2.49,
    "img": "assets/baddies/bd-cyber-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5478,7 +5478,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.47,
+   "price": 2.49,
    "img": "assets/baddies/bd-festive-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5490,7 +5490,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.79,
+   "price": 4.99,
    "img": "assets/baddies/bd-mummy-wrapped-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5502,7 +5502,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Legend",
    "variant": "base",
-   "price": 10.52,
+   "price": 4.49,
    "img": "assets/baddies/bd-rainbow-unicorn-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5514,7 +5514,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Legend",
    "variant": "base",
-   "price": 12.88,
+   "price": 4.99,
    "img": "assets/baddies/bd-samurai-knuckles.png",
    "stock": 1,
    "badge": ""
@@ -5526,7 +5526,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.48,
+   "price": 2.49,
    "img": "assets/baddies/bd-sharp-claw.png",
    "stock": 1,
    "badge": ""
@@ -5538,7 +5538,7 @@ const CATALOG = [
    "kind": "taser",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.67,
+   "price": 3.49,
    "img": "assets/baddies/bd-hexbite-taser.png",
    "stock": 1,
    "badge": ""
@@ -5550,7 +5550,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.66,
+   "price": 2.49,
    "img": "assets/baddies/bd-kitten-chaos-board.png",
    "stock": 1,
    "badge": ""
@@ -5562,7 +5562,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 9.91,
+   "price": 3.99,
    "img": "assets/baddies/bd-bubble-gum-blaster.png",
    "stock": 1,
    "badge": ""
@@ -5574,7 +5574,7 @@ const CATALOG = [
    "kind": "taser",
    "rarity": "Legend",
    "variant": "base",
-   "price": 7.83,
+   "price": 2.49,
    "img": "assets/baddies/bd-candy-cane-taser.png",
    "stock": 1,
    "badge": ""
@@ -5586,7 +5586,7 @@ const CATALOG = [
    "kind": "taser",
    "rarity": "Epic",
    "variant": "base",
-   "price": 10.8,
+   "price": 4.49,
    "img": "assets/baddies/bd-cybernetic-taser.png",
    "stock": 1,
    "badge": ""
@@ -5598,7 +5598,7 @@ const CATALOG = [
    "kind": "taser",
    "rarity": "Legend",
    "variant": "base",
-   "price": 7.54,
+   "price": 2.49,
    "img": "assets/baddies/bd-rudolphs-shock-taser.png",
    "stock": 1,
    "badge": ""
@@ -5610,7 +5610,7 @@ const CATALOG = [
    "kind": "pan",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.34,
+   "price": 2.49,
    "img": "assets/baddies/bd-bad-bunny-frying-pan.png",
    "stock": 1,
    "badge": ""
@@ -5622,7 +5622,7 @@ const CATALOG = [
    "kind": "pan",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.07,
+   "price": 1.99,
    "img": "assets/baddies/bd-candy-pop-frying-pan.png",
    "stock": 1,
    "badge": ""
@@ -5634,7 +5634,7 @@ const CATALOG = [
    "kind": "pan",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.0,
+   "price": 3.49,
    "img": "assets/baddies/bd-cornucopia-keeper-pan.png",
    "stock": 1,
    "badge": ""
@@ -5646,7 +5646,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.78,
+   "price": 2.49,
    "img": "assets/baddies/bd-fairy-wand-mop.png",
    "stock": 1,
    "badge": ""
@@ -5658,7 +5658,7 @@ const CATALOG = [
    "kind": "pan",
    "rarity": "Legend",
    "variant": "base",
-   "price": 6.07,
+   "price": 1.99,
    "img": "assets/baddies/bd-frostbite-pan.png",
    "stock": 1,
    "badge": ""
@@ -5670,7 +5670,7 @@ const CATALOG = [
    "kind": "pan",
    "rarity": "Epic",
    "variant": "base",
-   "price": 5.11,
+   "price": 1.99,
    "img": "assets/baddies/bd-gleaming-galaxy-pan.png",
    "stock": 1,
    "badge": ""
@@ -5682,7 +5682,7 @@ const CATALOG = [
    "kind": "pan",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.31,
+   "price": 3.49,
    "img": "assets/baddies/bd-glittering-dreamscape-pan.png",
    "stock": 1,
    "badge": ""
@@ -5694,7 +5694,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.2,
+   "price": 2.49,
    "img": "assets/baddies/bd-easter-egg-basket-purse.png",
    "stock": 1,
    "badge": ""
@@ -5706,7 +5706,7 @@ const CATALOG = [
    "kind": "knuckles",
    "rarity": "Epic",
    "variant": "base",
-   "price": 5.67,
+   "price": 1.99,
    "img": "assets/baddies/bd-hot-and-cold-nails.png",
    "stock": 1,
    "badge": ""
@@ -5718,7 +5718,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 10.52,
+   "price": 4.49,
    "img": "assets/baddies/bd-beatbox-purse.png",
    "stock": 1,
    "badge": ""
@@ -5730,7 +5730,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.72,
+   "price": 2.49,
    "img": "assets/baddies/bd-clover-rainbow-purse.png",
    "stock": 1,
    "badge": ""
@@ -5742,7 +5742,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.19,
+   "price": 4.49,
    "img": "assets/baddies/bd-mrs-clauss-purse.png",
    "stock": 1,
    "badge": ""
@@ -5754,7 +5754,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.46,
+   "price": 3.49,
    "img": "assets/baddies/bd-royal-empress-purse.png",
    "stock": 1,
    "badge": ""
@@ -5766,7 +5766,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 13.82,
+   "price": 5.99,
    "img": "assets/baddies/bd-shopping-bag.png",
    "stock": 1,
    "badge": ""
@@ -5778,7 +5778,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.87,
+   "price": 2.49,
    "img": "assets/baddies/bd-starry-elegance-purse.png",
    "stock": 1,
    "badge": ""
@@ -5790,7 +5790,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Legend",
    "variant": "base",
-   "price": 7.94,
+   "price": 2.99,
    "img": "assets/baddies/bd-summer-purse.png",
    "stock": 1,
    "badge": ""
@@ -5802,7 +5802,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.41,
+   "price": 3.49,
    "img": "assets/baddies/bd-stardust-sparkle-purse.png",
    "stock": 1,
    "badge": ""
@@ -5814,7 +5814,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.72,
+   "price": 3.49,
    "img": "assets/baddies/bd-treasure-chest-purse.png",
    "stock": 1,
    "badge": ""
@@ -5826,7 +5826,7 @@ const CATALOG = [
    "kind": "purse",
    "rarity": "Epic",
    "variant": "base",
-   "price": 26.68,
+   "price": 12.99,
    "img": "assets/baddies/bd-unicorn-sparkle-bag.png",
    "stock": 1,
    "badge": ""
@@ -5838,7 +5838,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.36,
+   "price": 1.99,
    "img": "assets/baddies/bd-aurora-drift.png",
    "stock": 1,
    "badge": ""
@@ -5850,7 +5850,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.54,
+   "price": 2.49,
    "img": "assets/baddies/bd-spectral-death-fish.png",
    "stock": 1,
    "badge": ""
@@ -5862,7 +5862,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Epic",
    "variant": "base",
-   "price": 18.7,
+   "price": 8.99,
    "img": "assets/baddies/bd-plushy-hoverboard.png",
    "stock": 1,
    "badge": ""
@@ -5874,7 +5874,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-bubblegum-hoverboard.png",
    "stock": 1,
    "badge": ""
@@ -5886,7 +5886,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.77,
+   "price": 3.49,
    "img": "assets/baddies/bd-denim-board.png",
    "stock": 1,
    "badge": ""
@@ -5898,7 +5898,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.66,
+   "price": 2.49,
    "img": "assets/baddies/bd-frostbound-sleigh-board.png",
    "stock": 1,
    "badge": ""
@@ -5910,7 +5910,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-frozen-mirage-board.png",
    "stock": 1,
    "badge": ""
@@ -5922,7 +5922,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.6,
+   "price": 2.49,
    "img": "assets/baddies/bd-galactic-pulse-hoverboard.png",
    "stock": 1,
    "badge": ""
@@ -5934,7 +5934,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.66,
+   "price": 2.49,
    "img": "assets/baddies/bd-galaxy-board.png",
    "stock": 1,
    "badge": ""
@@ -5946,7 +5946,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.25,
+   "price": 3.49,
    "img": "assets/baddies/bd-spring-glide-hoverboard.png",
    "stock": 1,
    "badge": ""
@@ -5958,7 +5958,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Rare",
    "variant": "base",
-   "price": 6.58,
+   "price": 2.49,
    "img": "assets/baddies/bd-stellar-glider-board.png",
    "stock": 1,
    "badge": ""
@@ -5970,7 +5970,7 @@ const CATALOG = [
    "kind": "board",
    "rarity": "Basic",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-sweet-board.png",
    "stock": 1,
    "badge": ""
@@ -5982,7 +5982,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 5.11,
+   "price": 1.99,
    "img": "assets/baddies/bd-celestial-dog-leash.png",
    "stock": 1,
    "badge": ""
@@ -5994,7 +5994,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.5,
+   "price": 3.49,
    "img": "assets/baddies/bd-christmas-light-dog-leash.png",
    "stock": 1,
    "badge": ""
@@ -6006,7 +6006,7 @@ const CATALOG = [
    "kind": "mace",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.12,
+   "price": 3.49,
    "img": "assets/baddies/bd-enchanted-dark-mace.png",
    "stock": 1,
    "badge": ""
@@ -6018,7 +6018,7 @@ const CATALOG = [
    "kind": "mace",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.72,
+   "price": 2.49,
    "img": "assets/baddies/bd-flaming-skull-mace.png",
    "stock": 1,
    "badge": ""
@@ -6030,7 +6030,7 @@ const CATALOG = [
    "kind": "mace",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.58,
+   "price": 2.49,
    "img": "assets/baddies/bd-ribbon-whip.png",
    "stock": 1,
    "badge": ""
@@ -6042,7 +6042,7 @@ const CATALOG = [
    "kind": "mace",
    "rarity": "Epic",
    "variant": "base",
-   "price": 10.52,
+   "price": 4.49,
    "img": "assets/baddies/bd-royal-cat-mace.png",
    "stock": 1,
    "badge": ""
@@ -6054,7 +6054,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.67,
+   "price": 3.49,
    "img": "assets/baddies/bd-abyssal-ocean-stop-sign.png",
    "stock": 1,
    "badge": ""
@@ -6066,7 +6066,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.6,
+   "price": 3.49,
    "img": "assets/baddies/bd-autumn-arsenal-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6078,7 +6078,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.77,
+   "price": 3.49,
    "img": "assets/baddies/bd-cybernetic-overlord-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6090,7 +6090,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.2,
+   "price": 2.49,
    "img": "assets/baddies/bd-desert-warrior-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6102,7 +6102,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Legend",
    "variant": "base",
-   "price": 22.7,
+   "price": 10.99,
    "img": "assets/baddies/bd-eclipse-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6114,7 +6114,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Rare",
    "variant": "base",
-   "price": 6.78,
+   "price": 2.49,
    "img": "assets/baddies/bd-nutcracker-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6126,7 +6126,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Legend",
    "variant": "base",
-   "price": 17.5,
+   "price": 8.99,
    "img": "assets/baddies/bd-ghost-missile-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6138,7 +6138,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.83,
+   "price": 2.49,
    "img": "assets/baddies/bd-pirate-wheel-stop-sign.png",
    "stock": 1,
    "badge": ""
@@ -6150,7 +6150,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Epic",
    "variant": "base",
-   "price": 9.21,
+   "price": 3.99,
    "img": "assets/baddies/bd-bunny-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6162,7 +6162,7 @@ const CATALOG = [
    "kind": "rpg",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.46,
+   "price": 3.49,
    "img": "assets/baddies/bd-candycane-rpg.png",
    "stock": 1,
    "badge": ""
@@ -6174,7 +6174,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Legend",
    "variant": "base",
-   "price": 6.96,
+   "price": 2.49,
    "img": "assets/baddies/bd-gobble-throne-toilet.png",
    "stock": 1,
    "badge": ""
@@ -6186,7 +6186,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-prosperity-throne-toilet.png",
    "stock": 1,
    "badge": ""
@@ -6198,7 +6198,7 @@ const CATALOG = [
    "kind": "flamethrower",
    "rarity": "Legend",
    "variant": "base",
-   "price": 13.38,
+   "price": 5.99,
    "img": "assets/baddies/bd-celestial-flamethrower.png",
    "stock": 1,
    "badge": ""
@@ -6210,7 +6210,7 @@ const CATALOG = [
    "kind": "flamethrower",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.72,
+   "price": 3.49,
    "img": "assets/baddies/bd-golden-dragon-flamethrower.png",
    "stock": 1,
    "badge": ""
@@ -6222,7 +6222,7 @@ const CATALOG = [
    "kind": "flamethrower",
    "rarity": "Epic",
    "variant": "base",
-   "price": 12.03,
+   "price": 4.99,
    "img": "assets/baddies/bd-gothic-flamethrower.png",
    "stock": 1,
    "badge": ""
@@ -6234,7 +6234,7 @@ const CATALOG = [
    "kind": "flamethrower",
    "rarity": "Epic",
    "variant": "base",
-   "price": 13.38,
+   "price": 5.99,
    "img": "assets/baddies/bd-candy-flamethrower.png",
    "stock": 1,
    "badge": ""
@@ -6246,7 +6246,7 @@ const CATALOG = [
    "kind": "flamethrower",
    "rarity": "Epic",
    "variant": "base",
-   "price": 5.11,
+   "price": 1.99,
    "img": "assets/baddies/bd-super-hot-flamethrower.png",
    "stock": 1,
    "badge": ""
@@ -6258,7 +6258,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Epic",
    "variant": "base",
-   "price": 16.87,
+   "price": 7.99,
    "img": "assets/baddies/bd-mythical-magic-stomp.png",
    "stock": 1,
    "badge": ""
@@ -6270,7 +6270,7 @@ const CATALOG = [
    "kind": "finisher",
    "rarity": "Legend",
    "variant": "base",
-   "price": 22.7,
+   "price": 10.99,
    "img": "assets/baddies/bd-gothic-stomp.png",
    "stock": 1,
    "badge": ""
@@ -6282,7 +6282,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.34,
+   "price": 2.49,
    "img": "assets/baddies/bd-dumpster-whiskers-bag.png",
    "stock": 1,
    "badge": ""
@@ -6294,7 +6294,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.72,
+   "price": 2.49,
    "img": "assets/baddies/bd-endless-void-trash-bag.png",
    "stock": 1,
    "badge": ""
@@ -6306,7 +6306,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.47,
+   "price": 2.49,
    "img": "assets/baddies/bd-mini-fridge-bag.png",
    "stock": 1,
    "badge": ""
@@ -6318,7 +6318,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Basic",
    "variant": "base",
-   "price": 8.77,
+   "price": 3.49,
    "img": "assets/baddies/bd-fruit-trash-bag.png",
    "stock": 1,
    "badge": ""
@@ -6330,7 +6330,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Basic",
    "variant": "base",
-   "price": 8.05,
+   "price": 3.49,
    "img": "assets/baddies/bd-slay-trash-bag.png",
    "stock": 1,
    "badge": ""
@@ -6342,7 +6342,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Basic",
    "variant": "base",
-   "price": 6.87,
+   "price": 2.49,
    "img": "assets/baddies/bd-sleek-trash-bag.png",
    "stock": 1,
    "badge": ""
@@ -6354,7 +6354,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.17,
+   "price": 3.49,
    "img": "assets/baddies/bd-velvet-nightfall.png",
    "stock": 1,
    "badge": ""
@@ -6366,7 +6366,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 6.58,
+   "price": 2.49,
    "img": "assets/baddies/bd-cute-rabbit-stanli.png",
    "stock": 1,
    "badge": ""
@@ -6378,7 +6378,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 9.74,
+   "price": 3.99,
    "img": "assets/baddies/bd-berry-sweet-stanli.png",
    "stock": 1,
    "badge": ""
@@ -6390,7 +6390,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 9.56,
+   "price": 3.99,
    "img": "assets/baddies/bd-celestial-stanli-cup.png",
    "stock": 1,
    "badge": ""
@@ -6402,7 +6402,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 5.9,
+   "price": 1.99,
    "img": "assets/baddies/bd-iron-pipe.png",
    "stock": 1,
    "badge": ""
@@ -6414,7 +6414,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 6.87,
+   "price": 2.49,
    "img": "assets/baddies/bd-money-wrapped-pipe.png",
    "stock": 1,
    "badge": ""
@@ -6426,7 +6426,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.2,
+   "price": 3.49,
    "img": "assets/baddies/bd-northernbells-bat-pipe.png",
    "stock": 1,
    "badge": ""
@@ -6438,7 +6438,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.77,
+   "price": 3.49,
    "img": "assets/baddies/bd-aurora-pepper-spray.png",
    "stock": 1,
    "badge": ""
@@ -6450,7 +6450,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Legend",
    "variant": "base",
-   "price": 10.8,
+   "price": 4.49,
    "img": "assets/baddies/bd-neon-night-spray.png",
    "stock": 1,
    "badge": ""
@@ -6462,7 +6462,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.72,
+   "price": 2.49,
    "img": "assets/baddies/bd-chili-pepper-spray.png",
    "stock": 1,
    "badge": ""
@@ -6474,7 +6474,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 8.31,
+   "price": 3.49,
    "img": "assets/baddies/bd-perfume-bottle-spray.png",
    "stock": 1,
    "badge": ""
@@ -6486,7 +6486,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.17,
+   "price": 3.49,
    "img": "assets/baddies/bd-poison-ivy-spray.png",
    "stock": 1,
    "badge": ""
@@ -6498,7 +6498,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.79,
+   "price": 4.99,
    "img": "assets/baddies/bd-giftbreaker-sledge-hammer.png",
    "stock": 1,
    "badge": ""
@@ -6510,7 +6510,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.32,
+   "price": 4.99,
    "img": "assets/baddies/bd-st-patricks-sledgehammer.png",
    "stock": 1,
    "badge": ""
@@ -6522,7 +6522,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.94,
+   "price": 2.99,
    "img": "assets/baddies/bd-bunny-bounce.png",
    "stock": 1,
    "badge": ""
@@ -6534,7 +6534,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.78,
+   "price": 2.49,
    "img": "assets/baddies/bd-north-pole-crusher.png",
    "stock": 1,
    "badge": ""
@@ -6546,7 +6546,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Epic",
    "variant": "base",
-   "price": 7.72,
+   "price": 2.49,
    "img": "assets/baddies/bd-cosmic-clock-spiked-bat.png",
    "stock": 1,
    "badge": ""
@@ -6558,7 +6558,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Legend",
    "variant": "base",
-   "price": 11.56,
+   "price": 4.99,
    "img": "assets/baddies/bd-cozy-patchwork-bat.png",
    "stock": 1,
    "badge": ""
@@ -6570,7 +6570,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Legend",
    "variant": "base",
-   "price": 9.56,
+   "price": 3.99,
    "img": "assets/baddies/bd-crystal-bat.png",
    "stock": 1,
    "badge": ""
@@ -6582,7 +6582,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.8,
+   "price": 3.49,
    "img": "assets/baddies/bd-dawn-crusher-bat.png",
    "stock": 1,
    "badge": ""
@@ -6594,7 +6594,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.36,
+   "price": 3.49,
    "img": "assets/baddies/bd-infernal-demon-bat.png",
    "stock": 1,
    "badge": ""
@@ -6606,7 +6606,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Epic",
    "variant": "base",
-   "price": 6.36,
+   "price": 1.99,
    "img": "assets/baddies/bd-jungle-predator-bat.png",
    "stock": 1,
    "badge": ""
@@ -6618,7 +6618,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Legend",
    "variant": "base",
-   "price": 8.8,
+   "price": 3.49,
    "img": "assets/baddies/bd-katana-bat.png",
    "stock": 1,
    "badge": ""
@@ -6630,7 +6630,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Legend",
    "variant": "base",
-   "price": 18.7,
+   "price": 8.99,
    "img": "assets/baddies/bd-melody-spiked-bat.png",
    "stock": 1,
    "badge": ""
@@ -6642,7 +6642,7 @@ const CATALOG = [
    "kind": "bat",
    "rarity": "Epic",
    "variant": "base",
-   "price": 8.8,
+   "price": 3.49,
    "img": "assets/baddies/bd-pastel-skull-spiked-bat.png",
    "stock": 1,
    "badge": ""
@@ -6654,7 +6654,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 7.11,
+   "price": 2.49,
    "img": "assets/baddies/bd-mystic-sweep-mop.png",
    "stock": 1,
    "badge": ""
@@ -6666,7 +6666,7 @@ const CATALOG = [
    "kind": "more",
    "rarity": "Rare",
    "variant": "base",
-   "price": 5.67,
+   "price": 1.99,
    "img": "assets/baddies/bd-savage-mop.png",
    "stock": 1,
    "badge": ""

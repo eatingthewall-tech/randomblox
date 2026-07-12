@@ -111,7 +111,7 @@ button { font-family: inherit; }
 }
 
 /* anchor jumps land clear of the floating nav */
-#shop, #how, #faq, #featured, #games { scroll-margin-top: calc(var(--hdr, 72px) + 14px); }
+#shop, #how, #policies, #featured, #games { scroll-margin-top: calc(var(--hdr, 72px) + 14px); }
 
 /* prices always read as figures */
 .card-price, .total-row b, .co-price, .cart-row-price { font-variant-numeric: tabular-nums; }
@@ -964,4 +964,35 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
   .featured-row { grid-auto-columns: 174px; }
   .shop-head { padding-top: 18px; }
   .shop-ghost { top: -6px; }
+}
+
+/* ============================================================
+   v5.1 — CHANCEBLOX brand
+   ============================================================ */
+
+/* the mark is a die: tilt it like it's mid-roll */
+.logo-mark svg { transform: rotate(-9deg); }
+.logo:hover .logo-mark svg, .footer-brand .logo-mark svg { transition: transform .4s var(--ease-out); }
+.logo:hover .logo-mark svg { transform: rotate(9deg); }
+
+/* hero poster wordmark: outlined CHANCE over molten BLOX */
+.hero-copy h1.brand-h1 {
+  font-size: clamp(3rem, 8vw, 6.2rem);
+  line-height: .96; letter-spacing: .01em;
+  margin-bottom: 24px;
+}
+.brand-h1 .bh-a, .brand-h1 .bh-b { display: block; }
+.brand-h1 .bh-a {
+  color: transparent;
+  -webkit-text-stroke: 2px rgb(255 255 255 / .82);
+}
+.brand-h1 .bh-b {
+  color: transparent;
+  background: linear-gradient(98deg, var(--brand-up) 8%, oklch(0.8 0.15 320) 52%, var(--gold) 104%);
+  -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 30px oklch(0.635 0.235 295 / .5));
+}
+@media (max-width: 560px) {
+  .hero-copy h1.brand-h1 { font-size: clamp(2.5rem, 15vw, 3.4rem); }
+  .brand-h1 .bh-a { -webkit-text-stroke-width: 1.5px; }
 }
