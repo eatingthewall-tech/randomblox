@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260712c";                       // bump when item art changes
+const IMG_V = "20260712d";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -73,21 +73,20 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
   }
 })();
 
-/* ---------- pick-your-game band: four lit doorways into the vault ---------- */
+/* ---------- pick-your-game: the official game covers, full bleed ---------- */
 (function gameBand() {
   const box = $("#gameBand");
   if (!box) return;
   box.innerHTML = ["mm2", "am", "nfl", "baddies"].map(g => {
-    const items = CATALOG.filter(i => i.game === g);
-    const star = [...items].filter(i => i.img).sort((a, b) => b.price - a.price)[0];
-    const crop = star.img.startsWith("assets/items/") || star.img.startsWith("assets/nfl/") || star.img.startsWith("assets/baddies/");
+    const n = CATALOG.filter(i => i.game === g).length;
     return `<button class="gcard" data-jump="${g}" style="--ga:var(--g-${g})">
-      <span class="gcard-art" aria-hidden="true"><img class="${crop ? "is-crop" : ""}" src="${imgSrc(star.img)}" alt="" loading="lazy" decoding="async"></span>
+      <img class="gcard-cover" src="${imgSrc(`assets/games/${g}-thumb.png`)}" alt="" loading="lazy" decoding="async">
+      <span class="gcard-scrim" aria-hidden="true"></span>
       <span class="gcard-meta">
         <b>${GAME_LABEL[g]}</b>
-        <span class="gcard-n">${items.length} items</span>
+        <span class="gcard-n">${n} items in stock</span>
       </span>
-      <span class="gcard-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="gcard-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </button>`;
   }).join("");
 })();
