@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260710c";                       // bump when item art changes
+const IMG_V = "20260712a";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -36,31 +36,60 @@ function load(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 
-/* ---------- featured shelf: priciest MM2/AM grails (NFL & Baddies keep their own tabs) ---------- */
+/* ---------- featured shelf: priciest MM2/AM grails (NFL & Baddies keep their own tabs) ----------
+   9 cards = one 2x2 grail + 8 singles, filling the 6-column bento exactly */
 (function featured() {
-  const top = [...CATALOG].filter(i => i.game === "mm2" || i.game === "am").sort((a, b) => b.price - a.price).slice(0, 8);
+  const top = [...CATALOG].filter(i => i.game === "mm2" || i.game === "am").sort((a, b) => b.price - a.price).slice(0, 9);
   $("#featuredRow").innerHTML = top.map(cardHTML).join("");
   bindBuyButtons($("#featuredRow"));
 })();
 
-/* ---------- hero case: the two priciest grails as a display case ---------- */
-(function heroCase() {
-  const box = $("#heroCase");
+/* ---------- hero: the collector wall (his real inventory, racked in 3D) ---------- */
+(function heroWall() {
+  const box = $("#heroWall");
   if (!box) return;
-  const top = [...CATALOG].filter(i => i.game === "mm2" || i.game === "am").sort((a, b) => b.price - a.price).slice(0, 2);
-  box.innerHTML = top.map(i => {
+  // 4 best-looking items per game, interleaved so every column mixes games
+  const perGame = ["mm2", "am", "nfl", "baddies"].map(g =>
+    [...CATALOG].filter(i => i.game === g && i.img).sort((a, b) => b.price - a.price).slice(0, 4));
+  const rows = innerWidth < 920 ? 2 : 4;   // mobile backdrop needs half the weight
+  const tiles = [];
+  for (let r = 0; r < rows; r++) for (let g = 0; g < 4; g++) tiles.push(perGame[(g + r) % 4][r]);
+  box.innerHTML = `<div class="wall-grid">` + tiles.map(i => {
     const pill = PILL[i.rarity] || "common";
-    const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/"));
-    return `<div class="grail" style="--rar:var(--pill-${pill}-ink)">
-      <div class="grail-stage">
-        ${i.img ? `<img class="${crop ? "is-crop" : ""}" src="${imgSrc(i.img)}" alt="">` : ""}
-      </div>
-      <div class="grail-meta">
-        <span class="grail-name">${i.name}</span>
-        <span class="grail-price">${money(i.price)}</span>
-      </div>
+    const crop = i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/");
+    return `<div class="wtile" style="--rar:var(--pill-${pill}-ink)">
+      <img class="${crop ? "is-crop" : ""}" src="${imgSrc(i.img)}" alt="" loading="eager" decoding="async">
     </div>`;
-  }).join("");
+  }).join("") + `</div>`;
+
+  // gentle parallax: the rack leans a few px toward the pointer
+  if (MOTION_OK && matchMedia("(pointer: fine)").matches) {
+    const grid = box.firstElementChild;
+    $(".hero").addEventListener("pointermove", e => {
+      const r = box.getBoundingClientRect();
+      grid.style.setProperty("--wx", (((e.clientX - r.left) / r.width - 0.5) * 14).toFixed(1) + "px");
+      grid.style.setProperty("--wy", (((e.clientY - r.top) / r.height - 0.5) * 10).toFixed(1) + "px");
+    }, { passive: true });
+  }
+})();
+
+/* ---------- scroll reveals: sections rise in as they enter ---------- */
+(function reveals() {
+  if (!MOTION_OK || !("IntersectionObserver" in window)) return;
+  document.body.classList.add("rv-on");
+  const mark = (sel, stagger = 0) => $$(sel).forEach((el, i) => {
+    el.classList.add("rv");
+    if (stagger) el.style.setProperty("--rvd", (i * stagger).toFixed(2) + "s");
+  });
+  mark(".facts-row li", 0.07);
+  mark(".section-head");
+  mark(".how h2"); mark(".how-steps li", 0.08);
+  mark(".faq h2"); mark(".faq-item", 0.06);
+  mark(".footer-in");
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: 0.18, rootMargin: "0px 0px -6% 0px" });
+  $$(".rv").forEach(el => io.observe(el));
 })();
 
 /* ---------- holo tilt on product cards (fine pointers only) ---------- */
@@ -145,6 +174,7 @@ function setGame(g) {
 }
 $$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(); }));
 $$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(); }));
+$("#heroBrowse")?.addEventListener("click", scrollToShop);
 $$(".botnav-item[data-bot]").forEach(b => b.addEventListener("click", () => {
   const t = b.dataset.bot;
   if (t === "home") window.scrollTo({ top: 0, behavior: "smooth" });
