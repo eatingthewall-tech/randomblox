@@ -6670,5 +6670,41 @@ const CATALOG = [
    "img": "assets/baddies/bd-savage-mop.png",
    "stock": 1,
    "badge": ""
+  },
+  {
+   "id": "acc-korblox",
+   "game": "accounts",
+   "name": "100K+ Summary Korblox Account",
+   "kind": "account",
+   "rarity": "Korblox",
+   "variant": "base",
+   "price": 150.0,
+   "img": "assets/accounts/korblox-1.jpg",
+   "stock": 1,
+   "badge": ""
+  },
+  {
+   "id": "acc-random-male",
+   "game": "accounts",
+   "name": "Random Roblox Account (Male)",
+   "kind": "account",
+   "rarity": "Random",
+   "variant": "base",
+   "price": 25.0,
+   "img": "assets/accounts/r04.jpg",
+   "stock": 10,
+   "badge": ""
+  },
+  {
+   "id": "acc-random-female",
+   "game": "accounts",
+   "name": "Random Roblox Account (Female)",
+   "kind": "account",
+   "rarity": "Random",
+   "variant": "base",
+   "price": 25.0,
+   "img": "assets/accounts/r02.jpg",
+   "stock": 10,
+   "badge": ""
   }
 ];

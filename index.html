@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260712d">
+<link rel="stylesheet" href="css/styles.css?v=20260713a">
 </head>
 <body>
 
@@ -29,8 +29,8 @@
     </div>
     <div class="topbar-right">
       <nav class="topnav-sec" aria-label="More">
+        <a href="#accounts" class="topnav-link">Accounts</a>
         <a href="#how" class="topnav-link">How it works</a>
-        <a href="#policies" class="topnav-link">Policies</a>
       </nav>
       <button class="order-lookup" id="orderLookupBtn">My order</button>
       <button class="cart-btn" id="cartBtn">
@@ -48,6 +48,7 @@
     <span class="hero-glow hero-glow-2"></span>
   </div>
   <div class="hero-wall" id="heroWall" aria-hidden="true"></div>
+  <div class="hero-dice" id="heroDice" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-copy">
       <h1 class="brand-h1"><span class="bh-a">CHANCE</span><span class="bh-b">BLOX</span></h1>
@@ -66,7 +67,7 @@
 <section class="facts" aria-label="Shop facts">
   <ul class="facts-row">
     <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1"/><path d="M22 10h-6a2 2 0 0 0 0 4h6v-4Z"/></svg>
-      <b>582 items</b> in stock right now</li>
+      <b>580+ items</b> and accounts in stock</li>
     <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
       <b>Same-day</b> in-game delivery</li>
     <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg>
@@ -132,6 +133,47 @@
   <div class="grid" id="grid"></div>
 </main>
 
+<section class="accounts" id="accounts">
+  <div class="accounts-in">
+    <div class="section-head">
+      <h2>Roblox accounts</h2>
+      <p>Full account handoff — email and password delivered with your order code.</p>
+    </div>
+    <div class="acct-grid">
+
+      <article class="acct-card acct-grail" data-acct="acc-korblox">
+        <div class="acct-media" data-carousel="korblox" aria-label="Korblox account previews"></div>
+        <div class="acct-body">
+          <span class="acct-flag acct-flag-gold">1 OF 1</span>
+          <h3>100K+ Summary Korblox Account</h3>
+          <p>A stacked account with 100K+ in summary value, Korblox Deathspeaker leg and
+          limiteds included. You get the whole account — everything on it is yours.</p>
+          <div class="acct-row">
+            <span class="acct-price">$150.00</span>
+            <button class="card-buy acct-buy" data-acct-add="acc-korblox">Add to cart</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="acct-card" data-acct="acc-random">
+        <div class="acct-media" data-carousel="random" aria-label="Random account previews"></div>
+        <div class="acct-body">
+          <span class="acct-flag">1 IN 100 IS A KORBLOX ACCOUNT</span>
+          <h3>Random Roblox Account</h3>
+          <p>A real aged account with a fitted avatar like the ones in the preview. Pick male
+          or female — the exact account you get is the surprise. 1 in every 100 random
+          accounts is a Korblox account.</p>
+          <div class="acct-row">
+            <span class="acct-price">$25.00</span>
+            <button class="card-buy acct-buy" data-acct-add="acc-random">Add to cart</button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
 <section class="how" id="how">
   <h2>How buying works</h2>
   <ol class="how-steps">
@@ -151,32 +193,6 @@
       <p>I friend you on Roblox, we hop in the same server, and the items are yours. Usually the same day.</p>
     </li>
   </ol>
-</section>
-
-<section class="faq" id="policies">
-  <h2>Store policies</h2>
-  <div class="faq-grid">
-    <div class="faq-item">
-      <h3>Terms of service</h3>
-      <p>Chanceblox is a fan-run shop with no ties to Roblox, Nikilis, Uplift Games or
-      Voldex. Buying here means you agree to trade in game and to the policies on this page.</p>
-    </div>
-    <div class="faq-item">
-      <h3>Delivery policy</h3>
-      <p>Every order is delivered by in-game trade, usually the same day. Keep the RBX
-      order code from checkout; it's how your order is found and confirmed.</p>
-    </div>
-    <div class="faq-item">
-      <h3>Refunds and replacements</h3>
-      <p>If an item sells out before your trade, you choose a replacement or that line is
-      refunded. Once an item has been traded, the sale is final.</p>
-    </div>
-    <div class="faq-item">
-      <h3>Privacy</h3>
-      <p>No accounts and no tracking. Your order history is saved only on your own device,
-      and nothing you enter is sent anywhere else.</p>
-    </div>
-  </div>
 </section>
 
 <footer class="footer">
@@ -263,6 +279,33 @@
   <footer class="drawer-foot" id="drawerFoot"></footer>
 </aside>
 
+<!-- Quick view -->
+<div class="qv" id="qv" hidden>
+  <div class="qv-panel" role="dialog" aria-modal="true" aria-label="Item details">
+    <button class="icon-btn qv-close" id="qvClose" aria-label="Close">✕</button>
+    <div id="qvBody"></div>
+  </div>
+</div>
+
+<!-- Male / female picker for random accounts -->
+<div class="qv" id="genderPick" hidden>
+  <div class="qv-panel gp-panel" role="dialog" aria-modal="true" aria-label="Pick account type">
+    <button class="icon-btn qv-close" id="gpClose" aria-label="Close">✕</button>
+    <h2 class="gp-title">Male or female account?</h2>
+    <p class="gp-sub">Same price either way — this just picks which pool your random account comes from.</p>
+    <div class="gp-choices">
+      <button class="gp-choice" data-gender="male">
+        <img src="assets/accounts/r04.jpg" alt="">
+        <b>Male</b>
+      </button>
+      <button class="gp-choice" data-gender="female">
+        <img src="assets/accounts/r02.jpg" alt="">
+        <b>Female</b>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Checkout -->
 <div class="checkout" id="checkout" hidden>
   <div class="checkout-panel" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
@@ -271,7 +314,7 @@
   </div>
 </div>
 
-<script src="js/catalog.js?v=20260712d"></script>
-<script src="js/app.js?v=20260712d"></script>
+<script src="js/catalog.js?v=20260713a"></script>
+<script src="js/app.js?v=20260713a"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260712d";                       // bump when item art changes
+const IMG_V = "20260713a";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -14,6 +14,7 @@ const PILL = {
   Egg: "uncommon", Vehicle: "rare", Toy: "vintage",
   MVP: "nflmvp", "All-Pro": "nflallpro", Pro: "nflpro", Starter: "nflstarter", Rookie: "nflrookie",
   Legend: "bdlegend", Epic: "bdepic", Basic: "bdbasic",
+  Korblox: "korblox", Random: "account",
 };
 const RARITY_ORDER = ["Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Basic","Uncommon","Common","Egg","Vehicle","Toy",
   "MVP","All-Pro","Pro","Starter","Rookie"];
@@ -23,7 +24,7 @@ const CATS = {
   nfl: [["all", "Everything"], ["gear", "Gear"], ["apparel", "Apparel"], ["headwear", "Headwear"], ["cleats", "Cleats"], ["chains", "Chains"], ["emote", "Emotes"], ["ball", "Ball & Trails"]],
   baddies: [["all", "Everything"], ["knuckles", "Brass Knuckles"], ["taser", "Tasers"], ["pan", "Frying Pans"], ["purse", "Purses"], ["board", "Hoverboards"], ["mace", "Maces & Whips"], ["rpg", "RPGs"], ["bat", "Spiked Bats"], ["flamethrower", "Flamethrowers"], ["finisher", "Finishers"], ["style", "Fighting Styles"], ["more", "More Skins"]],
 };
-const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies" };
+const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies", accounts: "Roblox Account" };
 const GAME_GHOST = { mm2: "MM2", am: "ADOPT ME", nfl: "NFL UF", baddies: "BADDIES" };
 const MOTION_OK = matchMedia("(prefers-reduced-motion: no-preference)").matches;
 const BADDIE_GLYPH = { knuckles: "🥊", taser: "⚡", pan: "🍳", purse: "👛", board: "🛹", mace: "🔨", rpg: "🚀", toilet: "🚽", style: "🥋", more: "✨" };
@@ -73,6 +74,25 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
   }
 })();
 
+/* ---------- hero dice: floating 3D dice on the copy side ---------- */
+(function heroDice() {
+  const box = $("#heroDice");
+  if (!box) return;
+  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  const face = (n, cls) =>
+    `<span class="df ${cls}">${[...Array(9)].map((_, i) => `<i class="${PIPS[n].includes(i) ? "on" : ""}"></i>`).join("")}</span>`;
+  const die = (s, x, y, dur, delay, extra = "") =>
+    `<span class="die-wrap ${extra}" style="--s:${s}px;left:${x};top:${y};--fd:${dur}s;--dd:${delay}s">
+      <span class="die">${face(1, "df-f")}${face(6, "df-bk")}${face(3, "df-r")}${face(4, "df-l")}${face(2, "df-t")}${face(5, "df-b")}</span>
+    </span>`;
+  box.innerHTML =
+    die(118, "46%", "10%", 9, 0, "die-main keep-m") +
+    die(66, "2.5%", "7%", 12, -3) +
+    die(84, "5%", "72%", 11, -6, "keep-m") +
+    die(46, "38%", "66%", 13, -2) +
+    die(30, "49%", "40%", 10, -8);
+})();
+
 /* ---------- pick-your-game: the official game covers, full bleed ---------- */
 (function gameBand() {
   const box = $("#gameBand");
@@ -90,6 +110,69 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
     </button>`;
   }).join("");
 })();
+
+/* ---------- roblox accounts: carousels + gender pick ---------- */
+const ACCT_IMGS = {
+  korblox: ["assets/accounts/korblox-1.jpg"],
+  random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11"].map(n => `assets/accounts/${n}.jpg`),
+};
+(function accounts() {
+  $$(".acct-media").forEach(box => {
+    const imgs = ACCT_IMGS[box.dataset.carousel] || [];
+    box.innerHTML =
+      imgs.map((s, i) => `<img src="${imgSrc(s)}" class="${i === 0 ? "is-on" : ""}" alt="" loading="lazy" decoding="async">`).join("") +
+      (imgs.length > 1
+        ? `<button class="am-nav am-prev" aria-label="Previous picture">‹</button>
+           <button class="am-nav am-next" aria-label="Next picture">›</button>
+           <span class="am-dots" aria-hidden="true">${imgs.map((_, i) => `<i class="${i === 0 ? "is-on" : ""}"></i>`).join("")}</span>`
+        : "");
+    if (imgs.length < 2) return;
+    let idx = 0, timer = null;
+    const show = n => {
+      idx = (n + imgs.length) % imgs.length;
+      $$("img", box).forEach((im, i) => im.classList.toggle("is-on", i === idx));
+      $$(".am-dots i", box).forEach((d, i) => d.classList.toggle("is-on", i === idx));
+    };
+    const restart = () => { clearInterval(timer); timer = setInterval(() => show(idx + 1), 10000); };
+    $(".am-prev", box).addEventListener("click", () => { show(idx - 1); restart(); });
+    $(".am-next", box).addEventListener("click", () => { show(idx + 1); restart(); });
+    restart();
+  });
+
+  $$("[data-acct-add]").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.acctAdd === "acc-korblox") addToCart("acc-korblox", b);
+    else openGenderPick(b);
+  }));
+})();
+
+const genderPick = $("#genderPick");
+let gpFromBtn = null;
+function openGenderPick(btn) { gpFromBtn = btn; genderPick.hidden = false; }
+function closeGenderPick() { genderPick.hidden = true; }
+$("#gpClose")?.addEventListener("click", closeGenderPick);
+genderPick?.addEventListener("click", e => { if (e.target === genderPick) closeGenderPick(); });
+$$(".gp-choice").forEach(c => c.addEventListener("click", () => {
+  addToCart(c.dataset.gender === "male" ? "acc-random-male" : "acc-random-female", gpFromBtn);
+  closeGenderPick();
+}));
+
+function syncAcctButtons() {
+  $$("[data-acct-add]").forEach(b => {
+    let left, inCart;
+    if (b.dataset.acctAdd === "acc-korblox") {
+      const i = byId["acc-korblox"];
+      left = i.stock - (state.cart[i.id] || 0);
+      inCart = (state.cart[i.id] || 0) > 0;
+    } else {
+      const m = byId["acc-random-male"], f = byId["acc-random-female"];
+      left = (m.stock - (state.cart[m.id] || 0)) + (f.stock - (state.cart[f.id] || 0));
+      inCart = (state.cart[m.id] || 0) + (state.cart[f.id] || 0) > 0;
+    }
+    b.disabled = left <= 0;
+    b.textContent = left <= 0 ? "In cart" : inCart ? "Add another" : "Add to cart";
+    b.classList.toggle("in-cart", inCart);
+  });
+}
 
 /* ---------- scroll reveals: sections rise in as they enter ---------- */
 (function reveals() {
@@ -132,7 +215,8 @@ if (matchMedia("(pointer: fine)").matches && MOTION_OK) {
 /* ---------- fly-to-cart ---------- */
 function flyToCart(fromBtn) {
   if (!MOTION_OK || !fromBtn) return;
-  const img = fromBtn.closest(".card")?.querySelector(".card-art img");
+  const img = fromBtn.closest(".card, .acct-card, .qv-panel")
+    ?.querySelector(".card-art img, .acct-media img.is-on, .qv-art img");
   const target = innerWidth <= 900 ? $('.botnav-item[data-bot="cart"]') : $("#cartBtn");
   if (!img || !target) return;
   const a = img.getBoundingClientRect(), b = target.getBoundingClientRect();
@@ -304,7 +388,7 @@ function cardHTML(i) {
   const variant = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   const fx = i.badge === "FX" ? `<span class="pill">FX</span>` : "";
-  return `<article class="card" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
+  return `<article class="card" data-id="${i.id}" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
     <div class="card-art ${crop ? "is-crop" : ""}">
       ${i.img ? `<img loading="lazy" src="${imgSrc(i.img)}" alt="">`
               : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
@@ -370,6 +454,7 @@ function render() {
   renderApplied();
   updateFiltersBadge();
   setStickyVars();
+  syncAcctButtons();
 
   // keep featured buttons in sync
   $$("#featuredRow [data-add]").forEach(b => {
@@ -616,10 +701,56 @@ $("#orderLookupBtn").addEventListener("click", () => {
     </div>`;
 });
 
+/* ---------- quick view: click a card to enlarge it ---------- */
+const qv = $("#qv"), qvBody = $("#qvBody");
+function openQV(id) {
+  const i = byId[id];
+  if (!i) return;
+  const pill = PILL[i.rarity] || "common";
+  const left = i.stock - (state.cart[id] || 0);
+  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") ||
+    i.img.startsWith("assets/baddies/") || i.img.startsWith("assets/accounts/"));
+  const badge = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
+    ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
+  qvBody.innerHTML = `
+    <div class="qv-art ${crop ? "is-crop" : ""}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
+      ${i.img ? `<img src="${imgSrc(i.img)}" alt="${i.name}">` : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
+    </div>
+    <div class="qv-info">
+      <div class="card-tags">
+        <span class="pill" style="--pill-bg:var(--pill-${pill}-bg);--pill-ink:var(--pill-${pill}-ink)">${i.rarity}</span>${badge}
+      </div>
+      <h2 class="qv-name">${i.name}</h2>
+      <p class="qv-sub">${GAME_LABEL[i.game] || ""} · ${i.stock > 0 ? `×${i.stock} in stock` : "out of stock"}</p>
+      <div class="qv-row">
+        <span class="qv-price">${money(i.price)}</span>
+        <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${left <= 0 ? "disabled" : ""}>
+          ${left <= 0 ? "In cart" : state.cart[id] ? "Add another" : "Add to cart"}
+        </button>
+      </div>
+    </div>`;
+  qv.hidden = false;
+  $("[data-qv-add]", qvBody)?.addEventListener("click", e => {
+    addToCart(id, e.currentTarget);
+    openQV(id);   // refresh button/stock state in place
+  });
+}
+function closeQV() { qv.hidden = true; }
+$("#qvClose").addEventListener("click", closeQV);
+qv.addEventListener("click", e => { if (e.target === qv) closeQV(); });
+document.addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (!card || !card.dataset.id) return;
+  if (e.target.closest("[data-add], [data-qv-add], button")) return;
+  openQV(card.dataset.id);
+});
+
 /* esc closes the top layer */
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  if (!co.hidden) closeCheckout();
+  if (!qv.hidden) closeQV();
+  else if (!genderPick.hidden) closeGenderPick();
+  else if (!co.hidden) closeCheckout();
   else if (!filterSheet.hidden) closeSheet();
   else if (!drawer.hidden) closeDrawer();
 });
