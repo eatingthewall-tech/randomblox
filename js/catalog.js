@@ -6686,7 +6686,7 @@ const CATALOG = [
   {
    "id": "acc-random-male",
    "game": "accounts",
-   "name": "Random Stacked Roblox Acc (Male)",
+   "name": "Random Roblox Acc (Male)",
    "kind": "account",
    "rarity": "Random",
    "variant": "base",
@@ -6698,7 +6698,7 @@ const CATALOG = [
   {
    "id": "acc-random-female",
    "game": "accounts",
-   "name": "Random Stacked Roblox Acc (Female)",
+   "name": "Random Roblox Acc (Female)",
    "kind": "account",
    "rarity": "Random",
    "variant": "base",

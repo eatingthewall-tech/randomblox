@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260713c";                       // bump when item art changes
+const IMG_V = "20260713d";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -89,7 +89,7 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
   box.innerHTML =
     die(118, "46%", "10%", 9, 0, "die-main keep-m") +
     die(66, "2.5%", "7%", 12, -3) +
-    die(84, "5%", "72%", 11, -6, "keep-m") +
+    die(84, "1.5%", "86%", 11, -6, "keep-m") +
     die(46, "38%", "66%", 13, -2) +
     die(30, "49%", "40%", 10, -8);
 })();
@@ -175,6 +175,37 @@ function syncAcctButtons() {
   });
 }
 
+/* ---------- queue status: the visitor's own latest order, live from this device ---------- */
+(function queueStatus() {
+  const box = $("#queueStatus");
+  if (!box) return;
+  const orders = load("rbx-orders", []);
+  const last = orders[orders.length - 1];
+  if (!last) {
+    box.innerHTML = `<div class="q-order q-empty">
+      <span class="qo-label">Your order</span>
+      <b class="qo-code qo-dim">RBX-&middot;&middot;&middot;&middot;&middot;&middot;</b>
+      <p>No orders on this device yet. Your code appears here the moment you check out.</p>
+    </div>`;
+    return;
+  }
+  const mins = Math.max(1, Math.round((Date.now() - new Date(last.when)) / 60000));
+  const ago = mins < 60 ? mins + " min ago" : mins < 1440 ? Math.round(mins / 60) + " h ago" : Math.round(mins / 1440) + " d ago";
+  const count = (last.items || []).reduce((s, x) => s + (x.q || 1), 0);
+  box.innerHTML = `<div class="q-order">
+      <span class="qo-label">Your order</span>
+      <b class="qo-code">${last.no}</b><span class="qo-pos">in the queue</span>
+      <p class="qo-meta">${count} item${count === 1 ? "" : "s"} &middot; placed ${ago}</p>
+    </div>
+    <div class="q-progress">
+      <div class="qp-top"><span>Queue progress</span><span>stage 2 of 4</span></div>
+      <div class="qp-bar"><i style="width:38%"></i></div>
+      <p>Placed &rarr; in the queue &rarr; trading &rarr; done. You'll get a friend request when you're next.</p>
+    </div>`;
+  const chip = $("#qCodeChip");
+  if (chip) chip.textContent = last.no;
+})();
+
 /* ---------- scroll reveals: sections rise in as they enter ---------- */
 (function reveals() {
   if (!MOTION_OK || !("IntersectionObserver" in window)) return;
@@ -183,10 +214,11 @@ function syncAcctButtons() {
     el.classList.add("rv");
     if (stagger) el.style.setProperty("--rvd", (i * stagger).toFixed(2) + "s");
   });
-  mark(".facts-row li", 0.07);
+  mark(".hero-facts li", 0.06);
   mark(".section-head");
   mark(".gcard", 0.07);
-  mark(".how h2"); mark(".how-steps li", 0.08);
+  mark(".queue-head"); mark(".q-steps li", 0.07);
+  mark(".q-panel", 0.1); mark(".q-info"); mark(".q-thanks");
   mark(".faq h2"); mark(".faq-item", 0.06);
   mark(".footer-in");
   const io = new IntersectionObserver(es => es.forEach(e => {
