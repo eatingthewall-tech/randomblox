@@ -3182,7 +3182,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Grey Evil Monster Eyes Beanie",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 105.0,
    "img": "assets/nfl/nfl-grey-evil-monster-eyes-beanie.png",
@@ -3195,7 +3195,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Bright White Tactical Vest",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 102.76,
    "img": "assets/nfl/nfl-bright-white-tactical-vest.png",
@@ -3208,7 +3208,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Penguin Dance",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 102.36,
    "img": "assets/nfl/nfl-penguin-dance.png",
@@ -3220,7 +3220,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Forest Vest",
    "kind": "gear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 97.21,
    "img": "assets/nfl/nfl-forest-vest.png",
@@ -3233,7 +3233,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Black Gas Mask",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 93.23,
    "img": "assets/nfl/nfl-black-gas-mask.png",
@@ -3246,7 +3246,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "F4 Low Top Twisted Reality",
    "kind": "cleats",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 91.05,
    "img": "assets/nfl/nfl-f4-low-top-twisted-reality.png",
@@ -3258,7 +3258,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Goodnight",
    "kind": "emote",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 85.37,
    "img": "assets/nfl/nfl-goodnight.png",
@@ -3271,7 +3271,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Get Dunked On",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 83.21,
    "img": "assets/nfl/nfl-get-dunked-on.png",
@@ -3284,7 +3284,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Sunshine",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 51.32,
    "img": "assets/nfl/nfl-sunshine.png",
@@ -3296,7 +3296,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Dark Thunderbolt",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 49.25,
    "img": "assets/nfl/nfl-dark-thunderbolt.png",
@@ -3308,7 +3308,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Laughing Gas",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 49.1,
    "img": "assets/nfl/nfl-laughing-gas.png",
@@ -3320,7 +3320,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Squabble",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 48.55,
    "img": "assets/nfl/nfl-squabble.png",
@@ -3333,7 +3333,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Over The Moon",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 48.45,
    "img": "assets/nfl/nfl-over-the-moon.png",
@@ -3346,7 +3346,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Smeeze",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 48.22,
    "img": "assets/nfl/nfl-smeeze.png",
@@ -3359,7 +3359,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Green Laser",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 47.61,
    "img": "assets/nfl/nfl-green-laser.png",
@@ -3371,7 +3371,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Yellow Cute Y2K Zip-Up Hoodie",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 46.48,
    "img": "assets/nfl/nfl-yellow-cute-y2k-zip-up-hoodie.png",
@@ -3384,7 +3384,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "String Swing",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 43.08,
    "img": "assets/nfl/nfl-string-swing.png",
@@ -3397,7 +3397,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Infinite Vapor Tee Lite",
    "kind": "apparel",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 42.87,
    "img": "assets/nfl/nfl-infinite-vapor-tee-lite.png",
@@ -3409,7 +3409,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "White Goggles",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 40.42,
    "img": "assets/nfl/nfl-white-goggles.png",
@@ -3421,7 +3421,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Punt The Head",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 39.57,
    "img": "assets/nfl/nfl-punt-the-head.png",
@@ -3434,7 +3434,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Pogo Stick",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 38.86,
    "img": "assets/nfl/nfl-pogo-stick.png",
@@ -3446,7 +3446,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Snowboarder",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 38.61,
    "img": "assets/nfl/nfl-snowboarder.png",
@@ -3459,7 +3459,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "White Messy Hair",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 37.93,
    "img": "assets/nfl/nfl-white-messy-hair.png",
@@ -3472,7 +3472,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Well Worn Shirt",
    "kind": "apparel",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 37.44,
    "img": "assets/nfl/nfl-well-worn-shirt.png",
@@ -3485,7 +3485,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Zeus' Mystic Thunderbolt",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 37.41,
    "img": "assets/nfl/nfl-zeus-mystic-thunderbolt.png",
@@ -3498,7 +3498,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Zeus Rainbow Thunderbolt",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 36.93,
    "img": "assets/nfl/nfl-zeus-rainbow-thunderbolt.png",
@@ -3511,7 +3511,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Happier Jump",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 36.73,
    "img": "assets/nfl/nfl-happier-jump.png",
@@ -3524,7 +3524,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Celestial Crown",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 36.68,
    "img": "assets/nfl/nfl-celestial-crown.png",
@@ -3537,7 +3537,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Uncovered White Goggles",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 36.91,
    "img": "assets/nfl/nfl-uncovered-white-goggles.png",
@@ -3550,7 +3550,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Frozen Zeus Thunderbolt",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 36.25,
    "img": "assets/nfl/nfl-frozen-zeus-thunderbolt.png",
@@ -3563,7 +3563,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Just Wanna Rock",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 35.99,
    "img": "assets/nfl/nfl-just-wanna-rock.png",
@@ -3576,7 +3576,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Green Galactic Thunderbolt",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 36.26,
    "img": "assets/nfl/nfl-green-galactic-thunderbolt.png",
@@ -3589,7 +3589,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Black Track Suit Shirt",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 34.91,
    "img": "assets/nfl/nfl-black-track-suit-shirt.png",
@@ -3602,7 +3602,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "See These Hips",
    "kind": "emote",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 34.89,
    "img": "assets/nfl/nfl-see-these-hips.png",
@@ -3615,7 +3615,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Stolen Demon Thunderbolt",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 34.86,
    "img": "assets/nfl/nfl-stolen-demon-thunderbolt.png",
@@ -3628,7 +3628,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Boom Box",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 33.25,
    "img": "assets/nfl/nfl-boom-box.png",
@@ -3641,7 +3641,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Black Scene Hair",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 33.5,
    "img": "assets/nfl/nfl-black-scene-hair.png",
@@ -3654,7 +3654,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Entity 3's Pitchd Black",
    "kind": "apparel",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 33.12,
    "img": "assets/nfl/nfl-entity-3-s-pitchd-black.png",
@@ -3667,7 +3667,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Mystic Crown",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 32.73,
    "img": "assets/nfl/nfl-mystic-crown.png",
@@ -3680,7 +3680,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Back Flips",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 32.91,
    "img": "assets/nfl/nfl-back-flips.png",
@@ -3693,7 +3693,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "White Track Suit Top",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 32.57,
    "img": "assets/nfl/nfl-white-track-suit-top.png",
@@ -3706,7 +3706,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Green Alien",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 32.26,
    "img": "assets/nfl/nfl-green-alien.png",
@@ -3719,7 +3719,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Villain Clockworks",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 31.85,
    "img": "assets/nfl/nfl-villain-clockworks.png",
@@ -3732,7 +3732,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Red Goggles",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 32.13,
    "img": "assets/nfl/nfl-red-goggles.png",
@@ -3745,7 +3745,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Emerald Valkyrie",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 31.65,
    "img": "assets/nfl/nfl-emerald-valkyrie.png",
@@ -3758,7 +3758,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Premium Vest",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 31.79,
    "img": "assets/nfl/nfl-premium-vest.png",
@@ -3771,7 +3771,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Icy Blue Viking Helm",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 30.25,
    "img": "assets/nfl/nfl-icy-blue-viking-helm.png",
@@ -3784,7 +3784,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Dark Angel Halo",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 31.05,
    "img": "assets/nfl/nfl-dark-angel-halo.png",
@@ -3797,7 +3797,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Ray Lewis",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 30.11,
    "img": "assets/nfl/nfl-ray-lewis.png",
@@ -3810,7 +3810,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Basket Trick",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 30.96,
    "img": "assets/nfl/nfl-basket-trick.png",
@@ -3823,7 +3823,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "White Track Suit Bottoms",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 30.17,
    "img": "assets/nfl/nfl-white-track-suit-bottoms.png",
@@ -3836,7 +3836,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Last Forever",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 30.08,
    "img": "assets/nfl/nfl-last-forever.png",
@@ -3849,7 +3849,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Magestic Unicorn Mask",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 30.56,
    "img": "assets/nfl/nfl-magestic-unicorn-mask.png",
@@ -3862,7 +3862,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Stuffed",
    "kind": "emote",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 30.37,
    "img": "assets/nfl/nfl-stuffed.png",
@@ -3875,7 +3875,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Bed Hair",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 29.5,
    "img": "assets/nfl/nfl-bed-hair.png",
@@ -3888,7 +3888,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Cosmos",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 29.77,
    "img": "assets/nfl/nfl-cosmos.png",
@@ -3901,7 +3901,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Black Track Suit Pants",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 29.54,
    "img": "assets/nfl/nfl-black-track-suit-pants.png",
@@ -3914,7 +3914,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Golden Valkyrie",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 29.64,
    "img": "assets/nfl/nfl-golden-valkyrie.png",
@@ -3927,7 +3927,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Colored Memphis Dreads",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 28.7,
    "img": "assets/nfl/nfl-colored-memphis-dreads.png",
@@ -3940,7 +3940,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Revolta White Clockworks",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 29.53,
    "img": "assets/nfl/nfl-revolta-white-clockworks.png",
@@ -3953,7 +3953,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Banana Bodysuit",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 27.95,
    "img": "assets/nfl/nfl-banana-bodysuit.png",
@@ -3966,7 +3966,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Toddler Valkyrie",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 28.52,
    "img": "assets/nfl/nfl-toddler-valkyrie.png",
@@ -3979,7 +3979,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Summer Floatie",
    "kind": "gear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 28.49,
    "img": "assets/nfl/nfl-summer-floatie.png",
@@ -3992,7 +3992,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Sad Eyes Skateboard",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 29.48,
    "img": "assets/nfl/nfl-sad-eyes-skateboard.png",
@@ -4005,7 +4005,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blue Alien",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 28.48,
    "img": "assets/nfl/nfl-blue-alien.png",
@@ -4018,7 +4018,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Alien Top",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 28.12,
    "img": "assets/nfl/nfl-alien-top.png",
@@ -4031,7 +4031,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Purple Octopus Alien Head",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 26.73,
    "img": "assets/nfl/nfl-purple-octopus-alien-head.png",
@@ -4044,7 +4044,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blonde Messy Hair",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 28.88,
    "img": "assets/nfl/nfl-blonde-messy-hair.png",
@@ -4057,7 +4057,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Clockwork's Villian Shades",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 27.76,
    "img": "assets/nfl/nfl-clockwork-s-villian-shades.png",
@@ -4070,7 +4070,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blue Alien Top",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 26.38,
    "img": "assets/nfl/nfl-blue-alien-top.png",
@@ -4083,7 +4083,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Laughing Gas Graffiti Trail",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 27.23,
    "img": "assets/nfl/nfl-laughing-gas-graffiti-trail.png",
@@ -4096,7 +4096,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Clover Special Diamond Chain",
    "kind": "chains",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 26.72,
    "img": "assets/nfl/nfl-clover-special-diamond-chain.png",
@@ -4109,7 +4109,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Alien Bottoms",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 26.91,
    "img": "assets/nfl/nfl-alien-bottoms.png",
@@ -4122,7 +4122,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Purple Octopus Alien Top",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 25.84,
    "img": "assets/nfl/nfl-purple-octopus-alien-top.png",
@@ -4135,7 +4135,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Crab Floatie",
    "kind": "gear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 25.99,
    "img": "assets/nfl/nfl-crab-floatie.png",
@@ -4148,7 +4148,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "The Boss Custom Hat",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 25.67,
    "img": "assets/nfl/nfl-the-boss-custom-hat.png",
@@ -4161,7 +4161,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Team Dance Goopie",
    "kind": "emote",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 25.66,
    "img": "assets/nfl/nfl-team-dance-goopie.png",
@@ -4174,7 +4174,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Night Lights Trail",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 25.57,
    "img": "assets/nfl/nfl-night-lights-trail.png",
@@ -4187,7 +4187,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Outlaw Hat",
    "kind": "headwear",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 25.57,
    "img": "assets/nfl/nfl-outlaw-hat.png",
@@ -4200,7 +4200,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Snowman Bottoms",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 25.23,
    "img": "assets/nfl/nfl-snowman-bottoms.png",
@@ -4213,7 +4213,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Funfetti Swirl Trail",
    "kind": "ball",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 25.12,
    "img": "assets/nfl/nfl-funfetti-swirl-trail.png",
@@ -4226,7 +4226,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blue Blackhole",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 24.45,
    "img": "assets/nfl/nfl-blue-blackhole.png",
@@ -4239,7 +4239,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Brown Scene Hair",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 23.46,
    "img": "assets/nfl/nfl-brown-scene-hair.png",
@@ -4252,7 +4252,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Triple 6 Sakuras",
    "kind": "cleats",
-   "rarity": "MVP",
+   "rarity": "Diamond",
    "variant": "base",
    "price": 24.06,
    "img": "assets/nfl/nfl-triple-6-sakuras.png",
@@ -4265,7 +4265,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Snowflake Staff",
    "kind": "gear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 24.09,
    "img": "assets/nfl/nfl-snowflake-staff.png",
@@ -4278,7 +4278,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Down Breaker",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 23.36,
    "img": "assets/nfl/nfl-down-breaker.png",
@@ -4291,7 +4291,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Chief Dreads",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 23.56,
    "img": "assets/nfl/nfl-chief-dreads.png",
@@ -4304,7 +4304,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Confidence",
    "kind": "emote",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 22.89,
    "img": "assets/nfl/nfl-confidence.png",
@@ -4317,7 +4317,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Golden Pug Pants",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 22.82,
    "img": "assets/nfl/nfl-golden-pug-pants.png",
@@ -4330,7 +4330,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Golden Pug Shirt",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 22.53,
    "img": "assets/nfl/nfl-golden-pug-shirt.png",
@@ -4343,7 +4343,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Dark Angel Cleats",
    "kind": "cleats",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 22.35,
    "img": "assets/nfl/nfl-dark-angel-cleats.png",
@@ -4356,7 +4356,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Front Stand",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 22.3,
    "img": "assets/nfl/nfl-front-stand.png",
@@ -4369,7 +4369,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Galactic Commander Blue Pants",
    "kind": "apparel",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 22.23,
    "img": "assets/nfl/nfl-galactic-commander-blue-pants.png",
@@ -4382,7 +4382,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Black Memphis Dreads",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 22.17,
    "img": "assets/nfl/nfl-black-memphis-dreads.png",
@@ -4395,7 +4395,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Northern Lights Trail",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 20.96,
    "img": "assets/nfl/nfl-northern-lights-trail.png",
@@ -4408,7 +4408,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Ice Football",
    "kind": "ball",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 21.94,
    "img": "assets/nfl/nfl-ice-football.png",
@@ -4421,7 +4421,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Snowman Top",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 21.48,
    "img": "assets/nfl/nfl-snowman-top.png",
@@ -4434,7 +4434,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Gold & Brown Sunglasses",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 21.39,
    "img": "assets/nfl/nfl-gold-brown-sunglasses.png",
@@ -4447,7 +4447,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Dark Angel Hair",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 21.32,
    "img": "assets/nfl/nfl-dark-angel-hair.png",
@@ -4460,7 +4460,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Meta Visor Nightwing Green",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 21.11,
    "img": "assets/nfl/nfl-meta-visor-nightwing-green.png",
@@ -4473,7 +4473,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "1st Down Clear Out",
    "kind": "emote",
-   "rarity": "Rookie",
+   "rarity": "Silver",
    "variant": "base",
    "price": 21.25,
    "img": "assets/nfl/nfl-1st-down-clear-out.png",
@@ -4485,7 +4485,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "You Are Boring",
    "kind": "emote",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 20.61,
    "img": "assets/nfl/nfl-you-are-boring.png",
@@ -4498,7 +4498,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Poop Emoji Hat",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 20.6,
    "img": "assets/nfl/nfl-poop-emoji-hat.png",
@@ -4511,7 +4511,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Little Alien Shoulder",
    "kind": "gear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 20.1,
    "img": "assets/nfl/nfl-little-alien-shoulder.png",
@@ -4524,7 +4524,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Inflatable Shark Head",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 19.72,
    "img": "assets/nfl/nfl-inflatable-shark-head.png",
@@ -4537,7 +4537,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Nerd Teef Mouthpiece",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 19.65,
    "img": "assets/nfl/nfl-nerd-teef-mouthpiece.png",
@@ -4550,7 +4550,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Granny Hair",
    "kind": "headwear",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 19.52,
    "img": "assets/nfl/nfl-granny-hair.png",
@@ -4563,7 +4563,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Take The L Emoji",
    "kind": "emote",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 19.36,
    "img": "assets/nfl/nfl-take-the-l-emoji.png",
@@ -4576,7 +4576,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Camo Ski Mask",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 17.3,
    "img": "assets/nfl/nfl-camo-ski-mask.png",
@@ -4589,7 +4589,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Tan Puffer Vest",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 16.97,
    "img": "assets/nfl/nfl-tan-puffer-vest.png",
@@ -4602,7 +4602,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Red Puffer Vest",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 17.81,
    "img": "assets/nfl/nfl-red-puffer-vest.png",
@@ -4615,7 +4615,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Waves String Bucket Hat",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 17.23,
    "img": "assets/nfl/nfl-waves-string-bucket-hat.png",
@@ -4628,7 +4628,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Vivid Nebula Backpack",
    "kind": "gear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 16.53,
    "img": "assets/nfl/nfl-vivid-nebula-backpack.png",
@@ -4640,7 +4640,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Meta Mouthpiece Pink Carbon Fiber",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 16.35,
    "img": "assets/nfl/nfl-meta-mouthpiece-pink-carbon-fiber.png",
@@ -4652,7 +4652,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Inflatable Shark Body",
    "kind": "apparel",
-   "rarity": "All-Pro",
+   "rarity": "Amethyst",
    "variant": "base",
    "price": 16.27,
    "img": "assets/nfl/nfl-inflatable-shark-body.png",
@@ -4665,7 +4665,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Yellow Style Ski Shades",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 15.99,
    "img": "assets/nfl/nfl-yellow-style-ski-shades.png",
@@ -4678,7 +4678,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Entity Evo 1 Gold Digital Camo",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 15.01,
    "img": "assets/nfl/nfl-entity-evo-1-gold-digital-camo.png",
@@ -4690,7 +4690,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Super Shades",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 14.05,
    "img": "assets/nfl/nfl-super-shades.png",
@@ -4702,7 +4702,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Entity Entispoonz Lavender",
    "kind": "cleats",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 14.01,
    "img": "assets/nfl/nfl-entity-entispoonz-lavender.png",
@@ -4715,7 +4715,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Meta Football White N Gold",
    "kind": "ball",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 14.26,
    "img": "assets/nfl/nfl-meta-football-white-n-gold.png",
@@ -4728,7 +4728,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Iced Out Plug Chain",
    "kind": "chains",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 13.88,
    "img": "assets/nfl/nfl-iced-out-plug-chain.png",
@@ -4741,7 +4741,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Dad Hero Brown Beard",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 13.8,
    "img": "assets/nfl/nfl-dad-hero-brown-beard.png",
@@ -4754,7 +4754,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Entity Green Glowing Skull Gloves",
    "kind": "gear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 13.7,
    "img": "assets/nfl/nfl-entity-green-glowing-skull-gloves.png",
@@ -4766,7 +4766,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Spiky Face Paint",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 13.59,
    "img": "assets/nfl/nfl-spiky-face-paint.png",
@@ -4778,7 +4778,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Beware Of Dog Backplate V2",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 13.53,
    "img": "assets/nfl/nfl-beware-of-dog-backplate-v2.png",
@@ -4791,7 +4791,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Meta Football Longview Blue",
    "kind": "ball",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 13.3,
    "img": "assets/nfl/nfl-meta-football-longview-blue.png",
@@ -4803,7 +4803,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Spiral Silver Chain",
    "kind": "chains",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 13.05,
    "img": "assets/nfl/nfl-spiral-silver-chain.png",
@@ -4815,7 +4815,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Tropicool Soda Belt",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 12.74,
    "img": "assets/nfl/nfl-tropicool-soda-belt.png",
@@ -4828,7 +4828,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Tropical Splatter Blue Shirt",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 12.62,
    "img": "assets/nfl/nfl-tropical-splatter-blue-shirt.png",
@@ -4841,7 +4841,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Vaporwave Cyber Trail",
    "kind": "ball",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 12.26,
    "img": "assets/nfl/nfl-vaporwave-cyber-trail.png",
@@ -4854,7 +4854,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blue Viper",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 12.22,
    "img": "assets/nfl/nfl-blue-viper.png",
@@ -4867,7 +4867,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blue Diamond Earrings",
    "kind": "chains",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 11.83,
    "img": "assets/nfl/nfl-blue-diamond-earrings.png",
@@ -4879,7 +4879,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Sunburnt Skin Shirt",
    "kind": "apparel",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 11.74,
    "img": "assets/nfl/nfl-sunburnt-skin-shirt.png",
@@ -4892,7 +4892,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Delicacies Mid Cut Bamboo Stripe",
    "kind": "cleats",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 11.41,
    "img": "assets/nfl/nfl-delicacies-mid-cut-bamboo-stripe.png",
@@ -4904,7 +4904,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Meta Mouthpiece Green Dented",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 11.28,
    "img": "assets/nfl/nfl-meta-mouthpiece-green-dented.png",
@@ -4916,7 +4916,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Team Dance Bollywood",
    "kind": "emote",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 10.81,
    "img": "assets/nfl/nfl-team-dance-bollywood.png",
@@ -4928,7 +4928,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Blond Dreads",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 9.98,
    "img": "assets/nfl/nfl-blond-dreads.png",
@@ -4941,7 +4941,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Flower Lei",
    "kind": "chains",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 9.84,
    "img": "assets/nfl/nfl-flower-lei.png",
@@ -4954,7 +4954,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "W Brown Cap",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 9.7,
    "img": "assets/nfl/nfl-w-brown-cap.png",
@@ -4966,7 +4966,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Leg Band White",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 9.11,
    "img": "assets/nfl/nfl-leg-band-white.png",
@@ -4979,7 +4979,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Vaporwave Visor",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 9.04,
    "img": "assets/nfl/nfl-vaporwave-visor.png",
@@ -4992,7 +4992,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Vaporwave Summer Backplate",
    "kind": "gear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 7.52,
    "img": "assets/nfl/nfl-vaporwave-summer-backplate.png",
@@ -5005,7 +5005,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Meta Mouthpiece Black Carbon Fiber",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 6.98,
    "img": "assets/nfl/nfl-meta-mouthpiece-black-carbon-fiber.png",
@@ -5017,7 +5017,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Ocean Waters Visor",
    "kind": "headwear",
-   "rarity": "Pro",
+   "rarity": "Ruby",
    "variant": "base",
    "price": 6.66,
    "img": "assets/nfl/nfl-ocean-waters-visor.png",
@@ -5030,7 +5030,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Leg Band Teal",
    "kind": "gear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 6.27,
    "img": "assets/nfl/nfl-leg-band-teal.png",
@@ -5042,7 +5042,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Thick UF Glasses",
    "kind": "headwear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 6.22,
    "img": "assets/nfl/nfl-thick-uf-glasses.png",
@@ -5055,7 +5055,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Leg Band Smoky Grey",
    "kind": "gear",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 5.22,
    "img": "assets/nfl/nfl-leg-band-smoky-grey.png",
@@ -5067,7 +5067,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Golden Gothic Necklace",
    "kind": "chains",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 4.19,
    "img": "assets/nfl/nfl-golden-gothic-necklace.png",
@@ -5079,7 +5079,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "F4 Cleat Mummy",
    "kind": "cleats",
-   "rarity": "Rookie",
+   "rarity": "Silver",
    "variant": "base",
    "price": 2.42,
    "img": "assets/nfl/nfl-f4-cleat-mummy.png",
@@ -5092,7 +5092,7 @@ const CATALOG = [
    "game": "nfl",
    "name": "Entity Speeddemons Ruby Red",
    "kind": "cleats",
-   "rarity": "Starter",
+   "rarity": "Gold",
    "variant": "base",
    "price": 1.99,
    "img": "assets/nfl/nfl-entity-speeddemons-ruby-red.png",
@@ -5108,7 +5108,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-ashen-wrath.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5120,7 +5120,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-bat-spray.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5132,7 +5132,7 @@ const CATALOG = [
    "variant": "base",
    "price": 12.99,
    "img": "assets/baddies/bd-golden-snowball-launcher.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5144,7 +5144,7 @@ const CATALOG = [
    "variant": "base",
    "price": 20,
    "img": "assets/baddies/bd-kitty-purse.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -5156,7 +5156,7 @@ const CATALOG = [
    "variant": "base",
    "price": 40,
    "img": "assets/baddies/bd-loveboard.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5168,7 +5168,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-moo-mace.png",
-   "stock": 1,
+   "stock": 9,
    "badge": ""
   },
   {
@@ -5180,7 +5180,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-grunge-trash-bag.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5192,7 +5192,7 @@ const CATALOG = [
    "variant": "base",
    "price": 7.99,
    "img": "assets/baddies/bd-snowball-launcher.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5204,7 +5204,7 @@ const CATALOG = [
    "variant": "base",
    "price": 9.99,
    "img": "assets/baddies/bd-spiked-purse.png",
-   "stock": 1,
+   "stock": 10,
    "badge": ""
   },
   {
@@ -5216,7 +5216,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-solar-flare-flamethrower.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5240,7 +5240,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-reality-glitch-finisher.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5264,7 +5264,7 @@ const CATALOG = [
    "variant": "base",
    "price": 14.99,
    "img": "assets/baddies/bd-cheerleader-finisher.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5276,7 +5276,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-egg-zecution-finisher.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5288,7 +5288,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-midnight-stomp.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5300,7 +5300,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-tag-team-finisher.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5312,7 +5312,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-rainbow-finisher.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5324,7 +5324,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-golden-dragon-knuckles.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5336,7 +5336,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.99,
    "img": "assets/baddies/bd-boxing-style.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -5348,7 +5348,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-bubblegum-bat.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -5360,7 +5360,7 @@ const CATALOG = [
    "variant": "base",
    "price": 20,
    "img": "assets/baddies/bd-glitter-style.png",
-   "stock": 1,
+   "stock": 7,
    "badge": ""
   },
   {
@@ -5372,7 +5372,7 @@ const CATALOG = [
    "variant": "base",
    "price": 5.99,
    "img": "assets/baddies/bd-kickboxing-style.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5384,7 +5384,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.99,
    "img": "assets/baddies/bd-mma-fighting-style.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -5420,7 +5420,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-cozy-patchwork-knuckles.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5432,7 +5432,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-crystal-shard-knuckles.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -5480,7 +5480,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-festive-knuckles.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5504,7 +5504,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-rainbow-unicorn-knuckles.png",
-   "stock": 1,
+   "stock": 10,
    "badge": ""
   },
   {
@@ -5528,7 +5528,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-sharp-claw.png",
-   "stock": 1,
+   "stock": 12,
    "badge": ""
   },
   {
@@ -5540,7 +5540,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-hexbite-taser.png",
-   "stock": 1,
+   "stock": 11,
    "badge": ""
   },
   {
@@ -5552,7 +5552,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-kitten-chaos-board.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5564,7 +5564,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-bubble-gum-blaster.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5576,7 +5576,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-candy-cane-taser.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5588,7 +5588,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-cybernetic-taser.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5600,7 +5600,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-rudolphs-shock-taser.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -5624,7 +5624,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-candy-pop-frying-pan.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5636,7 +5636,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-cornucopia-keeper-pan.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5648,7 +5648,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-fairy-wand-mop.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5660,7 +5660,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-frostbite-pan.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5672,7 +5672,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-gleaming-galaxy-pan.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5696,7 +5696,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-easter-egg-basket-purse.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5708,7 +5708,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-hot-and-cold-nails.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5720,7 +5720,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-beatbox-purse.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5732,7 +5732,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-clover-rainbow-purse.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5744,7 +5744,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-mrs-clauss-purse.png",
-   "stock": 1,
+   "stock": 8,
    "badge": ""
   },
   {
@@ -5756,7 +5756,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-royal-empress-purse.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5780,7 +5780,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-starry-elegance-purse.png",
-   "stock": 1,
+   "stock": 7,
    "badge": ""
   },
   {
@@ -5792,7 +5792,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.99,
    "img": "assets/baddies/bd-summer-purse.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5816,7 +5816,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-treasure-chest-purse.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -5840,7 +5840,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-aurora-drift.png",
-   "stock": 1,
+   "stock": 10,
    "badge": ""
   },
   {
@@ -5852,7 +5852,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-spectral-death-fish.png",
-   "stock": 1,
+   "stock": 8,
    "badge": ""
   },
   {
@@ -5876,7 +5876,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-bubblegum-hoverboard.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -5924,7 +5924,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-galactic-pulse-hoverboard.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5936,7 +5936,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-galaxy-board.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5948,7 +5948,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-spring-glide-hoverboard.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -5960,7 +5960,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-stellar-glider-board.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5972,7 +5972,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-sweet-board.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5984,7 +5984,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-celestial-dog-leash.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -5996,7 +5996,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-christmas-light-dog-leash.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6008,7 +6008,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-enchanted-dark-mace.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6032,7 +6032,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-ribbon-whip.png",
-   "stock": 1,
+   "stock": 12,
    "badge": ""
   },
   {
@@ -6044,7 +6044,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-royal-cat-mace.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6056,7 +6056,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-abyssal-ocean-stop-sign.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6068,7 +6068,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-autumn-arsenal-rpg.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6092,7 +6092,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-desert-warrior-rpg.png",
-   "stock": 1,
+   "stock": 7,
    "badge": ""
   },
   {
@@ -6116,7 +6116,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-nutcracker-rpg.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6128,7 +6128,7 @@ const CATALOG = [
    "variant": "base",
    "price": 8.99,
    "img": "assets/baddies/bd-ghost-missile-rpg.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6140,7 +6140,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-pirate-wheel-stop-sign.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6152,7 +6152,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-bunny-rpg.png",
-   "stock": 1,
+   "stock": 8,
    "badge": ""
   },
   {
@@ -6164,7 +6164,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-candycane-rpg.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6176,7 +6176,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-gobble-throne-toilet.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6188,7 +6188,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-prosperity-throne-toilet.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6200,7 +6200,7 @@ const CATALOG = [
    "variant": "base",
    "price": 5.99,
    "img": "assets/baddies/bd-celestial-flamethrower.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6212,7 +6212,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-golden-dragon-flamethrower.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6224,7 +6224,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.99,
    "img": "assets/baddies/bd-gothic-flamethrower.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6236,7 +6236,7 @@ const CATALOG = [
    "variant": "base",
    "price": 5.99,
    "img": "assets/baddies/bd-candy-flamethrower.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6248,7 +6248,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-super-hot-flamethrower.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6260,7 +6260,7 @@ const CATALOG = [
    "variant": "base",
    "price": 7.99,
    "img": "assets/baddies/bd-mythical-magic-stomp.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6284,7 +6284,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-dumpster-whiskers-bag.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6296,7 +6296,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-endless-void-trash-bag.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6308,7 +6308,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-mini-fridge-bag.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6332,7 +6332,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-slay-trash-bag.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6344,7 +6344,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-sleek-trash-bag.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6356,7 +6356,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-velvet-nightfall.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6368,7 +6368,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-cute-rabbit-stanli.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6380,7 +6380,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-berry-sweet-stanli.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6392,7 +6392,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-celestial-stanli-cup.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6404,7 +6404,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-iron-pipe.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6416,7 +6416,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-money-wrapped-pipe.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6428,7 +6428,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-northernbells-bat-pipe.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6440,7 +6440,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-aurora-pepper-spray.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6452,7 +6452,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.49,
    "img": "assets/baddies/bd-neon-night-spray.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6464,7 +6464,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-chili-pepper-spray.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6488,7 +6488,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-poison-ivy-spray.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6500,7 +6500,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.99,
    "img": "assets/baddies/bd-giftbreaker-sledge-hammer.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6512,7 +6512,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.99,
    "img": "assets/baddies/bd-st-patricks-sledgehammer.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6524,7 +6524,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.99,
    "img": "assets/baddies/bd-bunny-bounce.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6536,7 +6536,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-north-pole-crusher.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6560,7 +6560,7 @@ const CATALOG = [
    "variant": "base",
    "price": 4.99,
    "img": "assets/baddies/bd-cozy-patchwork-bat.png",
-   "stock": 1,
+   "stock": 5,
    "badge": ""
   },
   {
@@ -6572,7 +6572,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.99,
    "img": "assets/baddies/bd-crystal-bat.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6584,7 +6584,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-dawn-crusher-bat.png",
-   "stock": 1,
+   "stock": 3,
    "badge": ""
   },
   {
@@ -6596,7 +6596,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-infernal-demon-bat.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6608,7 +6608,7 @@ const CATALOG = [
    "variant": "base",
    "price": 1.99,
    "img": "assets/baddies/bd-jungle-predator-bat.png",
-   "stock": 1,
+   "stock": 4,
    "badge": ""
   },
   {
@@ -6620,7 +6620,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-katana-bat.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6632,7 +6632,7 @@ const CATALOG = [
    "variant": "base",
    "price": 8.99,
    "img": "assets/baddies/bd-melody-spiked-bat.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6644,7 +6644,7 @@ const CATALOG = [
    "variant": "base",
    "price": 3.49,
    "img": "assets/baddies/bd-pastel-skull-spiked-bat.png",
-   "stock": 1,
+   "stock": 6,
    "badge": ""
   },
   {
@@ -6656,7 +6656,7 @@ const CATALOG = [
    "variant": "base",
    "price": 2.49,
    "img": "assets/baddies/bd-mystic-sweep-mop.png",
-   "stock": 1,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6686,7 +6686,7 @@ const CATALOG = [
   {
    "id": "acc-random-male",
    "game": "accounts",
-   "name": "Random Roblox Account (Male)",
+   "name": "Random Stacked Roblox Acc (Male)",
    "kind": "account",
    "rarity": "Random",
    "variant": "base",
@@ -6698,7 +6698,7 @@ const CATALOG = [
   {
    "id": "acc-random-female",
    "game": "accounts",
-   "name": "Random Roblox Account (Female)",
+   "name": "Random Stacked Roblox Acc (Female)",
    "kind": "account",
    "rarity": "Random",
    "variant": "base",

@@ -1033,10 +1033,10 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
 .df-t  { transform: rotateX(90deg) translateZ(calc(var(--s) / 2)); }
 .df-b  { transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); }
 @media (prefers-reduced-motion: no-preference) {
-  .die-wrap { animation: dieFloat var(--fd, 11s) ease-in-out var(--dd, 0s) infinite alternate; }
-  .die { animation: dieSpin calc(var(--fd, 11s) * 2.4) linear var(--dd, 0s) infinite; }
+  .die-wrap { animation: dieFloat calc(var(--fd, 11s) * 1.6) ease-in-out var(--dd, 0s) infinite alternate; }
+  .die { animation: dieSpin calc(var(--fd, 11s) * 6) linear var(--dd, 0s) infinite; }
 }
-@keyframes dieFloat { from { transform: translateY(-9px); } to { transform: translateY(11px); } }
+@keyframes dieFloat { from { transform: translateY(-5px); } to { transform: translateY(6px); } }
 @keyframes dieSpin {
   from { transform: rotateX(-24deg) rotateY(0deg) rotateZ(0deg); }
   to   { transform: rotateX(-24deg) rotateY(360deg) rotateZ(-360deg); }
@@ -1175,3 +1175,7 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
   .cat-tabs { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
   .cat-tabs::-webkit-scrollbar { display: none; }
 }
+
+/* long random-accounts title */
+.acct-h3-long { font-size: 1.05rem !important; letter-spacing: .01em; line-height: 1.35; text-transform: uppercase; }
+.acct-sub-range { display: block; font-size: .8em; color: var(--ink-2); font-weight: 600; margin-top: 3px; }

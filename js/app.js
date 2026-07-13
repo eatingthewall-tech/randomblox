@@ -5,19 +5,19 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260713b";                       // bump when item art changes
+const IMG_V = "20260713c";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
   Godly: "godly", Chroma: "chroma", Ancient: "ancient", Vintage: "vintage",
   Legendary: "legendary", Rare: "rare", Uncommon: "uncommon", Common: "common",
   Egg: "uncommon", Vehicle: "rare", Toy: "vintage",
-  MVP: "nflmvp", "All-Pro": "nflallpro", Pro: "nflpro", Starter: "nflstarter", Rookie: "nflrookie",
+  Diamond: "nflmvp", Amethyst: "nflallpro", Ruby: "nflpro", Gold: "nflstarter", Silver: "nflrookie", Bronze: "nflrookie", Custom: "nflmvp",
   Legend: "bdlegend", Epic: "bdepic", Basic: "bdbasic",
   Korblox: "korblox", Random: "account",
 };
 const RARITY_ORDER = ["Korblox","Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Basic","Uncommon","Common","Egg","Vehicle","Toy",
-  "MVP","All-Pro","Pro","Starter","Rookie","Random"];
+  "Custom","Diamond","Amethyst","Ruby","Gold","Silver","Bronze","Random"];
 const CATS = {
   mm2: [["all", "Everything"], ["knife", "Knives"], ["gun", "Guns"], ["pet", "Pets"], ["collectible", "Collectibles"]],
   am:  [["all", "Everything"], ["pet", "Pets"], ["egg", "Eggs"], ["vehicle", "Vehicles"], ["toy", "Toys & items"]],
@@ -279,6 +279,7 @@ function setGame(g) {
 $$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(); }));
 $$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(); }));
 $("#heroBrowse")?.addEventListener("click", scrollToShop);
+$("#logoHome")?.addEventListener("click", e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); });
 $$(".botnav-item[data-bot]").forEach(b => b.addEventListener("click", () => {
   const t = b.dataset.bot;
   if (t === "home") window.scrollTo({ top: 0, behavior: "smooth" });
