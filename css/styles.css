@@ -1065,11 +1065,12 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
 .acct-grail:hover { box-shadow: 0 0 40px -10px oklch(0.7 0.14 240 / .55), 0 24px 48px -28px rgb(0 0 0 / .8); }
 .acct-media {
   position: relative; aspect-ratio: 5 / 4; overflow: hidden;
-  background: linear-gradient(180deg, #f4f2fb, #e6e2f4);
+  background: #d9d7e2;
 }
 .acct-media img {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
   opacity: 0; transition: opacity .45s var(--ease);
+  filter: brightness(.85) saturate(1.04);
 }
 .acct-media img.is-on { opacity: 1; }
 .am-nav {

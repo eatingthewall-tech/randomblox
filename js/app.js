@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260713a";                       // bump when item art changes
+const IMG_V = "20260713b";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -16,16 +16,17 @@ const PILL = {
   Legend: "bdlegend", Epic: "bdepic", Basic: "bdbasic",
   Korblox: "korblox", Random: "account",
 };
-const RARITY_ORDER = ["Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Basic","Uncommon","Common","Egg","Vehicle","Toy",
-  "MVP","All-Pro","Pro","Starter","Rookie"];
+const RARITY_ORDER = ["Korblox","Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Basic","Uncommon","Common","Egg","Vehicle","Toy",
+  "MVP","All-Pro","Pro","Starter","Rookie","Random"];
 const CATS = {
   mm2: [["all", "Everything"], ["knife", "Knives"], ["gun", "Guns"], ["pet", "Pets"], ["collectible", "Collectibles"]],
   am:  [["all", "Everything"], ["pet", "Pets"], ["egg", "Eggs"], ["vehicle", "Vehicles"], ["toy", "Toys & items"]],
   nfl: [["all", "Everything"], ["gear", "Gear"], ["apparel", "Apparel"], ["headwear", "Headwear"], ["cleats", "Cleats"], ["chains", "Chains"], ["emote", "Emotes"], ["ball", "Ball & Trails"]],
   baddies: [["all", "Everything"], ["knuckles", "Brass Knuckles"], ["taser", "Tasers"], ["pan", "Frying Pans"], ["purse", "Purses"], ["board", "Hoverboards"], ["mace", "Maces & Whips"], ["rpg", "RPGs"], ["bat", "Spiked Bats"], ["flamethrower", "Flamethrowers"], ["finisher", "Finishers"], ["style", "Fighting Styles"], ["more", "More Skins"]],
+  accounts: [["all", "Everything"]],
 };
-const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies", accounts: "Roblox Account" };
-const GAME_GHOST = { mm2: "MM2", am: "ADOPT ME", nfl: "NFL UF", baddies: "BADDIES" };
+const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies", accounts: "Roblox Accounts" };
+const GAME_GHOST = { mm2: "MM2", am: "ADOPT ME", nfl: "NFL UF", baddies: "BADDIES", accounts: "ACCOUNTS" };
 const MOTION_OK = matchMedia("(prefers-reduced-motion: no-preference)").matches;
 const BADDIE_GLYPH = { knuckles: "🥊", taser: "⚡", pan: "🍳", purse: "👛", board: "🛹", mace: "🔨", rpg: "🚀", toilet: "🚽", style: "🥋", more: "✨" };
 
@@ -113,8 +114,8 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 
 /* ---------- roblox accounts: carousels + gender pick ---------- */
 const ACCT_IMGS = {
-  korblox: ["assets/accounts/korblox-1.jpg"],
-  random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11"].map(n => `assets/accounts/${n}.jpg`),
+  korblox: ["korblox-1","korblox-2","korblox-3"].map(n => `assets/accounts/${n}.jpg`),
+  random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11","r12"].map(n => `assets/accounts/${n}.jpg`),
 };
 (function accounts() {
   $$(".acct-media").forEach(box => {
@@ -258,7 +259,7 @@ function setGame(g) {
     b.setAttribute("aria-selected", on);
   });
   $$(".botnav-item[data-bot]").forEach(b => {
-    if (["mm2", "am", "nfl", "baddies"].includes(b.dataset.bot)) b.classList.toggle("is-on", b.dataset.bot === g);
+    if (["mm2", "am", "nfl", "baddies", "accounts"].includes(b.dataset.bot)) b.classList.toggle("is-on", b.dataset.bot === g);
   });
   $("#shopTitle").textContent = GAME_LABEL[g];
   document.body.dataset.game = g;
@@ -384,7 +385,7 @@ function cardHTML(i) {
   const left = i.stock - (state.cart[i.id] || 0);
   const inCart = (state.cart[i.id] || 0) > 0;
   const pill = PILL[i.rarity] || "common";
-  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/"));
+  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/") || i.img.startsWith("assets/accounts/"));
   const variant = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   const fx = i.badge === "FX" ? `<span class="pill">FX</span>` : "";
