@@ -647,12 +647,10 @@ function queueInfo(order, orders) {
 }
 
 function queueHTML(order, orders) {
-  const q = queueInfo(order, orders);
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
   const vipGames = games.filter(g => VIP_LINKS[g]);
   const hasAccounts = games.includes("accounts");
   const accountsOnly = hasAccounts && !vipGames.length;
-  const waitTxt = `${q.waitLo} to ${q.waitHi} ${q.waitUnit}`;
 
   const icLink = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>`;
   const icChat = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>`;
@@ -661,44 +659,53 @@ function queueHTML(order, orders) {
   const icGift = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg>`;
   const icSend = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>`;
 
+  // one live chat per order. mode "account" = the delivery channel (waits for the
+  // owner); mode "fallback" = a manual backup for buyers who can't join the server
+  const chatBox = mode => `
+    <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${mode}">
+      <div class="chat-head">
+        <span class="chat-ic">${icChat}</span>
+        <div class="chat-h-tx">
+          <b>${mode === "account" ? "Live chat" : "Can't join the server?"}</b>
+          <i class="chat-status"><span class="chat-dot"></span>${mode === "account"
+            ? "The owner delivers your account here"
+            : "Message the owner to trade another way"}</i>
+        </div>
+      </div>
+      <div class="chat-log" aria-live="polite"></div>
+      <form class="chat-form" autocomplete="off">
+        <input class="chat-input" type="text" maxlength="240" placeholder="${mode === "account"
+          ? "Message the owner while you wait"
+          : "Tell the owner you can't get in the server"}" aria-label="Message the owner">
+        <button class="chat-send" type="submit" aria-label="Send message">${icSend}</button>
+      </form>
+    </div>`;
+
+  /* account-only orders: no queue, no wait time. The account is handed over in the
+     live chat as soon as the owner is online. */
+  if (accountsOnly) {
+    return `
+      <div class="q-panel q-acct">
+        <div class="qp-head"><h3>Your account order</h3><span class="q-live"><i></i>Chat open</span></div>
+        <div class="q-order">
+          <span class="qo-label">Your order number</span>
+          <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-plain">No queue</span>
+          <p class="qo-wait">Handed to you straight through the live chat below.</p>
+        </div>
+        <p class="qo-fine">The owner sends the account email and password in the chat as soon as they're online. Message anytime meanwhile.</p>
+      </div>
+      <div class="coq-links">${chatBox("account")}</div>`;
+  }
+
+  /* game / mixed orders: queue + the right VIP link(s), with a live chat as the
+     manual fallback for anyone who can't get into the private server */
+  const q = queueInfo(order, orders);
+  const waitTxt = `${q.waitLo} to ${q.waitHi} ${q.waitUnit}`;
   const vipTiles = vipGames.map(g =>
     `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
        <span class="qi-ic">${icLink}</span>
        <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>Open it when it's your turn</i></span></a>`).join("");
-
-  const chatBox = hasAccounts ? `
-    <div class="coq-chat" data-order="${esc(order.no)}">
-      <div class="chat-head">
-        <span class="chat-ic">${icChat}</span>
-        <div class="chat-h-tx"><b>Live chat</b><i class="chat-status"><span class="chat-dot"></span>Waiting for the owner to come online</i></div>
-      </div>
-      <div class="chat-log" aria-live="polite"></div>
-      <form class="chat-form" autocomplete="off">
-        <input class="chat-input" type="text" maxlength="240" placeholder="Message the owner while you wait" aria-label="Message the owner">
-        <button class="chat-send" type="submit" aria-label="Send message">${icSend}</button>
-      </form>
-    </div>` : "";
-
-  const turnSteps = accountsOnly
-    ? `<ol class="q-turn">
-        <li><span class="qt-ic">${icBell}</span><div class="qt-tx"><b>1. Live chat opens</b><p>A chat opens on this order the moment you check out.</p></div></li>
-        <li><span class="qt-ic">${icChat}</span><div class="qt-tx"><b>2. Wait for the owner</b><p>The owner joins the chat once online. Message anytime while you wait.</p></div></li>
-        <li><span class="qt-ic">${icUser}</span><div class="qt-tx"><b>3. Confirm it's you</b><p>Drop your order code in the chat.</p></div></li>
-        <li><span class="qt-ic">${icGift}</span><div class="qt-tx"><b>4. Get the login</b><p>The account email and password come through the chat. It's yours.</p></div></li>
-      </ol>`
-    : `<ol class="q-turn">
-        <li><span class="qt-ic">${icBell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
-        <li><span class="qt-ic">${icLink}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link for your game below and hop in.</p></div></li>
-        <li><span class="qt-ic">${icUser}</span><div class="qt-tx"><b>3. Meet at spawn</b><p>Head to spawn with your order code ready.</p></div></li>
-        <li><span class="qt-ic">${icGift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
-      </ol>`;
-
-  const progressNote = accountsOnly
-    ? `The live chat opens below. The owner replies as soon as they're online.`
-    : `The VIP server link is ready below. Join it when you're next.`;
-
-  const links = (vipTiles || chatBox)
-    ? `<div class="coq-links">${vipTiles}${chatBox}</div>` : "";
+  const chat = chatBox(hasAccounts ? "account" : "fallback");
 
   return `
     <div class="coq-grid">
@@ -712,28 +719,37 @@ function queueHTML(order, orders) {
         <div class="q-progress">
           <div class="qp-top"><span>Queue progress</span><span>${q.pct}%</span></div>
           <div class="qp-bar"><i style="width:${q.pct}%"></i></div>
-          <p>${progressNote}</p>
+          <p>The VIP server link is ready below. Can't get in? Use the live chat.</p>
         </div>
         <p class="qo-fine">Wait times aren't always exact, they shift with the owner's availability.</p>
       </div>
       <div class="q-panel">
         <div class="qp-head"><h3>When it's your turn</h3></div>
-        ${turnSteps}
+        <ol class="q-turn">
+          <li><span class="qt-ic">${icBell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
+          <li><span class="qt-ic">${icLink}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link for your game below and hop in. Can't join? Use the chat.</p></div></li>
+          <li><span class="qt-ic">${icUser}</span><div class="qt-tx"><b>3. Meet at spawn</b><p>Head to spawn with your order code ready.</p></div></li>
+          <li><span class="qt-ic">${icGift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
+        </ol>
       </div>
     </div>
-    ${links}`;
+    <div class="coq-links">${vipTiles}${chat}</div>`;
 }
 
-/* the account live chat is device-local: messages persist per order number so
-   the buyer's notes are still there when they reopen "My order" */
+/* the live chat is device-local: messages persist per order number so the buyer's
+   notes are still there when they reopen "My order" */
 function bindQueueChat(root = document) {
   $$(".coq-chat", root).forEach(box => {
     const key = "rbx-chat-" + box.dataset.order;
+    const mode = box.dataset.mode || "account";
+    const seed = mode === "account"
+      ? "The account login lands right here the moment the owner is online. Leave a message and it'll be waiting."
+      : "Can't get into the VIP server? Send a message here and the owner will sort out another way to trade.";
     const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
     const paint = () => {
       const msgs = load(key, []);
       log.innerHTML =
-        `<div class="chat-msg chat-sys">The account login lands right here the moment the owner is online. Leave a message and it'll be waiting.</div>` +
+        `<div class="chat-msg chat-sys">${seed}</div>` +
         msgs.map(m => `<div class="chat-msg chat-me">${esc(m.t)}</div>`).join("");
       log.scrollTop = log.scrollHeight;
     };
@@ -825,13 +841,15 @@ function stepDone(username) {
   save("rbx-orders", orders);
 
   const order = orders[orders.length - 1];
+  const gamesInOrder = [...new Set(es.map(([id]) => byId[id]?.game).filter(Boolean))];
+  const acctOnly = gamesInOrder.length > 0 && gamesInOrder.every(g => g === "accounts");
   setCoWide(true);
   coBody.innerHTML = `
     <p class="co-step">Step 3 of 3</p>
-    <h2 class="co-title" id="checkoutTitle">You're in the queue, ${esc(username)}</h2>
+    <h2 class="co-title" id="checkoutTitle">${acctOnly ? `Your account is on the way, ${esc(username)}` : `You're in the queue, ${esc(username)}`}</h2>
     ${queueHTML(order, orders)}
     <p class="co-note">Your order number is saved on this device under "My order".
-    Have it handy for the trade.</p>
+    Have it handy ${acctOnly ? "in the chat" : "for the trade"}.</p>
     ${linesHTML(es)}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
   $("#coDone").addEventListener("click", closeCheckout);

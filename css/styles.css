@@ -1406,16 +1406,31 @@ body.hero-off .hero-glow, body.hero-off .wall-grid { animation-play-state: pause
    v5.5 — hero facts strip at the bottom + big queue confirmation
    ============================================================ */
 
-/* trust row: full-width strip along the hero's bottom edge */
+/* trust row: a glass "stat bar" pinned to the hero's bottom edge, above the
+   floating dice and item wall so nothing collides */
+.hero { align-items: stretch; }                       /* let the inner fill the hero height */
+.hero-inner { display: flex; flex-direction: column; justify-content: center; }
 .hero-inner > .hero-facts {
-  margin-top: clamp(48px, 8vh, 96px);
-  padding-top: 22px;
-  border-top: 1px solid rgb(255 255 255 / .07);
+  position: absolute; z-index: 4;
+  left: clamp(20px, 5vw, 48px); right: clamp(20px, 5vw, 48px);
+  bottom: clamp(16px, 3vh, 34px);
+  margin: 0; padding: 15px clamp(16px, 2vw, 24px);
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px 22px;
+  gap: 14px 20px;
+  border-radius: 18px; border: 1px solid rgb(255 255 255 / .08);
+  background: linear-gradient(180deg, rgb(14 9 26 / .72), rgb(9 5 18 / .82));
+  box-shadow: 0 22px 48px -26px rgb(0 0 0 / .85);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
+.hero-inner > .hero-facts li { align-items: center; }
 @media (max-width: 920px) {
-  .hero-inner > .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 44px; }
+  .hero { align-items: center; }
+  .hero-inner { display: block; }
+  .hero-inner > .hero-facts {
+    position: static; left: auto; right: auto; bottom: auto;
+    margin: 30px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px;
+  }
+  .hero-inner > .hero-facts .hf-tx b { white-space: normal; }
 }
 
 /* wide confirmation panel */
@@ -1441,20 +1456,15 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 }
 
 /* ============================================================
-   v5.6 — trust facts on the hero's left column · queue accuracy
-   note · account live chat
+   v5.6 — queue accuracy note · live chat · account-only panel
    ============================================================ */
 
-/* the 4 trust facts sit under the hero copy, hard against the left,
-   never spanning across the item wall on the right */
-.hero-copy .hero-facts {
-  margin: 36px 0 0; padding: 0; border-top: 0;
-  max-width: 468px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px 26px; justify-content: start;
-}
-@media (max-width: 560px) {
-  .hero-copy .hero-facts { max-width: none; gap: 14px; }
+/* account-only orders: a single full-width panel (no queue grid) */
+.q-acct { margin-bottom: 14px; }
+.qo-pos-plain {
+  display: inline-block; margin-left: 10px; vertical-align: 4px;
+  font: 700 .72rem var(--font); color: var(--ink-2);
+  border: 1px solid rgb(255 255 255 / .16); border-radius: 999px; padding: 3px 10px;
 }
 
 /* honesty note under the queue status */
