@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260713d";                       // bump when item art changes
+const IMG_V = "20260714b";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -37,6 +37,16 @@ const state = {
 function load(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
+
+/* one-time reset: wipe every order / chat / read-marker so the queue starts
+   empty and at #1 for everyone. Bump RESET_TAG to reset again later. */
+const RESET_TAG = "2026-07-14";
+if (localStorage.getItem("rbx-reset") !== RESET_TAG) {
+  Object.keys(localStorage)
+    .filter(k => k === "rbx-orders" || k.startsWith("rbx-chat-") || k.startsWith("rbx-seen-"))
+    .forEach(k => localStorage.removeItem(k));
+  localStorage.setItem("rbx-reset", RESET_TAG);
+}
 
 /* ---------- featured shelf: priciest MM2/AM grails (NFL & Baddies keep their own tabs) ----------
    9 cards = one 2x2 grail + 8 singles, filling the 6-column bento exactly */
@@ -86,12 +96,11 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
     `<span class="die-wrap ${extra}" style="--s:${s}px;left:${x};top:${y};--fd:${dur}s;--dd:${delay}s">
       <span class="die">${face(1, "df-f")}${face(6, "df-bk")}${face(3, "df-r")}${face(4, "df-l")}${face(2, "df-t")}${face(5, "df-b")}</span>
     </span>`;
+  // 3 dice only — calmer, less busy than a full scatter
   box.innerHTML =
-    die(118, "46%", "10%", 9, 0, "die-main keep-m") +
-    die(66, "2.5%", "7%", 12, -3) +
-    die(84, "1.5%", "86%", 11, -6, "keep-m") +
-    die(46, "38%", "66%", 13, -2) +
-    die(30, "49%", "40%", 10, -8);
+    die(112, "46%", "10%", 9, 0, "die-main keep-m") +
+    die(62, "2.5%", "7%", 12, -3) +
+    die(80, "1.5%", "86%", 11, -6, "keep-m");
 })();
 
 /* ---------- pick-your-game: the official game covers, full bleed ---------- */
@@ -642,8 +651,9 @@ function queueInfo(order, orders) {
   const now = Date.now(), t = +new Date(order.when);
   // live orders (last 48h) placed at or before this one. The queue starts empty
   // (0 people) and only real orders made on this device ever count.
+  // only active (not-yet-delivered) orders from the last 48h hold a spot
   const pos = Math.max(1, orders.filter(o =>
-    now - +new Date(o.when) < DAY2 && +new Date(o.when) <= t).length);
+    !o.done && now - +new Date(o.when) < DAY2 && +new Date(o.when) <= t).length);
   const ahead = pos - 1;                       // people in front of this order
   // wait bands scale with how many are in the queue:
   //   1-10 in queue  -> 1 to 30 minutes
@@ -689,6 +699,28 @@ function pushChat(key, text, who) {
   save(key, msgs);
 }
 
+/* live sync: any open chat repaints the moment the other side sends, with no
+   reload. A `storage` event fires in every OTHER tab of this browser, and the
+   interval catches the sending tab too. (Across separate devices, live chat
+   needs a shared backend — localStorage only syncs within one browser.) */
+function syncChats() {
+  $$(".coq-chat").forEach(box => {
+    const log = $(".chat-log", box);
+    if (!log) return;
+    const key = "rbx-chat-" + box.dataset.order;
+    const msgs = load(key, []);
+    if (+log.dataset.n === msgs.length) return;          // nothing new — don't disturb
+    const persp = box.dataset.persp || "buyer";
+    const seed = persp === "owner" ? "" : (CHAT_SEED[box.dataset.mode] || CHAT_SEED.account);
+    paintChat(log, key, persp, seed);
+    log.dataset.n = msgs.length;
+    if (persp === "owner") save("rbx-seen-" + box.dataset.order, msgs.length);
+  });
+  if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
+}
+window.addEventListener("storage", syncChats);
+setInterval(syncChats, 1200);
+
 function queueHTML(order, orders) {
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
   const vipGames = games.filter(g => VIP_LINKS[g]);
@@ -700,7 +732,7 @@ function queueHTML(order, orders) {
   const chatFold = summary => `
     <details class="coq-fold coq-chatfold">
       <summary><span class="fold-ic">${IC.chat}</span><span class="fold-tx">${summary}</span><span class="fold-chev">${IC.chev}</span></summary>
-      <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${chatMode}">
+      <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${chatMode}" data-persp="buyer">
         <div class="chat-log" aria-live="polite"></div>
         <form class="chat-form" autocomplete="off">
           <input class="chat-input" type="text" maxlength="240" placeholder="Message the owner" aria-label="Message the owner">
@@ -708,6 +740,19 @@ function queueHTML(order, orders) {
         </form>
       </div>
     </details>`;
+
+  /* delivered orders: no queue, no VIP — just a receipt + the chat */
+  if (order.done) {
+    return `
+      <div class="q-slim">
+        <div class="q-order q-delivered">
+          <span class="qo-label">Your order number</span>
+          <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-done">Delivered</span>
+          <p class="qo-wait">This order has been delivered. Thanks for shopping with us!</p>
+        </div>
+        ${chatFold("Open live chat")}
+      </div>`;
+  }
 
   /* account-only orders: no queue, no wait — just the live chat, one click away */
   if (accountsOnly) {
@@ -727,10 +772,17 @@ function queueHTML(order, orders) {
      (the steps, and the chat fallback) so nothing hits all at once */
   const q = queueInfo(order, orders);
   const waitTxt = `${q.waitLo} to ${q.waitHi} ${q.waitUnit}`;
-  const vipTiles = vipGames.map(g =>
-    `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
-       <span class="qi-ic">${IC.link}</span>
-       <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>Open it when it's your turn</i></span></a>`).join("");
+  // the VIP link is hidden until the buyer reaches the front of the queue
+  const atFront = q.ahead === 0;
+  const lockIc = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2.2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>`;
+  const vipTiles = atFront
+    ? vipGames.map(g =>
+        `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
+           <span class="qi-ic">${IC.link}</span>
+           <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>You're up — open it now</i></span></a>`).join("")
+    : `<div class="coq-tile coq-tile-locked" aria-disabled="true">
+         <span class="qi-ic">${lockIc}</span>
+         <span class="coq-tx"><b>VIP server locked</b><i>Unlocks when you reach the front of the queue</i></span></div>`;
 
   return `
     <div class="q-slim">
@@ -938,6 +990,12 @@ function refreshOwnerBadge() {
 function openOwner() { renderOwnerList(); ownerPanel.hidden = false; }
 function closeOwner() { ownerPanel.hidden = true; refreshOwnerBadge(); }
 
+function setOrderDone(no, done) {
+  const orders = load("rbx-orders", []);
+  const o = orders.find(x => x.no === no);
+  if (o) { o.done = done; save("rbx-orders", orders); }
+}
+
 function renderOwnerList() {
   const orders = load("rbx-orders", []).slice().reverse();
   const gUnread = unreadFor("general");
@@ -963,11 +1021,11 @@ function renderOwnerList() {
       const tag = games.length === 1 && games[0] === "accounts"
         ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
       return `
-        <button class="own-row" data-own="${esc(o.no)}">
+        <button class="own-row${o.done ? " own-row-done" : ""}" data-own="${esc(o.no)}">
           <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
           <span class="own-main">
             <b>${esc(o.user || "Buyer")}</b>
-            <i>${esc(o.no)} · ${o.items.reduce((n, x) => n + x.q, 0)} items · ${esc(tag || "order")}</i>
+            <i>${esc(o.no)} · ${o.items.reduce((n, x) => n + x.q, 0)} items · ${o.done ? "Delivered" : esc(tag || "order")}</i>
           </span>
           ${unread ? `<span class="own-badge">${unread}</span>` : ""}
           <span class="own-go">${IC.chev}</span>
@@ -992,7 +1050,8 @@ function renderOwnerChat(no) {
       <div><b>${esc(o.user || "Buyer")}</b><i>${isGeneral ? "Website chat" : esc(no) + " · " + money(o.total)}</i></div>
     </div>
     <p class="own-items">${esc(lines)}</p>
-    <div class="coq-chat own-chat" data-order="${esc(no)}">
+    ${isGeneral ? "" : `<button class="own-done-btn${o.done ? " is-done" : ""}" id="ownDone">${o.done ? "Delivered — tap to reopen" : "Mark delivered &amp; remove from queue"}</button>`}
+    <div class="coq-chat own-chat" data-order="${esc(no)}" data-persp="owner">
       <div class="chat-log" aria-live="polite"></div>
       <form class="chat-form" autocomplete="off">
         <input class="chat-input" type="text" maxlength="240" placeholder="Reply to ${esc(o.user || "the buyer")}" aria-label="Reply to buyer">
@@ -1000,6 +1059,11 @@ function renderOwnerChat(no) {
       </form>
     </div>`;
   $("#ownBack").addEventListener("click", renderOwnerList);
+  $("#ownDone")?.addEventListener("click", () => {
+    const cur = load("rbx-orders", []).find(x => x.no === no);
+    setOrderDone(no, !cur?.done);
+    renderOwnerChat(no);
+  });
   const box = $(".own-chat", ownerBody);
   const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
   const repaint = () => paintChat(log, key, "owner", "");

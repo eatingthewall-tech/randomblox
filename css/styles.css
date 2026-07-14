@@ -6,18 +6,18 @@
    ============================================================ */
 
 :root {
-  /* --- light, soft-lilac surfaces (bright & friendly, still Chanceblox) --- */
-  --bg: #f6f4ff;              /* soft lilac page */
-  --bg-2: #ffffff;           /* cards / modals */
-  --surface: #ffffff;        /* raised surfaces */
-  --surface-2: #f1ecff;      /* lilac hover / raised */
-  --tile: #eee7ff;           /* item image well */
-  --tile-lo: #f4f0ff;
-  --ink: #1c1836;            /* near-black, faint purple */
-  --ink-2: #575274;
-  --ink-3: #6c6790;
-  --line: #e7e1f6;
-  --line-2: #d7d0ef;
+  /* --- medium-dark purple surfaces (dark, but a lighter purple than black) --- */
+  --bg: #241a44;             /* deep purple page — not black */
+  --bg-2: #2c2258;           /* cards / modals */
+  --surface: #322769;        /* raised surfaces */
+  --surface-2: #3c3079;      /* lilac hover / raised */
+  --tile: #2a2052;           /* item image well */
+  --tile-lo: #241b46;
+  --ink: #f4f1ff;            /* near-white text */
+  --ink-2: #c8beed;
+  --ink-3: #9f94ca;
+  --line: #3f3473;
+  --line-2: #4c3f86;
 
   /* --- brand: purple identity kept --- */
   --brand: #7c3aed;
@@ -26,30 +26,30 @@
   --brand-soft: rgb(124 58 237 / .09);
   --brand-soft-2: rgb(124 58 237 / .16);
 
-  /* --- money (green, like luger) & state --- */
-  --gold: #0a8a3f;           /* prices (green, AA-contrast on light) */
-  --go: #0a8a3f;
-  --danger: #e5484d;
+  /* --- money (gold on dark) & state --- */
+  --gold: #ffce54;           /* prices (gold, reads bright on dark) */
+  --go: #5fd48b;             /* in-stock / success green */
+  --danger: #ff6470;
 
-  /* --- rarity: dark ink on light tint (for a light theme) --- */
-  --pill-godly-bg: #ffe1ef;   --pill-godly-ink: #c02676;
-  --pill-chroma-bg: #ece1ff;  --pill-chroma-ink: #6a30d1;
-  --pill-ancient-bg: #d5f4ec; --pill-ancient-ink: #0a6a58;
-  --pill-vintage-bg: #fceac6; --pill-vintage-ink: #825807;
-  --pill-legendary-bg: #ffdede;--pill-legendary-ink: #c53434;
-  --pill-rare-bg: #dde7ff;    --pill-rare-ink: #2b5ad2;
-  --pill-uncommon-bg: #d6f2df;--pill-uncommon-ink: #10703a;
-  --pill-common-bg: #e8ecf3;  --pill-common-ink: #586274;
-  --pill-nflmvp-bg: #d3eef7;  --pill-nflmvp-ink: #0a6180;
-  --pill-nflallpro-bg: #e8dfff;--pill-nflallpro-ink: #6636d1;
-  --pill-nflpro-bg: #ffdee6;  --pill-nflpro-ink: #c8294c;
-  --pill-nflstarter-bg: #fceac6;--pill-nflstarter-ink: #825807;
-  --pill-nflrookie-bg: #e8ecf3;--pill-nflrookie-ink: #586274;
-  --pill-bdlegend-bg: #fceac6;--pill-bdlegend-ink: #825807;
-  --pill-bdepic-bg: #eadfff;  --pill-bdepic-ink: #6633d1;
-  --pill-bdbasic-bg: #dde7ff; --pill-bdbasic-ink: #2b5ad2;
-  --pill-korblox-bg: #d4effc; --pill-korblox-ink: #0a6180;
-  --pill-account-bg: #eadfff; --pill-account-ink: #6633d1;
+  /* --- rarity: bright ink on translucent tint (for a dark theme) --- */
+  --pill-godly-bg: rgb(255 84 158 / .16);   --pill-godly-ink: #ff9dcb;
+  --pill-chroma-bg: rgb(140 92 255 / .18);  --pill-chroma-ink: #c9b1ff;
+  --pill-ancient-bg: rgb(28 186 155 / .16); --pill-ancient-ink: #6fe0c8;
+  --pill-vintage-bg: rgb(224 160 42 / .16); --pill-vintage-ink: #ffd88a;
+  --pill-legendary-bg: rgb(255 84 84 / .15);--pill-legendary-ink: #ff9d9d;
+  --pill-rare-bg: rgb(66 118 255 / .17);    --pill-rare-ink: #9dbcff;
+  --pill-uncommon-bg: rgb(52 199 110 / .15);--pill-uncommon-ink: #8fe6ae;
+  --pill-common-bg: rgb(148 163 190 / .15); --pill-common-ink: #b9c4d6;
+  --pill-nflmvp-bg: rgb(34 178 214 / .16);  --pill-nflmvp-ink: #7fdcef;
+  --pill-nflallpro-bg: rgb(124 72 255 / .18);--pill-nflallpro-ink: #c5a8ff;
+  --pill-nflpro-bg: rgb(255 66 100 / .15);  --pill-nflpro-ink: #ff9fb0;
+  --pill-nflstarter-bg: rgb(230 165 34 / .16);--pill-nflstarter-ink: #ffd98c;
+  --pill-nflrookie-bg: rgb(160 175 198 / .15);--pill-nflrookie-ink: #c3cddc;
+  --pill-bdlegend-bg: rgb(255 176 32 / .16);--pill-bdlegend-ink: #ffd485;
+  --pill-bdepic-bg: rgb(158 74 255 / .17);  --pill-bdepic-ink: #d3a6ff;
+  --pill-bdbasic-bg: rgb(70 130 255 / .16); --pill-bdbasic-ink: #9ec3ff;
+  --pill-korblox-bg: rgb(34 178 214 / .16); --pill-korblox-ink: #7fdcef;
+  --pill-account-bg: rgb(158 74 255 / .17); --pill-account-ink: #d3a6ff;
 
   /* --- per-game accents --- */
   --g-mm2: #e0454f;
@@ -58,14 +58,14 @@
   --g-baddies: #a04fe0;
   --game-accent: var(--g-mm2);
 
-  /* --- shape & soft purple-tinted shadows --- */
+  /* --- shape & deep shadows for dark --- */
   --r-card: 18px;
   --r-tile: 13px;
   --r-ui: 12px;
-  --shadow-sm: 0 1px 2px rgb(84 62 148 / .1);
-  --shadow-pop: 0 6px 16px -6px rgb(84 62 148 / .2);
-  --shadow-lift: 0 18px 38px -20px rgb(84 62 148 / .3);
-  --shadow-float: 0 30px 64px -26px rgb(64 42 122 / .34);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / .35);
+  --shadow-pop: 0 4px 14px -6px rgb(0 0 0 / .5);
+  --shadow-lift: 0 20px 40px -22px rgb(0 0 0 / .7);
+  --shadow-float: 0 30px 64px -26px rgb(0 0 0 / .8);
 
   --font: "Space Grotesk", system-ui, -apple-system, sans-serif;
   --font-display: "Unbounded", "Space Grotesk", sans-serif;
@@ -78,7 +78,7 @@
   --z-drawer: 50;
   --z-modal: 60;
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -86,8 +86,8 @@ html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background:
-    radial-gradient(125% 62% at 50% -12%, #ece4ff, transparent 60%),
-    radial-gradient(90% 60% at 100% 8%, #fde9f6, transparent 55%),
+    radial-gradient(125% 62% at 50% -12%, #392862, transparent 60%),
+    radial-gradient(90% 60% at 100% 8%, #2c1d54, transparent 55%),
     var(--bg);
   background-attachment: fixed;
   color: var(--ink);
@@ -126,10 +126,10 @@ button { font-family: inherit; }
   max-width: 1220px; margin: 0 auto;
   display: flex; align-items: center; gap: 18px;
   padding: 9px 12px 9px 16px;
-  background: rgb(255 255 255 / .82);
+  background: rgb(36 26 68 / .78);
   backdrop-filter: blur(18px) saturate(1.4);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid var(--line);
+  border: 1px solid rgb(255 255 255 / .08);
   border-top: none;
   border-radius: 0 0 18px 18px;
   box-shadow:
@@ -178,9 +178,9 @@ button { font-family: inherit; }
 .cart-count {
   position: absolute; top: -7px; right: -7px;
   min-width: 20px; height: 20px; padding: 0 5px;
-  background: var(--danger); color: #fff;
+  background: var(--danger); color: #2a0d12;
   font: 800 .7rem/20px var(--font); text-align: center;
-  border-radius: 999px; border: 2px solid #fff;
+  border-radius: 999px; border: 2px solid var(--bg);
   animation: pop .3s var(--ease-out);
 }
 @keyframes pop { from { transform: scale(0); } 60% { transform: scale(1.2); } }
@@ -284,8 +284,8 @@ button { font-family: inherit; }
 }
 .btn:active { transform: scale(.97); }
 .btn-light {
-  background: #fff; color: #16102a; border: none;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / .1), 0 18px 36px -18px rgb(0 0 0 / .9);
+  background: rgb(255 255 255 / .08); color: var(--ink); border: 1.5px solid rgb(255 255 255 / .16);
+  box-shadow: none;
 }
 .btn-light:hover { transform: translateY(-1px); box-shadow: 0 0 30px -6px var(--brand), 0 18px 36px -16px rgb(0 0 0 / .9); }
 .btn-ghost { background: rgb(0 0 0 / .05); color: var(--ink); border: 1.5px solid rgb(0 0 0 / .16); }
@@ -526,7 +526,7 @@ button { font-family: inherit; }
 
 .filters-btn {
   display: none; align-items: center; gap: 8px;
-  background: #fff; color: #16102a; border: none; border-radius: 10px;
+  background: var(--surface-2); color: var(--ink); border: 1px solid var(--line-2); border-radius: 10px;
   font: 700 .88rem var(--font); padding: 10px 15px; cursor: pointer;
   transition: background .16s, color .16s;
 }
@@ -736,12 +736,12 @@ button { font-family: inherit; }
 .faq-item p { margin: 0; color: var(--ink-2); font-size: .94rem; max-width: 58ch; }
 
 /* ---------- footer ---------- */
-.footer { background: #efe9ff; color: var(--ink-2); margin-top: 28px; overflow: hidden; border-top: 1px solid var(--line); }
+.footer { background: #1b1436; color: var(--ink-2); margin-top: 28px; overflow: hidden; border-top: 1px solid var(--line); }
 .footer-word {
   margin: 26px 0 -10px; text-align: center;
   font: 800 clamp(1.7rem, 7vw, 5.2rem)/0.95 var(--font-display);
   white-space: nowrap;
-  color: rgb(0 0 0 / .05);
+  color: rgb(255 255 255 / .05);
   user-select: none;
 }
 .footer-in { max-width: 1220px; margin: 0 auto; padding: 34px 22px 40px; font-size: .88rem; }
@@ -993,7 +993,7 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
 }
 .brand-h1 .bh-a, .brand-h1 .bh-b { display: block; }
 .brand-h1 .bh-a {
-  color: var(--ink);
+  color: #e7ddff;   /* light lavender, not stark white */
 }
 .brand-h1 .bh-b {
   color: transparent;
@@ -1419,8 +1419,8 @@ body.hero-off .hero-glow, body.hero-off .wall-grid { animation-play-state: pause
   margin: 0; padding: 15px clamp(18px, 2vw, 26px);
   grid-auto-flow: column; grid-template-columns: none;
   gap: 14px 36px;
-  border-radius: 18px; border: 1px solid var(--line);
-  background: rgb(255 255 255 / .82);
+  border-radius: 18px; border: 1px solid rgb(255 255 255 / .1);
+  background: rgb(36 26 68 / .72);
   box-shadow: var(--shadow-pop);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
@@ -1654,7 +1654,7 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .social { max-width: 1220px; margin: 0 auto; padding: clamp(30px, 5vw, 56px) 18px 8px; }
 .trust-strip {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
-  background: #fff; border: 1px solid var(--line); border-radius: 18px;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px;
   padding: 22px 20px; box-shadow: var(--shadow-pop); margin-bottom: clamp(30px, 5vw, 52px);
 }
 .trust-stat { text-align: center; }
@@ -1662,7 +1662,7 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .trust-stat .ts-star { color: #f5a623; }
 .trust-stat span { font: 500 .82rem var(--font); color: var(--ink-3); }
 .reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
-.review { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 12px; }
+.review { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 12px; }
 .rv-stars { color: #f5a623; letter-spacing: 2px; font-size: 1rem; }
 .review p { margin: 0; color: var(--ink-2); font-size: .92rem; line-height: 1.55; flex: 1; }
 .rv-by { display: flex; align-items: center; gap: 10px; }
@@ -1678,3 +1678,29 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .qv-prices { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
 .qv-prices .card-was { font-size: .95rem; }
 .qv-save { font: 800 .72rem var(--font); color: #fff; background: linear-gradient(95deg, #ff5470, #e5354f); padding: 3px 8px; border-radius: 999px; align-self: center; }
+
+/* ============================================================
+   v6 — dark queue states, locked VIP, owner order completion
+   ============================================================ */
+.coq-tile-locked { opacity: .72; cursor: default; }
+.coq-tile-locked .qi-ic { color: var(--ink-3); }
+.q-delivered { border-color: color-mix(in oklab, var(--go) 50%, transparent); }
+.qo-pos-done {
+  background: color-mix(in oklab, var(--go) 20%, transparent);
+  color: var(--go); border-color: color-mix(in oklab, var(--go) 45%, transparent);
+}
+.own-done-btn {
+  display: block; width: 100%; margin: 4px 0 12px;
+  background: linear-gradient(95deg, #8b5cf6, #6d28d9); color: #fff;
+  border: none; border-radius: 12px; padding: 12px; cursor: pointer;
+  font: 700 .9rem var(--font);
+  transition: filter .16s, transform .12s;
+}
+.own-done-btn:hover { filter: brightness(1.07); }
+.own-done-btn:active { transform: scale(.98); }
+.own-done-btn.is-done {
+  background: none; color: var(--go);
+  border: 1px solid color-mix(in oklab, var(--go) 45%, transparent);
+}
+.own-row-done { opacity: .55; }
+.own-row-done .own-av { filter: grayscale(.5); }
