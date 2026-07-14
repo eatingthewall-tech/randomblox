@@ -897,7 +897,7 @@ function unreadFor(no) {
   return load("rbx-chat-" + no, []).slice(seen).filter(m => (m.who || "buyer") === "buyer").length;
 }
 function ownerUnread() {
-  return load("rbx-orders", []).reduce((n, o) => n + unreadFor(o.no), 0);
+  return unreadFor("general") + load("rbx-orders", []).reduce((n, o) => n + unreadFor(o.no), 0);
 }
 function refreshOwnerBadge() {
   const badge = $("#ownerFabBadge");
@@ -928,17 +928,23 @@ function closeOwner() { ownerPanel.hidden = true; refreshOwnerBadge(); }
 
 function renderOwnerList() {
   const orders = load("rbx-orders", []).slice().reverse();
-  if (!orders.length) {
-    ownerBody.innerHTML = `
-      <h2 class="co-title">Owner console</h2>
-      <p class="co-note">No orders on this device yet. Orders placed here show up with their
-      own live chat so you can reply.</p>`;
-    return;
-  }
+  const gUnread = unreadFor("general");
+  const gCount = load("rbx-chat-general", []).length;
+  const generalRow = `
+    <button class="own-row" data-own="general">
+      <span class="own-av own-av-web">${IC.chat}</span>
+      <span class="own-main">
+        <b>Website chat</b>
+        <i>Pre-sale &amp; general questions${gCount ? "" : " · no messages yet"}</i>
+      </span>
+      ${gUnread ? `<span class="own-badge">${gUnread}</span>` : ""}
+      <span class="own-go">${IC.chev}</span>
+    </button>`;
   ownerBody.innerHTML = `
     <h2 class="co-title">Owner console</h2>
-    <p class="co-note">Every order has its own separate chat. Pick one to read and reply.</p>
-    <div class="own-list">` +
+    <p class="co-note">Every order and the website chat has its own thread. Pick one to read and reply.</p>
+    <div class="own-list">
+      ${generalRow}` +
     orders.map(o => {
       const unread = unreadFor(o.no);
       const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
@@ -959,16 +965,19 @@ function renderOwnerList() {
 }
 
 function renderOwnerChat(no) {
+  const isGeneral = no === "general";
   const orders = load("rbx-orders", []);
-  const o = orders.find(x => x.no === no);
+  const o = isGeneral ? { no: "general", user: "Website visitor", total: 0, items: [] } : orders.find(x => x.no === no);
   if (!o) return renderOwnerList();
   const key = "rbx-chat-" + no;
-  const lines = (o.items || []).map(x => `${byId[x.id]?.name || x.id}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
+  const lines = isGeneral
+    ? "Pre-sale / general question — no order attached yet."
+    : (o.items || []).map(x => `${byId[x.id]?.name || x.id}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
   ownerBody.innerHTML = `
     <button class="own-back" id="ownBack">${IC.chev}<span>All chats</span></button>
     <div class="own-chat-head">
-      <span class="own-av own-av-lg">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
-      <div><b>${esc(o.user || "Buyer")}</b><i>${esc(no)} · ${money(o.total)}</i></div>
+      <span class="own-av own-av-lg${isGeneral ? " own-av-web" : ""}">${isGeneral ? IC.chat : esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
+      <div><b>${esc(o.user || "Buyer")}</b><i>${isGeneral ? "Website chat" : esc(no) + " · " + money(o.total)}</i></div>
     </div>
     <p class="own-items">${esc(lines)}</p>
     <div class="coq-chat own-chat" data-order="${esc(no)}">
@@ -997,104 +1006,36 @@ function renderOwnerChat(no) {
 ownerBtn?.addEventListener("click", openOwner);
 $("#closeOwner")?.addEventListener("click", closeOwner);
 
-/* ---------- Chanceblox Spin: a case-opening reel ---------- */
-(function spinFeature() {
-  const reel = $("#spinReel"), btn = $("#spinBtn"), oddsEl = $("#spinOdds");
-  const winModal = $("#spinWin"), winBody = $("#spinWinBody");
-  if (!reel || !btn) return;
+/* ---------- always-on live chat widget (no order needed) ---------- */
+(function liveChatWidget() {
+  const fab = $("#chatFab"), widget = $("#chatWidget");
+  if (!fab || !widget) return;
+  const KEY = "rbx-chat-general", SEEN = "rbx-cw-seen";
+  const SEED = "Hey! Ask us anything about items, prices, or your order, no purchase needed. Drop a message and we'll reply right here.";
+  const log = $("#cwLog"), form = $("#cwForm"), input = $("#cwInput"), badge = $("#chatFabBadge");
+  let open = false;
 
-  const sample = (arr, n) => {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-    return a.slice(0, n);
+  const unread = () => load(KEY, []).slice(load(SEEN, 0)).filter(m => (m.who || "buyer") === "owner").length;
+  const refreshBadge = () => { const n = unread(); badge.textContent = n; badge.hidden = n === 0; };
+  const repaint = () => paintChat(log, KEY, "buyer", SEED);
+  const setOpen = o => {
+    open = o; widget.hidden = !o; fab.classList.toggle("is-open", o);
+    fab.setAttribute("aria-label", o ? "Close chat" : "Chat with us");
+    if (o) { repaint(); save(SEEN, load(KEY, []).length); refreshBadge(); setTimeout(() => input.focus(), 60); }
   };
 
-  // build the prize pool: lots of cheap commons, a few rares, one grail
-  const pooled = CATALOG.filter(i => i.img && i.price > 0 && i.game !== "accounts" && i.stock !== 0);
-  const byPrice = [...pooled].sort((a, b) => a.price - b.price);
-  const cheap = byPrice.filter(i => i.price <= 5);
-  const mid = byPrice.filter(i => i.price >= 10 && i.price <= 30);
-  const top = byPrice.slice(-10);
-  const commons = sample(cheap.length >= 8 ? cheap : byPrice.slice(0, 24), 8);
-  const rares = sample(mid.length >= 3 ? mid : byPrice.slice(24, 48), 3);
-  const grail = top[Math.floor(Math.random() * top.length)];
-
-  const POOL = [
-    ...commons.map(item => ({ item, weight: 24, tier: "common" })),
-    ...rares.map(item => ({ item, weight: 7, tier: "rare" })),
-    { item: grail, weight: 3, tier: "grail" },
-  ];
-  const totalW = POOL.reduce((s, e) => s + e.weight, 0);
-  oddsEl.innerHTML = `Grail pull <b>${esc(grail.name)}</b> (${money(grail.price)}) at ~${(3 / totalW * 100).toFixed(1)}%. Every prize is a real item from the shop.`;
-
-  const weightedPick = () => {
-    let r = Math.random() * totalW;
-    for (const e of POOL) { if ((r -= e.weight) <= 0) return e; }
-    return POOL[0];
-  };
-  const cellHTML = e => `<div class="spin-cell spin-${e.tier}">
-      <div class="spin-cell-art"><img src="${imgSrc(e.item.img)}" alt="" loading="lazy"></div>
-      <span class="spin-cell-price">${money(e.item.price)}</span>
-    </div>`;
-
-  reel.innerHTML = Array.from({ length: 24 }, weightedPick).map(cellHTML).join("");   // static preview
-
-  let spinning = false;
-  const WIN_INDEX = 48;
-
-  function spin() {
-    if (spinning) return;
-    spinning = true; btn.disabled = true; btn.classList.add("is-spinning");
-    const winner = weightedPick();
-    const cells = Array.from({ length: WIN_INDEX + 10 }, weightedPick);
-    cells[WIN_INDEX] = winner;
-    reel.innerHTML = cells.map(cellHTML).join("");
-
-    const cell = reel.querySelector(".spin-cell");
-    const gap = parseFloat(getComputedStyle(reel).columnGap || getComputedStyle(reel).gap || "0") || 0;
-    const stride = cell.getBoundingClientRect().width + gap;
-    const center = reel.parentElement.getBoundingClientRect().width / 2;
-    const jitter = (Math.random() - 0.5) * stride * 0.5;
-    const target = -(WIN_INDEX * stride + stride / 2 - center + jitter);
-
-    reel.style.transition = "none";
-    reel.style.transform = "translateX(0)";
-    void reel.offsetWidth;                          // reflow so the reset sticks
-    const finish = () => { spinning = false; btn.disabled = false; btn.classList.remove("is-spinning"); showWin(winner); };
-    if (MOTION_OK) {
-      reel.style.transition = "transform 5.4s cubic-bezier(.1,.72,.12,1)";
-      reel.style.transform = `translateX(${target}px)`;
-      let done = false;
-      const on = () => { if (done) return; done = true; reel.removeEventListener("transitionend", on); finish(); };
-      reel.addEventListener("transitionend", on);
-      setTimeout(on, 5900);                          // safety net
-    } else {
-      reel.style.transform = `translateX(${target}px)`;
-      finish();
-    }
-  }
-
-  function showWin(e) {
-    const i = e.item;
-    const tierLabel = e.tier === "grail" ? "GRAIL PULL" : e.tier === "rare" ? "RARE PULL" : "You pulled";
-    winBody.innerHTML = `
-      <span class="spin-win-tier spin-win-${e.tier}">${tierLabel}</span>
-      <div class="spin-win-art"><img src="${imgSrc(i.img)}" alt="${esc(i.name)}"></div>
-      <h3 class="spin-win-name">${esc(i.name)}</h3>
-      <p class="spin-win-worth">Worth ${money(i.price)}${GAME_LABEL[i.game] ? " · " + esc(GAME_LABEL[i.game]) : ""}</p>
-      <div class="spin-win-cta">
-        <button class="primary-btn" id="spinAdd">Add to cart</button>
-        <button class="btn btn-ghost" id="spinAgain">Spin again</button>
-      </div>`;
-    winModal.hidden = false;
-    $("#spinAdd").onclick = () => { addToCart(i.id); winModal.hidden = true; };
-    $("#spinAgain").onclick = () => { winModal.hidden = true; spin(); };
-  }
-
-  btn.addEventListener("click", spin);
-  $("#spinWinClose")?.addEventListener("click", () => { winModal.hidden = true; });
-  winModal.addEventListener("click", e => { if (e.target === winModal) winModal.hidden = true; });
+  fab.addEventListener("click", () => setOpen(!open));
+  $("#chatWidgetClose").addEventListener("click", () => setOpen(false));
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const t = input.value.trim(); if (!t) return;
+    pushChat(KEY, t, "buyer"); input.value = ""; repaint();
+    if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
+  });
+  window.addEventListener("storage", refreshBadge);
+  refreshBadge();
 })();
+
 
 /* ---------- quick view: click a card to enlarge it ---------- */
 const qv = $("#qv"), qvBody = $("#qvBody");
