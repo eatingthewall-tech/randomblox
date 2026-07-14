@@ -733,7 +733,7 @@ function queueHTML(order, orders) {
         <ol class="q-turn">
           <li><span class="qt-ic">${IC.bell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
           <li><span class="qt-ic">${IC.link}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link above and hop in. Can't join? Use the chat.</p></div></li>
-          <li><span class="qt-ic">${IC.user}</span><div class="qt-tx"><b>3. Meet at spawn</b><p>Head to spawn with your order code ready.</p></div></li>
+          <li><span class="qt-ic">${IC.user}</span><div class="qt-tx"><b>3. Your items are prepared</b><p>Your order is matched to your code and sent to you inside the server.</p></div></li>
           <li><span class="qt-ic">${IC.gift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
         </ol>
       </details>
@@ -996,6 +996,105 @@ function renderOwnerChat(no) {
 
 ownerBtn?.addEventListener("click", openOwner);
 $("#closeOwner")?.addEventListener("click", closeOwner);
+
+/* ---------- Chanceblox Spin: a case-opening reel ---------- */
+(function spinFeature() {
+  const reel = $("#spinReel"), btn = $("#spinBtn"), oddsEl = $("#spinOdds");
+  const winModal = $("#spinWin"), winBody = $("#spinWinBody");
+  if (!reel || !btn) return;
+
+  const sample = (arr, n) => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a.slice(0, n);
+  };
+
+  // build the prize pool: lots of cheap commons, a few rares, one grail
+  const pooled = CATALOG.filter(i => i.img && i.price > 0 && i.game !== "accounts" && i.stock !== 0);
+  const byPrice = [...pooled].sort((a, b) => a.price - b.price);
+  const cheap = byPrice.filter(i => i.price <= 5);
+  const mid = byPrice.filter(i => i.price >= 10 && i.price <= 30);
+  const top = byPrice.slice(-10);
+  const commons = sample(cheap.length >= 8 ? cheap : byPrice.slice(0, 24), 8);
+  const rares = sample(mid.length >= 3 ? mid : byPrice.slice(24, 48), 3);
+  const grail = top[Math.floor(Math.random() * top.length)];
+
+  const POOL = [
+    ...commons.map(item => ({ item, weight: 24, tier: "common" })),
+    ...rares.map(item => ({ item, weight: 7, tier: "rare" })),
+    { item: grail, weight: 3, tier: "grail" },
+  ];
+  const totalW = POOL.reduce((s, e) => s + e.weight, 0);
+  oddsEl.innerHTML = `Grail pull <b>${esc(grail.name)}</b> (${money(grail.price)}) at ~${(3 / totalW * 100).toFixed(1)}%. Every prize is a real item from the shop.`;
+
+  const weightedPick = () => {
+    let r = Math.random() * totalW;
+    for (const e of POOL) { if ((r -= e.weight) <= 0) return e; }
+    return POOL[0];
+  };
+  const cellHTML = e => `<div class="spin-cell spin-${e.tier}">
+      <div class="spin-cell-art"><img src="${imgSrc(e.item.img)}" alt="" loading="lazy"></div>
+      <span class="spin-cell-price">${money(e.item.price)}</span>
+    </div>`;
+
+  reel.innerHTML = Array.from({ length: 24 }, weightedPick).map(cellHTML).join("");   // static preview
+
+  let spinning = false;
+  const WIN_INDEX = 48;
+
+  function spin() {
+    if (spinning) return;
+    spinning = true; btn.disabled = true; btn.classList.add("is-spinning");
+    const winner = weightedPick();
+    const cells = Array.from({ length: WIN_INDEX + 10 }, weightedPick);
+    cells[WIN_INDEX] = winner;
+    reel.innerHTML = cells.map(cellHTML).join("");
+
+    const cell = reel.querySelector(".spin-cell");
+    const gap = parseFloat(getComputedStyle(reel).columnGap || getComputedStyle(reel).gap || "0") || 0;
+    const stride = cell.getBoundingClientRect().width + gap;
+    const center = reel.parentElement.getBoundingClientRect().width / 2;
+    const jitter = (Math.random() - 0.5) * stride * 0.5;
+    const target = -(WIN_INDEX * stride + stride / 2 - center + jitter);
+
+    reel.style.transition = "none";
+    reel.style.transform = "translateX(0)";
+    void reel.offsetWidth;                          // reflow so the reset sticks
+    const finish = () => { spinning = false; btn.disabled = false; btn.classList.remove("is-spinning"); showWin(winner); };
+    if (MOTION_OK) {
+      reel.style.transition = "transform 5.4s cubic-bezier(.1,.72,.12,1)";
+      reel.style.transform = `translateX(${target}px)`;
+      let done = false;
+      const on = () => { if (done) return; done = true; reel.removeEventListener("transitionend", on); finish(); };
+      reel.addEventListener("transitionend", on);
+      setTimeout(on, 5900);                          // safety net
+    } else {
+      reel.style.transform = `translateX(${target}px)`;
+      finish();
+    }
+  }
+
+  function showWin(e) {
+    const i = e.item;
+    const tierLabel = e.tier === "grail" ? "GRAIL PULL" : e.tier === "rare" ? "RARE PULL" : "You pulled";
+    winBody.innerHTML = `
+      <span class="spin-win-tier spin-win-${e.tier}">${tierLabel}</span>
+      <div class="spin-win-art"><img src="${imgSrc(i.img)}" alt="${esc(i.name)}"></div>
+      <h3 class="spin-win-name">${esc(i.name)}</h3>
+      <p class="spin-win-worth">Worth ${money(i.price)}${GAME_LABEL[i.game] ? " · " + esc(GAME_LABEL[i.game]) : ""}</p>
+      <div class="spin-win-cta">
+        <button class="primary-btn" id="spinAdd">Add to cart</button>
+        <button class="btn btn-ghost" id="spinAgain">Spin again</button>
+      </div>`;
+    winModal.hidden = false;
+    $("#spinAdd").onclick = () => { addToCart(i.id); winModal.hidden = true; };
+    $("#spinAgain").onclick = () => { winModal.hidden = true; spin(); };
+  }
+
+  btn.addEventListener("click", spin);
+  $("#spinWinClose")?.addEventListener("click", () => { winModal.hidden = true; });
+  winModal.addEventListener("click", e => { if (e.target === winModal) winModal.hidden = true; });
+})();
 
 /* ---------- quick view: click a card to enlarge it ---------- */
 const qv = $("#qv"), qvBody = $("#qvBody");

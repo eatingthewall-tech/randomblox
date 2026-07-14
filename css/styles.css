@@ -1487,7 +1487,7 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .chat-status { display: flex; align-items: center; gap: 7px; font: 500 .76rem var(--font); font-style: normal; color: var(--ink-3); }
 .chat-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--go); box-shadow: 0 0 0 3px oklch(0.74 0.16 155 / .18); animation: chatPulse 1.8s ease-in-out infinite; }
 @keyframes chatPulse { 50% { opacity: .35; } }
-.chat-log { display: flex; flex-direction: column; gap: 8px; padding: 14px 15px; min-height: 92px; max-height: 220px; overflow-y: auto; }
+.chat-log { display: flex; flex-direction: column; gap: 9px; padding: 16px; min-height: 230px; max-height: 42vh; overflow-y: auto; }
 .chat-msg { max-width: 82%; padding: 9px 12px; border-radius: 13px; font: 500 .84rem var(--font); line-height: 1.45; }
 .chat-sys { align-self: flex-start; background: rgb(255 255 255 / .05); color: var(--ink-2); border-bottom-left-radius: 4px; }
 .chat-me { align-self: flex-end; background: linear-gradient(95deg, #8b5cf6, #6d28d9); color: #fff; border-bottom-right-radius: 4px; }
@@ -1568,4 +1568,74 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .own-chat-head i { font: 500 .8rem var(--font-mono); font-style: normal; color: var(--ink-3); }
 .own-items { font: 500 .82rem var(--font); color: var(--ink-2); margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .own-chat { border: 1px solid rgb(255 255 255 / .08); border-radius: 16px; background: rgb(255 255 255 / .02); }
-.own-chat .chat-log { min-height: 200px; max-height: 46vh; }
+.own-chat .chat-log { min-height: 280px; max-height: 52vh; }
+
+/* ============================================================
+   v5.8 — instant-account callout · Chanceblox Spin
+   ============================================================ */
+
+/* how-it-works: accounts are instant */
+.how-instant {
+  display: flex; align-items: center; gap: 13px;
+  max-width: 720px; margin: 24px auto 0;
+  padding: 14px 18px; border-radius: 14px;
+  background: var(--brand-soft); border: 1px solid oklch(0.635 0.235 295 / .35);
+  color: var(--ink-2); font: 500 .92rem var(--font); line-height: 1.5;
+}
+.how-instant b { color: var(--ink); }
+.how-instant-ic { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 10px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; }
+
+/* --- the spin --- */
+.spin { padding: 6px clamp(16px, 5vw, 60px) 44px; }
+.spin-in { max-width: 1160px; margin: 0 auto; }
+.spin-machine { position: relative; }
+.spin-window {
+  position: relative; overflow: hidden;
+  border-radius: 20px; border: 1px solid rgb(255 255 255 / .08);
+  background: linear-gradient(180deg, rgb(255 255 255 / .045), rgb(255 255 255 / .01));
+  padding: 20px 0; box-shadow: inset 0 0 70px rgb(0 0 0 / .45);
+}
+.spin-reel { display: flex; gap: 12px; padding: 0 12px; will-change: transform; }
+.spin-cell {
+  flex: 0 0 auto; width: 122px; height: 152px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
+  border-radius: 14px; border: 1px solid rgb(255 255 255 / .08);
+  border-top: 3px solid var(--c, #6b7280);
+  background: rgb(20 14 34 / .72);
+}
+.spin-common { --c: #7c8091; }
+.spin-rare   { --c: #a78bfa; }
+.spin-grail  { --c: #f5c451; box-shadow: inset 0 0 26px -6px rgb(245 196 81 / .5); }
+.spin-cell-art { width: 86px; height: 86px; display: grid; place-items: center; }
+.spin-cell-art img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 6px 10px rgb(0 0 0 / .5)); }
+.spin-cell-price { font: 800 .82rem var(--font-mono); color: var(--gold); }
+
+.spin-pointer { position: absolute; left: 50%; transform: translateX(-50%); z-index: 3; width: 0; height: 0; }
+.spin-pointer-top { top: -1px; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 12px solid var(--brand-up); }
+.spin-pointer-bot { bottom: -1px; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 12px solid var(--brand-up); }
+.spin-window::after { content: ""; position: absolute; left: 50%; top: 12px; bottom: 12px; width: 2px; transform: translateX(-50%); background: linear-gradient(180deg, transparent, var(--brand-up), transparent); opacity: .55; z-index: 2; pointer-events: none; }
+.spin-fade { position: absolute; top: 0; bottom: 0; width: 88px; z-index: 2; pointer-events: none; }
+.spin-fade-l { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+.spin-fade-r { right: 0; background: linear-gradient(270deg, var(--bg), transparent); }
+
+.spin-foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 18px; }
+.spin-odds { font: 500 .85rem var(--font); color: var(--ink-3); margin: 0; flex: 1; min-width: 240px; }
+.spin-odds b { color: var(--brand-up); }
+#spinBtn.is-spinning { opacity: .7; pointer-events: none; }
+
+.spin-win-panel { text-align: center; max-width: 420px; }
+.spin-win-tier { display: inline-block; font: 800 .74rem var(--font); letter-spacing: .08em; padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
+.spin-win-common { background: rgb(255 255 255 / .09); color: var(--ink-2); }
+.spin-win-rare { background: var(--brand-soft); color: var(--brand-up); border: 1px solid oklch(0.635 0.235 295 / .4); }
+.spin-win-grail { background: linear-gradient(95deg, #f5c451, #e0982f); color: #241a04; box-shadow: 0 0 30px -6px rgb(245 196 81 / .6); }
+.spin-win-art { width: 210px; height: 210px; margin: 2px auto 14px; display: grid; place-items: center; }
+.spin-win-art img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 14px 24px rgb(0 0 0 / .55)); }
+.spin-win-name { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin: 0 0 4px; }
+.spin-win-worth { color: var(--ink-3); margin: 0 0 20px; font-weight: 600; }
+.spin-win-cta { display: flex; gap: 10px; justify-content: center; }
+
+@media (max-width: 560px) {
+  .spin-cell { width: 104px; height: 134px; }
+  .spin-cell-art { width: 72px; height: 72px; }
+  .spin-win-art { width: 170px; height: 170px; }
+}
