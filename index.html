@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260713e">
+<link rel="stylesheet" href="css/styles.css?v=20260713g">
 </head>
 <body>
 
@@ -30,7 +30,6 @@
     </div>
     <div class="topbar-right">
       <nav class="topnav-sec" aria-label="More">
-        <a href="#accounts" class="topnav-link">Accounts</a>
         <a href="#how" class="topnav-link">How it works</a>
       </nav>
       <button class="order-lookup" id="orderLookupBtn">My order</button>
@@ -172,69 +171,30 @@
   </div>
 </section>
 
-<section class="queue" id="how">
-  <div class="queue-in">
-    <div class="queue-head">
-      <h2>How you'll receive your <span class="q-hl">item</span></h2>
-      <p>One fair queue. Orders trade out in the order they came in.</p>
-    </div>
-
-    <ol class="q-steps">
-      <li><span class="q-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><b>1. Place order</b><p>Check out and get your RBX order code.</p></li>
-      <li><span class="q-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>2. Join the queue</b><p>Your order enters the line the moment it's placed.</p></li>
-      <li><span class="q-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.7-3.4 3.4-5.4 6.5-5.4s5.8 2 6.5 5.4"/><circle cx="17.5" cy="9" r="2.6"/><path d="M16.2 14.6c2.8.2 4.7 2 5.3 4.9"/></svg></span><b>3. Wait your turn</b><p>Orders are delivered first in, first out.</p></li>
-      <li><span class="q-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><b>4. Get the request</b><p>A Roblox friend request means you're up next.</p></li>
-      <li><span class="q-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg></span><b>5. Join &amp; receive</b><p>We meet in a server and the items are yours.</p></li>
-    </ol>
-
-    <div class="q-panels">
-      <div class="q-panel">
-        <div class="qp-head">
-          <h3>Your order status</h3>
-          <span class="q-live"><i></i>Queue open</span>
-        </div>
-        <div class="q-status" id="queueStatus"></div>
-        <div class="q-note">
-          <b>What affects wait time?</b>
-          <ul>
-            <li>How many orders are ahead of yours</li>
-            <li>How many items are in your order</li>
-            <li>Whether we're both online</li>
-            <li>Time of day</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="q-panel">
-        <div class="qp-head"><h3>When it's your turn</h3></div>
-        <ol class="q-turn">
-          <li><span class="qt-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
-            <div class="qt-tx"><b>1. Friend request sent</b><p>Accept the request from our Roblox account.</p></div></li>
-          <li><span class="qt-ic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></span>
-            <div class="qt-tx"><b>2. Join the server</b><p>We pull you into a server in your item's game.</p></div>
-            <span class="q-chip"><i>Delivery</i>In-game trade</span></li>
-          <li><span class="qt-ic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6.4 8-6.4s7 2.2 8 6.4"/></svg></span>
-            <div class="qt-tx"><b>3. Meet up</b><p>Find us at spawn and have your code ready.</p></div>
-            <span class="q-chip"><i>Your code</i><span id="qCodeChip">RBX-&#183;&#183;&#183;&#183;&#183;&#183;</span></span></li>
-          <li><span class="qt-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg></span>
-            <div class="qt-tx"><b>4. Receive your items</b><p>We send the trade. Accept it and you're done.</p></div>
-            <span class="q-chip"><i>Trade window</i>We send the request</span></li>
-        </ol>
-      </div>
-    </div>
-
-    <div class="q-info">
-      <h3>Important information</h3>
-      <ul class="q-tiles">
-        <li><span class="qi-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>Order any time</b><p>The shop takes orders 24/7. Trades go out in daily batches.</p></div></li>
-        <li><span class="qi-ic qi-go"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5.5v6C4 17 7.4 20.5 12 22c4.6-1.5 8-5 8-10.5v-6Z"/><path d="m9 12 2 2 4-4.5"/></svg></span><div><b>Fair queue</b><p>First in, first out. No one gets skipped.</p></div></li>
-        <li><span class="qi-ic"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg></span><div><b>Keep your code</b><p>Saved on this device under "My order". That's your receipt.</p></div></li>
-        <li><span class="qi-ic qi-gold"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 7.4v5.4"/><circle cx="12" cy="16.6" r=".4" fill="currentColor"/></svg></span><div><b>Be patient</b><p>Most trades wrap up the same day. Thanks for waiting.</p></div></li>
-      </ul>
-    </div>
-
-    <p class="q-thanks"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.6 12 20l-7.5-7.4a5 5 0 1 1 7.5-6.6 5 5 0 1 1 7.5 6.6Z"/></svg> Thank you for every order. It keeps the shop running.</p>
-  </div>
+<section class="how" id="how">
+  <h2>How buying works</h2>
+  <ol class="how-steps">
+    <li>
+      <span class="how-num" aria-hidden="true">1</span>
+      <b>Place your order</b>
+      <p>Add what you want to the cart and check out. You'll get an order code that starts with RBX.</p>
+    </li>
+    <li>
+      <span class="how-num" aria-hidden="true">2</span>
+      <b>You're in the queue</b>
+      <p>Orders line up first in, first out. Your spot is locked the moment you check out.</p>
+    </li>
+    <li>
+      <span class="how-num" aria-hidden="true">3</span>
+      <b>Get the friend request</b>
+      <p>When it's your turn, accept the Roblox friend request from our account.</p>
+    </li>
+    <li>
+      <span class="how-num" aria-hidden="true">4</span>
+      <b>We trade in game</b>
+      <p>We hop in a server together and the items are yours. Usually the same day.</p>
+    </li>
+  </ol>
 </section>
 
 <footer class="footer">
@@ -360,7 +320,7 @@
   </div>
 </div>
 
-<script src="js/catalog.js?v=20260713e"></script>
-<script src="js/app.js?v=20260713e"></script>
+<script src="js/catalog.js?v=20260713g"></script>
+<script src="js/app.js?v=20260713g"></script>
 </body>
 </html>

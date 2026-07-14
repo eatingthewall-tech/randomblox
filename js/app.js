@@ -175,35 +175,13 @@ function syncAcctButtons() {
   });
 }
 
-/* ---------- queue status: the visitor's own latest order, live from this device ---------- */
-(function queueStatus() {
-  const box = $("#queueStatus");
-  if (!box) return;
-  const orders = load("rbx-orders", []);
-  const last = orders[orders.length - 1];
-  if (!last) {
-    box.innerHTML = `<div class="q-order q-empty">
-      <span class="qo-label">Your order</span>
-      <b class="qo-code qo-dim">RBX-&middot;&middot;&middot;&middot;&middot;&middot;</b>
-      <p>No orders on this device yet. Your code appears here the moment you check out.</p>
-    </div>`;
-    return;
-  }
-  const mins = Math.max(1, Math.round((Date.now() - new Date(last.when)) / 60000));
-  const ago = mins < 60 ? mins + " min ago" : mins < 1440 ? Math.round(mins / 60) + " h ago" : Math.round(mins / 1440) + " d ago";
-  const count = (last.items || []).reduce((s, x) => s + (x.q || 1), 0);
-  box.innerHTML = `<div class="q-order">
-      <span class="qo-label">Your order</span>
-      <b class="qo-code">${last.no}</b><span class="qo-pos">in the queue</span>
-      <p class="qo-meta">${count} item${count === 1 ? "" : "s"} &middot; placed ${ago}</p>
-    </div>
-    <div class="q-progress">
-      <div class="qp-top"><span>Queue progress</span><span>stage 2 of 4</span></div>
-      <div class="qp-bar"><i style="width:38%"></i></div>
-      <p>Placed &rarr; in the queue &rarr; trading &rarr; done. You'll get a friend request when you're next.</p>
-    </div>`;
-  const chip = $("#qCodeChip");
-  if (chip) chip.textContent = last.no;
+/* ---------- pause the hero light show while it's offscreen ---------- */
+(function heroPause() {
+  const hero = $(".hero");
+  if (!hero || !("IntersectionObserver" in window)) return;
+  new IntersectionObserver(es => {
+    document.body.classList.toggle("hero-off", !es[0].isIntersecting);
+  }, { threshold: 0 }).observe(hero);
 })();
 
 /* ---------- scroll reveals: sections rise in as they enter ---------- */
@@ -217,8 +195,7 @@ function syncAcctButtons() {
   mark(".hero-facts li", 0.06);
   mark(".section-head");
   mark(".gcard", 0.07);
-  mark(".queue-head"); mark(".q-steps li", 0.07);
-  mark(".q-panel", 0.1); mark(".q-info"); mark(".q-thanks");
+  mark(".how h2"); mark(".how-steps li", 0.08);
   mark(".faq h2"); mark(".faq-item", 0.06);
   mark(".footer-in");
   const io = new IntersectionObserver(es => es.forEach(e => {
@@ -274,9 +251,19 @@ function setStickyVars() {
 }
 window.addEventListener("resize", setStickyVars);
 
-function scrollToShop() {
-  const y = $("#shop").offsetTop - ($(".topbar")?.offsetHeight || 56) - 8;
+/* scroll helper: smooth when it works, but ALWAYS arrives — some
+   embedded/mobile browsers silently drop smooth scrolls */
+function goTo(y, instant = false) {
+  /* "instant" must be explicit: a plain scrollTo still obeys the page's
+     CSS scroll-behavior, which is exactly what breaks on some browsers */
+  if (instant || !MOTION_OK) { window.scrollTo({ top: y, behavior: "instant" }); return; }
   window.scrollTo({ top: y, behavior: "smooth" });
+  setTimeout(() => {
+    if (Math.abs(window.scrollY - y) > 500) window.scrollTo({ top: y, behavior: "instant" });
+  }, 500);
+}
+function scrollToShop(instant = false) {
+  goTo($("#shop").offsetTop - ($(".topbar")?.offsetHeight || 56) - 8, instant);
 }
 
 /* ---------- game switch ---------- */
@@ -310,13 +297,17 @@ function setGame(g) {
 }
 $$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(); }));
 $$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(); }));
-$("#heroBrowse")?.addEventListener("click", scrollToShop);
-$("#logoHome")?.addEventListener("click", e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+$("#heroBrowse")?.addEventListener("click", () => {
+  const games = $("#games");
+  if (games) goTo(games.offsetTop - ($(".topbar")?.offsetHeight || 56) - 8);
+  else scrollToShop();
+});
+$("#logoHome")?.addEventListener("click", e => { e.preventDefault(); goTo(0); });
 $$(".botnav-item[data-bot]").forEach(b => b.addEventListener("click", () => {
   const t = b.dataset.bot;
-  if (t === "home") window.scrollTo({ top: 0, behavior: "smooth" });
+  if (t === "home") goTo(0, true);
   else if (t === "cart") openDrawer();
-  else { setGame(t); scrollToShop(); }
+  else { setGame(t); scrollToShop(true); }   // tab-bar taps jump straight there
 }));
 
 /* ---------- category tabs ---------- */
@@ -698,11 +689,17 @@ function stepDone(username) {
     <div class="order-num" role="status">${no}</div>
     <p class="co-note">That's your order number, ${username}. It's saved on this device under
     "My order", and you'll want it handy when we trade.</p>
-    ${linesHTML(es)}
-    <div class="directions">
-      <h3>Directions</h3>
-      <p>Directions will be posted here soon.</p>
+    <div class="q-progress">
+      <div class="qp-top"><span>Queue progress</span><span>stage 2 of 4</span></div>
+      <div class="qp-bar"><i style="width:38%"></i></div>
+      <p>Placed &rarr; in the queue &rarr; trading &rarr; done</p>
     </div>
+    <ol class="co-queue">
+      <li>Watch for a friend request from our Roblox account</li>
+      <li>We pull you into a server in your item's game</li>
+      <li>Accept the trade and you're done</li>
+    </ol>
+    ${linesHTML(es)}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
   $("#coDone").addEventListener("click", closeCheckout);
 

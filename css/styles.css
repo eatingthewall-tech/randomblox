@@ -122,17 +122,11 @@ button { font-family: inherit; }
 /* ---------- top bar: floating dark-glass console ---------- */
 .topbar {
   position: sticky; top: 0; z-index: var(--z-sticky);
-  padding: 10px clamp(10px, 2vw, 18px) 0;
+  padding: 0 clamp(10px, 2vw, 18px);
   pointer-events: none;
 }
-/* mask the gap above/around the floating pill so nothing scrolls through it */
-.topbar::before {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, var(--bg) 8%, oklch(0.155 0.028 300 / .82) 55%, transparent);
-  pointer-events: none;
-}
-.topbar-in { position: relative; }
 .topbar-in {
+  position: relative;
   pointer-events: auto;
   max-width: 1220px; margin: 0 auto;
   display: flex; align-items: center; gap: 18px;
@@ -141,7 +135,8 @@ button { font-family: inherit; }
   backdrop-filter: blur(18px) saturate(1.5);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   border: 1px solid rgb(255 255 255 / .08);
-  border-radius: 18px;
+  border-top: none;
+  border-radius: 0 0 18px 18px;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / .07),
     0 18px 44px -22px rgb(0 0 0 / .85);
@@ -1360,4 +1355,49 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
   .queue-head { text-align: left; }
   .hero-facts { grid-template-columns: 1fr 1fr; gap: 10px 12px; }
   .hf-ic { width: 32px; height: 32px; }
+}
+
+/* checkout: what happens next, numbered and compact */
+.co-queue { list-style: none; margin: 12px 0 4px; padding: 0; counter-reset: coq; }
+.co-queue li {
+  position: relative; counter-increment: coq;
+  font-size: .9rem; color: var(--ink-2);
+  padding: 7px 0 7px 34px;
+}
+.co-queue li::before {
+  content: counter(coq);
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 24px; height: 24px; border-radius: 999px;
+  display: grid; place-items: center;
+  font: 700 .74rem var(--font);
+  background: var(--brand-soft); color: var(--brand-up);
+  border: 1px solid oklch(0.635 0.235 295 / .4);
+}
+.checkout .q-progress { margin: 14px 0 4px; }
+
+/* ============================================================
+   v5.4 — alignment + performance
+   ============================================================ */
+
+/* hero trust row: one-line titles, tops aligned, no ragged wrap */
+.hero-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 18px; }
+.hero-facts li { align-items: flex-start; }
+.hf-ic { margin-top: 1px; }
+.hf-tx b { white-space: nowrap; }
+.hf-tx i { max-width: 20ch; }
+
+/* perf: skip layout/paint for offscreen product cards (25k px page) */
+.card { content-visibility: auto; contain-intrinsic-size: auto 360px; }
+
+/* perf: sticky group heads repaint on every scroll frame - drop the blur */
+.rar-group-head { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bg); }
+
+/* perf: keep the dice on the compositor, and pause the whole hero
+   light show while it's scrolled out of view */
+.die-wrap, .die { will-change: transform; }
+body.hero-off .die-wrap, body.hero-off .die,
+body.hero-off .hero-glow, body.hero-off .wall-grid { animation-play-state: paused !important; }
+
+@media (max-width: 920px) {
+  .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
