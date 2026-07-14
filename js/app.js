@@ -295,14 +295,16 @@ function setGame(g) {
       [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "translateY(0)" }],
       { duration: 260, delay: i * 22, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" }));
 }
-$$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(); }));
-$$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(); }));
+// jump straight to the shop (instant): a smooth scroll across the 25k-px grid
+// stutters and then hard-snaps, which reads as the page "bugging out"
+$$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(true); }));
+$$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(true); }));
 $("#heroBrowse")?.addEventListener("click", () => {
   const games = $("#games");
   if (games) goTo(games.offsetTop - ($(".topbar")?.offsetHeight || 56) - 8);
   else scrollToShop();
 });
-$("#logoHome")?.addEventListener("click", e => { e.preventDefault(); goTo(0); });
+$("#logoHome")?.addEventListener("click", e => { e.preventDefault(); goTo(0, true); });
 $$(".botnav-item[data-bot]").forEach(b => b.addEventListener("click", () => {
   const t = b.dataset.bot;
   if (t === "home") goTo(0, true);
@@ -612,72 +614,141 @@ scrim.addEventListener("click", () => { closeSheet(); closeDrawer(); });
 const co = $("#checkout"), coBody = $("#checkoutBody");
 const setCoWide = on => $(".checkout-panel")?.classList.toggle("co-wide", !!on);
 
-/* fill these in when the real links exist */
-const VIP_SERVER_URL = "";
-const CHAT_URL = "";
+/* real VIP private-server links, one per game. Accounts use the live chat instead. */
+const VIP_LINKS = {
+  mm2:     "https://www.roblox.com/share?code=31918145a25ec44d91400d790306df2b&type=Server",
+  am:      "https://www.roblox.com/games/920587237?privateServerLinkCode=_K_fHtcXliZJ6bU50wdT1xG_8VlH25O2",
+  nfl:     "https://www.roblox.com/share?code=a687359d4575e84a89ea666f407914fe&type=Server",
+  baddies: "https://www.roblox.com/share?code=0d70f61fd27dee44ad02faccedee7dfa&type=Server",
+};
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 /* ---------- the queue: device-local, driven by real order timestamps ---------- */
 function queueInfo(order, orders) {
   const DAY2 = 48 * 3600 * 1000;
   const now = Date.now(), t = +new Date(order.when);
-  // position = live orders (last 48h) placed at or before this one
+  // live orders (last 48h) placed at or before this one. The queue starts empty
+  // (0 people) and only real orders made on this device ever count.
   const pos = Math.max(1, orders.filter(o =>
     now - +new Date(o.when) < DAY2 && +new Date(o.when) <= t).length);
-  const waitLo = 5 + (pos - 1) * 10;
-  const waitHi = 30 + (pos - 1) * 15;
+  const ahead = pos - 1;                       // people in front of this order
+  // wait bands scale with how many are in the queue:
+  //   1-10 in queue  -> 1 to 30 minutes
+  //   11-50 in queue -> 1 to 3 hours
+  const big = pos > 10;
+  const waitLo = 1;
+  const waitHi = big ? 3 : 30;
+  const waitUnit = big ? "hours" : "minutes";
+  const capMin = big ? waitHi * 60 : waitHi;
   const elapsedMin = (now - t) / 60000;
-  const pct = Math.round(Math.min(92, Math.max(8, (elapsedMin / waitHi) * 100)));
-  return { pos, waitLo, waitHi, pct };
+  const pct = Math.round(Math.min(92, Math.max(8, (elapsedMin / capMin) * 100)));
+  return { pos, ahead, waitLo, waitHi, waitUnit, pct };
 }
 
 function queueHTML(order, orders) {
   const q = queueInfo(order, orders);
-  const tile = (href, icon, title, sub) => {
-    const inner = `<span class="qi-ic">${icon}</span><span class="coq-tx"><b>${title}</b><i>${sub}</i></span>`;
-    return href
-      ? `<a class="coq-tile" href="${href}" target="_blank" rel="noopener">${inner}</a>`
-      : `<div class="coq-tile">${inner}</div>`;
-  };
+  const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
+  const vipGames = games.filter(g => VIP_LINKS[g]);
+  const hasAccounts = games.includes("accounts");
+  const accountsOnly = hasAccounts && !vipGames.length;
+  const waitTxt = `${q.waitLo} to ${q.waitHi} ${q.waitUnit}`;
+
   const icLink = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>`;
   const icChat = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>`;
   const icBell = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
   const icUser = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6.4 8-6.4s7 2.2 8 6.4"/></svg>`;
   const icGift = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg>`;
+  const icSend = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>`;
+
+  const vipTiles = vipGames.map(g =>
+    `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
+       <span class="qi-ic">${icLink}</span>
+       <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>Open it when it's your turn</i></span></a>`).join("");
+
+  const chatBox = hasAccounts ? `
+    <div class="coq-chat" data-order="${esc(order.no)}">
+      <div class="chat-head">
+        <span class="chat-ic">${icChat}</span>
+        <div class="chat-h-tx"><b>Live chat</b><i class="chat-status"><span class="chat-dot"></span>Waiting for the owner to come online</i></div>
+      </div>
+      <div class="chat-log" aria-live="polite"></div>
+      <form class="chat-form" autocomplete="off">
+        <input class="chat-input" type="text" maxlength="240" placeholder="Message the owner while you wait" aria-label="Message the owner">
+        <button class="chat-send" type="submit" aria-label="Send message">${icSend}</button>
+      </form>
+    </div>` : "";
+
+  const turnSteps = accountsOnly
+    ? `<ol class="q-turn">
+        <li><span class="qt-ic">${icBell}</span><div class="qt-tx"><b>1. Live chat opens</b><p>A chat opens on this order the moment you check out.</p></div></li>
+        <li><span class="qt-ic">${icChat}</span><div class="qt-tx"><b>2. Wait for the owner</b><p>The owner joins the chat once online. Message anytime while you wait.</p></div></li>
+        <li><span class="qt-ic">${icUser}</span><div class="qt-tx"><b>3. Confirm it's you</b><p>Drop your order code in the chat.</p></div></li>
+        <li><span class="qt-ic">${icGift}</span><div class="qt-tx"><b>4. Get the login</b><p>The account email and password come through the chat. It's yours.</p></div></li>
+      </ol>`
+    : `<ol class="q-turn">
+        <li><span class="qt-ic">${icBell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
+        <li><span class="qt-ic">${icLink}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link for your game below and hop in.</p></div></li>
+        <li><span class="qt-ic">${icUser}</span><div class="qt-tx"><b>3. Meet at spawn</b><p>Head to spawn with your order code ready.</p></div></li>
+        <li><span class="qt-ic">${icGift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
+      </ol>`;
+
+  const progressNote = accountsOnly
+    ? `The live chat opens below. The owner replies as soon as they're online.`
+    : `The VIP server link is ready below. Join it when you're next.`;
+
+  const links = (vipTiles || chatBox)
+    ? `<div class="coq-links">${vipTiles}${chatBox}</div>` : "";
+
   return `
     <div class="coq-grid">
       <div class="q-panel">
         <div class="qp-head"><h3>Your queue status</h3><span class="q-live"><i></i>Queue open</span></div>
         <div class="q-order">
           <span class="qo-label">Your order number</span>
-          <b class="qo-code">${order.no}</b><span class="qo-pos">#${q.pos} in queue</span>
-          <p class="qo-wait">Estimated wait: ${q.waitLo} to ${q.waitHi} minutes</p>
+          <b class="qo-code">${esc(order.no)}</b><span class="qo-pos">${q.ahead === 0 ? "You're next" : q.ahead + " ahead of you"}</span>
+          <p class="qo-wait">Estimated wait: ${waitTxt}</p>
         </div>
         <div class="q-progress">
           <div class="qp-top"><span>Queue progress</span><span>${q.pct}%</span></div>
           <div class="qp-bar"><i style="width:${q.pct}%"></i></div>
-          <p>You'll get a Roblox friend request when you're next.</p>
+          <p>${progressNote}</p>
         </div>
+        <p class="qo-fine">Wait times aren't always exact, they shift with the owner's availability.</p>
       </div>
       <div class="q-panel">
         <div class="qp-head"><h3>When it's your turn</h3></div>
-        <ol class="q-turn">
-          <li><span class="qt-ic">${icBell}</span>
-            <div class="qt-tx"><b>1. Friend request sent</b><p>Accept the request from our Roblox account.</p></div></li>
-          <li><span class="qt-ic">${icLink}</span>
-            <div class="qt-tx"><b>2. Join the server</b><p>We pull you into a server in your item's game.</p></div></li>
-          <li><span class="qt-ic">${icUser}</span>
-            <div class="qt-tx"><b>3. Meet up</b><p>Find us at spawn and have your code ready.</p></div></li>
-          <li><span class="qt-ic">${icGift}</span>
-            <div class="qt-tx"><b>4. Receive your items</b><p>We send the trade. Accept it and you're done.</p></div></li>
-        </ol>
+        ${turnSteps}
       </div>
     </div>
-    <div class="coq-links">
-      ${tile(VIP_SERVER_URL, icLink, "VIP server link",
-             VIP_SERVER_URL ? VIP_SERVER_URL.replace(/^https?:\/\//, "") : "We pull you in when it's your turn")}
-      ${tile(CHAT_URL, icChat, "Chat with us",
-             CHAT_URL ? "Open the chat" : "Questions? Chat link coming soon")}
-    </div>`;
+    ${links}`;
+}
+
+/* the account live chat is device-local: messages persist per order number so
+   the buyer's notes are still there when they reopen "My order" */
+function bindQueueChat(root = document) {
+  $$(".coq-chat", root).forEach(box => {
+    const key = "rbx-chat-" + box.dataset.order;
+    const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
+    const paint = () => {
+      const msgs = load(key, []);
+      log.innerHTML =
+        `<div class="chat-msg chat-sys">The account login lands right here the moment the owner is online. Leave a message and it'll be waiting.</div>` +
+        msgs.map(m => `<div class="chat-msg chat-me">${esc(m.t)}</div>`).join("");
+      log.scrollTop = log.scrollHeight;
+    };
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const t = input.value.trim();
+      if (!t) return;
+      const msgs = load(key, []);
+      msgs.push({ t, when: Date.now() });
+      save(key, msgs);
+      input.value = "";
+      paint();
+    });
+    paint();
+  });
 }
 let payingTotal = 0;
 function openCheckout() {
@@ -757,13 +828,14 @@ function stepDone(username) {
   setCoWide(true);
   coBody.innerHTML = `
     <p class="co-step">Step 3 of 3</p>
-    <h2 class="co-title" id="checkoutTitle">You're in the queue, ${username}</h2>
+    <h2 class="co-title" id="checkoutTitle">You're in the queue, ${esc(username)}</h2>
     ${queueHTML(order, orders)}
     <p class="co-note">Your order number is saved on this device under "My order".
-    Have it handy when we trade.</p>
+    Have it handy for the trade.</p>
     ${linesHTML(es)}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
   $("#coDone").addEventListener("click", closeCheckout);
+  bindQueueChat(coBody);
 
   state.cart = {};
   save("rbx-cart", state.cart);
@@ -790,6 +862,7 @@ $("#orderLookupBtn").addEventListener("click", () => {
       orders.slice(0, -1).reverse().map(o => `
       <div class="co-line"><span><b>${o.no}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
       <span class="co-price">${money(o.total)}</span></div>`).join("") + `</div>` : ""}`;
+  bindQueueChat(coBody);
 });
 
 /* ---------- quick view: click a card to enlarge it ---------- */

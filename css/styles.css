@@ -1439,3 +1439,60 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 @media (max-width: 800px) {
   .coq-grid, .coq-links { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   v5.6 — trust facts on the hero's left column · queue accuracy
+   note · account live chat
+   ============================================================ */
+
+/* the 4 trust facts sit under the hero copy, hard against the left,
+   never spanning across the item wall on the right */
+.hero-copy .hero-facts {
+  margin: 36px 0 0; padding: 0; border-top: 0;
+  max-width: 468px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 26px; justify-content: start;
+}
+@media (max-width: 560px) {
+  .hero-copy .hero-facts { max-width: none; gap: 14px; }
+}
+
+/* honesty note under the queue status */
+.qo-fine {
+  margin: 14px 0 0; padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / .06);
+  font: 500 .76rem var(--font); color: var(--ink-3); line-height: 1.5;
+}
+
+/* account live chat inside the confirmation */
+.coq-chat {
+  grid-column: 1 / -1; display: flex; flex-direction: column;
+  border: 1px solid rgb(255 255 255 / .08); border-radius: 16px;
+  background: rgb(255 255 255 / .02); overflow: hidden;
+}
+.chat-head { display: flex; align-items: center; gap: 11px; padding: 13px 15px; border-bottom: 1px solid rgb(255 255 255 / .06); }
+.chat-ic { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--brand-soft); color: var(--brand-up); flex: none; }
+.chat-h-tx b { display: block; font: 700 .9rem var(--font); color: var(--ink); }
+.chat-status { display: flex; align-items: center; gap: 7px; font: 500 .76rem var(--font); font-style: normal; color: var(--ink-3); }
+.chat-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--go); box-shadow: 0 0 0 3px oklch(0.74 0.16 155 / .18); animation: chatPulse 1.8s ease-in-out infinite; }
+@keyframes chatPulse { 50% { opacity: .35; } }
+.chat-log { display: flex; flex-direction: column; gap: 8px; padding: 14px 15px; min-height: 92px; max-height: 220px; overflow-y: auto; }
+.chat-msg { max-width: 82%; padding: 9px 12px; border-radius: 13px; font: 500 .84rem var(--font); line-height: 1.45; }
+.chat-sys { align-self: flex-start; background: rgb(255 255 255 / .05); color: var(--ink-2); border-bottom-left-radius: 4px; }
+.chat-me { align-self: flex-end; background: linear-gradient(95deg, #8b5cf6, #6d28d9); color: #fff; border-bottom-right-radius: 4px; }
+.chat-form { display: flex; gap: 8px; padding: 12px 13px; border-top: 1px solid rgb(255 255 255 / .06); }
+.chat-input {
+  flex: 1; min-width: 0; border-radius: 999px;
+  border: 1.5px solid rgb(255 255 255 / .12); background: rgb(255 255 255 / .04);
+  padding: 11px 16px; color: var(--ink); font: 500 .88rem var(--font);
+}
+.chat-input:focus { outline: none; border-color: var(--brand-up); }
+.chat-input::placeholder { color: var(--ink-3); }
+.chat-send {
+  flex: none; display: grid; place-items: center; width: 42px; height: 42px;
+  border-radius: 999px; border: none; cursor: pointer;
+  background: linear-gradient(95deg, #8b5cf6, #6d28d9); color: #fff;
+  transition: transform .12s var(--ease), box-shadow .2s;
+}
+.chat-send:hover { transform: translateY(-1px); box-shadow: 0 0 22px -6px var(--brand); }
+.chat-send:active { transform: scale(.95); }
