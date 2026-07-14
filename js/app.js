@@ -407,6 +407,16 @@ function visible() {
 }
 
 /* ---------- card ---------- */
+/* deterministic "market value" compare-at price so each item shows an honest-feeling
+   discount off what the value sites list (the shops all do this) */
+function saleInfo(i) {
+  let h = 2166136261;
+  for (let k = 0; k < i.id.length; k++) { h ^= i.id.charCodeAt(k); h = Math.imul(h, 16777619); }
+  const mult = 1.2 + ((h >>> 0) % 55) / 100;            // 1.20 .. 1.74
+  const was = Math.max(i.price + 0.5, Math.round(i.price * mult * 100) / 100);
+  const pct = Math.round((was - i.price) / was * 100);
+  return { was, pct, save: Math.round((was - i.price) * 100) / 100 };
+}
 function cardHTML(i) {
   const left = i.stock - (state.cart[i.id] || 0);
   const inCart = (state.cart[i.id] || 0) > 0;
@@ -415,11 +425,13 @@ function cardHTML(i) {
   const variant = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   const fx = i.badge === "FX" ? `<span class="pill">FX</span>` : "";
+  const s = saleInfo(i);
   return `<article class="card" data-id="${i.id}" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
     <div class="card-art ${crop ? "is-crop" : ""}">
       ${i.img ? `<img loading="lazy" src="${imgSrc(i.img)}" alt="">`
               : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
-      ${i.stock > 1 ? `<span class="card-stock">×${i.stock} in stock</span>` : ""}
+      <span class="card-save">-${s.pct}%</span>
+      ${i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
     </div>
     <div class="card-body">
       <div class="card-name">${i.name}</div>
@@ -428,7 +440,7 @@ function cardHTML(i) {
         ${variant}${fx}
       </div>
       <div class="card-row">
-        <span class="card-price">${money(i.price)}</span>
+        <span class="card-prices"><span class="card-price">${money(i.price)}</span><s class="card-was">${money(s.was)}</s></span>
         <button class="card-buy ${inCart ? "in-cart" : ""}" data-add="${i.id}" ${left <= 0 ? "disabled" : ""}>
           ${left <= 0 ? "In cart" : inCart ? `Add another` : "Add to cart"}
         </button>
@@ -1059,7 +1071,7 @@ function openQV(id) {
       <h2 class="qv-name">${i.name}</h2>
       <p class="qv-sub">${GAME_LABEL[i.game] || ""} · ${i.stock > 0 ? `×${i.stock} in stock` : "out of stock"}</p>
       <div class="qv-row">
-        <span class="qv-price">${money(i.price)}</span>
+        <span class="qv-prices"><span class="qv-price">${money(i.price)}</span><s class="card-was">${money(saleInfo(i).was)}</s><span class="qv-save">-${saleInfo(i).pct}%</span></span>
         <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${left <= 0 ? "disabled" : ""}>
           ${left <= 0 ? "In cart" : state.cart[id] ? "Add another" : "Add to cart"}
         </button>
