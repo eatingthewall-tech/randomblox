@@ -610,8 +610,78 @@ scrim.addEventListener("click", () => { closeSheet(); closeDrawer(); });
 
 /* ---------- checkout ---------- */
 const co = $("#checkout"), coBody = $("#checkoutBody");
+const setCoWide = on => $(".checkout-panel")?.classList.toggle("co-wide", !!on);
+
+/* fill these in when the real links exist */
+const VIP_SERVER_URL = "";
+const CHAT_URL = "";
+
+/* ---------- the queue: device-local, driven by real order timestamps ---------- */
+function queueInfo(order, orders) {
+  const DAY2 = 48 * 3600 * 1000;
+  const now = Date.now(), t = +new Date(order.when);
+  // position = live orders (last 48h) placed at or before this one
+  const pos = Math.max(1, orders.filter(o =>
+    now - +new Date(o.when) < DAY2 && +new Date(o.when) <= t).length);
+  const waitLo = 5 + (pos - 1) * 10;
+  const waitHi = 30 + (pos - 1) * 15;
+  const elapsedMin = (now - t) / 60000;
+  const pct = Math.round(Math.min(92, Math.max(8, (elapsedMin / waitHi) * 100)));
+  return { pos, waitLo, waitHi, pct };
+}
+
+function queueHTML(order, orders) {
+  const q = queueInfo(order, orders);
+  const tile = (href, icon, title, sub) => {
+    const inner = `<span class="qi-ic">${icon}</span><span class="coq-tx"><b>${title}</b><i>${sub}</i></span>`;
+    return href
+      ? `<a class="coq-tile" href="${href}" target="_blank" rel="noopener">${inner}</a>`
+      : `<div class="coq-tile">${inner}</div>`;
+  };
+  const icLink = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>`;
+  const icChat = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>`;
+  const icBell = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
+  const icUser = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6.4 8-6.4s7 2.2 8 6.4"/></svg>`;
+  const icGift = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg>`;
+  return `
+    <div class="coq-grid">
+      <div class="q-panel">
+        <div class="qp-head"><h3>Your queue status</h3><span class="q-live"><i></i>Queue open</span></div>
+        <div class="q-order">
+          <span class="qo-label">Your order number</span>
+          <b class="qo-code">${order.no}</b><span class="qo-pos">#${q.pos} in queue</span>
+          <p class="qo-wait">Estimated wait: ${q.waitLo} to ${q.waitHi} minutes</p>
+        </div>
+        <div class="q-progress">
+          <div class="qp-top"><span>Queue progress</span><span>${q.pct}%</span></div>
+          <div class="qp-bar"><i style="width:${q.pct}%"></i></div>
+          <p>You'll get a Roblox friend request when you're next.</p>
+        </div>
+      </div>
+      <div class="q-panel">
+        <div class="qp-head"><h3>When it's your turn</h3></div>
+        <ol class="q-turn">
+          <li><span class="qt-ic">${icBell}</span>
+            <div class="qt-tx"><b>1. Friend request sent</b><p>Accept the request from our Roblox account.</p></div></li>
+          <li><span class="qt-ic">${icLink}</span>
+            <div class="qt-tx"><b>2. Join the server</b><p>We pull you into a server in your item's game.</p></div></li>
+          <li><span class="qt-ic">${icUser}</span>
+            <div class="qt-tx"><b>3. Meet up</b><p>Find us at spawn and have your code ready.</p></div></li>
+          <li><span class="qt-ic">${icGift}</span>
+            <div class="qt-tx"><b>4. Receive your items</b><p>We send the trade. Accept it and you're done.</p></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="coq-links">
+      ${tile(VIP_SERVER_URL, icLink, "VIP server link",
+             VIP_SERVER_URL ? VIP_SERVER_URL.replace(/^https?:\/\//, "") : "We pull you in when it's your turn")}
+      ${tile(CHAT_URL, icChat, "Chat with us",
+             CHAT_URL ? "Open the chat" : "Questions? Chat link coming soon")}
+    </div>`;
+}
 let payingTotal = 0;
 function openCheckout() {
+  setCoWide(false);
   if (!entries().length) return;
   closeDrawer(); co.hidden = false; stepSummary();
 }
@@ -683,22 +753,14 @@ function stepDone(username) {
     total: payingTotal, items: es.map(([id, q]) => ({ id, q })) });
   save("rbx-orders", orders);
 
+  const order = orders[orders.length - 1];
+  setCoWide(true);
   coBody.innerHTML = `
     <p class="co-step">Step 3 of 3</p>
-    <h2 class="co-title" id="checkoutTitle">You're in the queue</h2>
-    <div class="order-num" role="status">${no}</div>
-    <p class="co-note">That's your order number, ${username}. It's saved on this device under
-    "My order", and you'll want it handy when we trade.</p>
-    <div class="q-progress">
-      <div class="qp-top"><span>Queue progress</span><span>stage 2 of 4</span></div>
-      <div class="qp-bar"><i style="width:38%"></i></div>
-      <p>Placed &rarr; in the queue &rarr; trading &rarr; done</p>
-    </div>
-    <ol class="co-queue">
-      <li>Watch for a friend request from our Roblox account</li>
-      <li>We pull you into a server in your item's game</li>
-      <li>Accept the trade and you're done</li>
-    </ol>
+    <h2 class="co-title" id="checkoutTitle">You're in the queue, ${username}</h2>
+    ${queueHTML(order, orders)}
+    <p class="co-note">Your order number is saved on this device under "My order".
+    Have it handy when we trade.</p>
     ${linesHTML(es)}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
   $("#coDone").addEventListener("click", closeCheckout);
@@ -713,23 +775,21 @@ $("#orderLookupBtn").addEventListener("click", () => {
   const orders = load("rbx-orders", []);
   co.hidden = false;
   if (!orders.length) {
+    setCoWide(false);
     coBody.innerHTML = `
       <h2 class="co-title" id="checkoutTitle">My order</h2>
       <p class="co-note">No orders on this device yet. When you check out, your order number
       shows up here.</p>`;
     return;
   }
+  setCoWide(true);
   coBody.innerHTML = `
     <h2 class="co-title" id="checkoutTitle">My order${orders.length > 1 ? "s" : ""}</h2>
-    <div class="order-list">` +
-    orders.slice().reverse().map(o => `
+    ${queueHTML(orders[orders.length - 1], orders)}
+    ${orders.length > 1 ? `<div class="order-list" style="margin-top:14px">` +
+      orders.slice(0, -1).reverse().map(o => `
       <div class="co-line"><span><b>${o.no}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
-      <span class="co-price">${money(o.total)}</span></div>`).join("") +
-    `</div>
-    <div class="directions">
-      <h3>Directions</h3>
-      <p>Directions will be posted here soon.</p>
-    </div>`;
+      <span class="co-price">${money(o.total)}</span></div>`).join("") + `</div>` : ""}`;
 });
 
 /* ---------- quick view: click a card to enlarge it ---------- */

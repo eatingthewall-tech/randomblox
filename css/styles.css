@@ -1401,3 +1401,41 @@ body.hero-off .hero-glow, body.hero-off .wall-grid { animation-play-state: pause
 @media (max-width: 920px) {
   .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ============================================================
+   v5.5 — hero facts strip at the bottom + big queue confirmation
+   ============================================================ */
+
+/* trust row: full-width strip along the hero's bottom edge */
+.hero-inner > .hero-facts {
+  margin-top: clamp(48px, 8vh, 96px);
+  padding-top: 22px;
+  border-top: 1px solid rgb(255 255 255 / .07);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px 22px;
+}
+@media (max-width: 920px) {
+  .hero-inner > .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 44px; }
+}
+
+/* wide confirmation panel */
+.checkout-panel.co-wide { width: min(940px, 100%); }
+.coq-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 14px; margin: 4px 0 14px; }
+.co-wide .q-order { padding: 20px 22px; }
+.co-wide .qo-code { font-size: 1.65rem; }
+.co-wide .qo-pos { font-size: .78rem; padding: 4px 12px; vertical-align: 6px; }
+.qo-wait { margin: 10px 0 0; font: 600 .9rem var(--font); color: var(--ink-2); }
+.coq-links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.coq-tile {
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid rgb(255 255 255 / .08); border-radius: 14px;
+  padding: 13px 15px; background: rgb(255 255 255 / .02);
+  color: var(--ink); text-decoration: none;
+  transition: border-color .16s, background .16s;
+}
+a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft); }
+.coq-tx b { display: block; font: 700 .88rem var(--font); }
+.coq-tx i { display: block; font: 500 .78rem var(--font); font-style: normal; color: var(--ink-3); }
+@media (max-width: 800px) {
+  .coq-grid, .coq-links { grid-template-columns: 1fr; }
+}
