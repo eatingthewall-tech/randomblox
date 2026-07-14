@@ -6679,7 +6679,7 @@ const CATALOG = [
    "rarity": "Korblox",
    "variant": "base",
    "price": 150.0,
-   "img": "assets/accounts/korblox-1.jpg",
+   "img": "assets/accounts/korblox-1.png",
    "stock": 1,
    "badge": ""
   },
@@ -6691,7 +6691,7 @@ const CATALOG = [
    "rarity": "Random",
    "variant": "base",
    "price": 25.0,
-   "img": "assets/accounts/r04.jpg",
+   "img": "assets/accounts/r04.png",
    "stock": 10,
    "badge": ""
   },
@@ -6703,7 +6703,7 @@ const CATALOG = [
    "rarity": "Random",
    "variant": "base",
    "price": 25.0,
-   "img": "assets/accounts/r02.jpg",
+   "img": "assets/accounts/r02.png",
    "stock": 10,
    "badge": ""
   }

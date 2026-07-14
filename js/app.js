@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260714b";                       // bump when item art changes
+const IMG_V = "20260714d";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -123,8 +123,8 @@ if (localStorage.getItem("rbx-reset") !== RESET_TAG) {
 
 /* ---------- roblox accounts: carousels + gender pick ---------- */
 const ACCT_IMGS = {
-  korblox: ["korblox-1","korblox-2","korblox-3"].map(n => `assets/accounts/${n}.jpg`),
-  random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11","r12"].map(n => `assets/accounts/${n}.jpg`),
+  korblox: ["korblox-1","korblox-2","korblox-3"].map(n => `assets/accounts/${n}.png`),
+  random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11","r12"].map(n => `assets/accounts/${n}.png`),
 };
 (function accounts() {
   $$(".acct-media").forEach(box => {
@@ -297,12 +297,6 @@ function setGame(g) {
   buildCatTabs();
   buildRarityChips();
   render();
-  // animate individual cards, never #grid itself — the full grid is >20k px
-  // tall and promoting it to a compositor layer blanks the renderer
-  if (MOTION_OK) [...$("#grid").children].slice(0, 18).forEach((c, i) =>
-    c.animate(
-      [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "translateY(0)" }],
-      { duration: 260, delay: i * 22, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" }));
 }
 // jump straight to the shop (instant): a smooth scroll across the 25k-px grid
 // stutters and then hard-snaps, which reads as the page "bugging out"
@@ -419,6 +413,7 @@ function visible() {
 /* deterministic "market value" compare-at price so each item shows an honest-feeling
    discount off what the value sites list (the shops all do this) */
 function saleInfo(i) {
+  if (i.price <= 60) return null;                        // only premium items are on sale
   let h = 2166136261;
   for (let k = 0; k < i.id.length; k++) { h ^= i.id.charCodeAt(k); h = Math.imul(h, 16777619); }
   const mult = 1.2 + ((h >>> 0) % 55) / 100;            // 1.20 .. 1.74
@@ -439,7 +434,7 @@ function cardHTML(i) {
     <div class="card-art ${crop ? "is-crop" : ""}">
       ${i.img ? `<img loading="lazy" src="${imgSrc(i.img)}" alt="">`
               : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
-      <span class="card-save">-${s.pct}%</span>
+      ${s ? `<span class="card-save">-${s.pct}%</span>` : ""}
       ${i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
     </div>
     <div class="card-body">
@@ -449,7 +444,7 @@ function cardHTML(i) {
         ${variant}${fx}
       </div>
       <div class="card-row">
-        <span class="card-prices"><span class="card-price">${money(i.price)}</span><s class="card-was">${money(s.was)}</s></span>
+        <span class="card-prices"><span class="card-price">${money(i.price)}</span>${s ? `<s class="card-was">${money(s.was)}</s>` : ""}</span>
         <button class="card-buy ${inCart ? "in-cart" : ""}" data-add="${i.id}" ${left <= 0 ? "disabled" : ""}>
           ${left <= 0 ? "In cart" : inCart ? `Add another` : "Add to cart"}
         </button>
@@ -501,7 +496,9 @@ function render() {
   bindBuyButtons(grid);
   renderApplied();
   updateFiltersBadge();
-  setStickyVars();
+  // defer the sticky-offset read to the next frame so it never forces a
+  // synchronous reflow of the freshly-built grid (that was the switch lag)
+  requestAnimationFrame(setStickyVars);
   syncAcctButtons();
 
   // keep featured buttons in sync
@@ -843,39 +840,99 @@ function linesHTML(es) {
     <div class="co-line co-total"><span>Total</span><span class="co-price">${money(cartTotal())}</span></div></div>`;
 }
 
+const coCrop = p => !!p && (p.startsWith("assets/items/") || p.startsWith("assets/nfl/") || p.startsWith("assets/baddies/") || p.startsWith("assets/accounts/"));
+
+/* payment-method marks (Stripe renders the real branded element once connected) */
+const PAY_IC = {
+  card: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19" stroke-width="2.4"/></svg>`,
+  paypal: `<svg viewBox="0 0 24 24" width="16" height="18"><path d="M7.6 20.5H5.2L7.4 5.9c.05-.3.3-.5.6-.5h5.2c2.9 0 4.7 1.5 4.2 4.3-.5 3-2.7 4.3-5.6 4.3H9.9c-.3 0-.55.2-.6.5l-.6 4c-.05.3-.3.5-.6.5z" fill="#002c8a"/><path d="M18.2 8.3c.5 2.9-1.4 4.9-4.6 4.9h-1.8c-.3 0-.55.2-.6.5l-.8 5.3c-.04.26.16.5.43.5h2.1c.26 0 .48-.19.52-.44l.5-3.2c.04-.25.26-.44.52-.44h1.3c2.6 0 4.5-1.4 4.9-3.9.28-1.7-.4-3-1.6-3.6-.1.6-.2 1.2-.37 1.79z" fill="#009be1"/></svg>`,
+  apple: `<svg viewBox="0 0 24 24" width="15" height="18" fill="currentColor"><path d="M16.37 1.43c0 1.14-.42 2.19-1.11 2.99-.84.95-2.21 1.68-3.38 1.59-.14-1.12.42-2.28 1.06-3.03.72-.85 2.29-1.43 3.43-1.55zM20.5 17.02c-.55 1.28-.82 1.85-1.53 2.98-.99 1.58-2.39 3.55-4.12 3.56-1.54.02-1.94-1-4.03-.99-2.09.01-2.53 1.01-4.07.99-1.73-.02-3.06-1.79-4.05-3.37C.13 15.77-.16 10.6 1.55 7.84 2.76 5.89 4.68 4.75 6.48 4.75c1.84 0 2.99 1.01 4.51 1.01 1.47 0 2.37-1.01 4.5-1.01 1.61 0 3.31.88 4.52 2.39-3.97 2.18-3.32 7.85.49 7.89z"/></svg>`,
+  google: `<svg viewBox="0 0 24 24" width="17" height="17"><path d="M21.6 12.2c0-.64-.06-1.25-.16-1.84H12v3.49h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.89-1.74 2.99-4.3 2.99-7.17z" fill="#4285f4"/><path d="M12 22c2.7 0 4.96-.9 6.61-2.42l-3.23-2.5c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.76-5.58-4.12H3.09v2.58A9.99 9.99 0 0 0 12 22z" fill="#34a853"/><path d="M6.42 13.92a5.99 5.99 0 0 1 0-3.84V7.5H3.09a10 10 0 0 0 0 9l3.33-2.58z" fill="#fbbc05"/><path d="M12 5.96c1.47 0 2.79.5 3.83 1.5l2.86-2.86C16.95 2.98 14.7 2 12 2A9.99 9.99 0 0 0 3.09 7.5l3.33 2.58C7.2 7.72 9.4 5.96 12 5.96z" fill="#ea4335"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>`,
+};
+
 function stepSummary() {
+  const es = entries();
   coBody.innerHTML = `
     <p class="co-step">Step 1 of 3</p>
     <h2 class="co-title" id="checkoutTitle">Your order</h2>
-    ${linesHTML(entries())}
-    <p class="co-note">Look it over. This is the exact list we'll trade in game.</p>
-    <button class="primary-btn" id="coNext">Continue</button>`;
+    <div class="co-items">
+      ${es.map(([id, q]) => {
+        const i = byId[id];
+        return `<div class="co-item">
+          <span class="co-thumb ${coCrop(i.img) ? "is-crop" : ""}">${i.img ? `<img src="${imgSrc(i.img)}" alt="" loading="lazy">` : `<span>${esc(i.name[0])}</span>`}</span>
+          <span class="co-item-main"><b>${esc(i.name)}</b><i>${esc(GAME_LABEL[i.game] || "")}${q > 1 ? ` · ×${q}` : ""}</i></span>
+          <span class="co-item-price">${money(i.price * q)}</span>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="co-totrow"><span>Total</span><b>${money(cartTotal())}</b></div>
+    <button class="primary-btn" id="coNext">Continue to payment</button>`;
   $("#coNext").addEventListener("click", stepPay);
 }
 
 function stepPay() {
   payingTotal = cartTotal();
+  const names = { card: "Pay", paypal: "PayPal", apple: "Apple Pay", google: "Google Pay" };
   coBody.innerHTML = `
     <p class="co-step">Step 2 of 3</p>
     <h2 class="co-title" id="checkoutTitle">Payment</h2>
     <form id="payForm" novalidate>
-      <div class="co-field"><label for="f-name">Name</label>
+      <div class="co-field"><label for="f-name">Full name</label>
         <input id="f-name" name="name" required autocomplete="name"></div>
-      <div class="co-field"><label for="f-user">Roblox username</label>
-        <input id="f-user" name="user" required autocomplete="off" placeholder="So I know who to friend"></div>
-      <div class="co-field"><label for="f-mail">Email</label>
-        <input id="f-mail" name="mail" type="email" required autocomplete="email" placeholder="Receipt goes here"></div>
-      <div class="co-field"><label for="f-card">Card number</label>
-        <input id="f-card" name="card" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19" required></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="co-field"><label for="f-exp">Expiry</label>
-          <input id="f-exp" name="exp" placeholder="MM/YY" maxlength="5" required></div>
-        <div class="co-field"><label for="f-cvc">CVC</label>
-          <input id="f-cvc" name="cvc" inputmode="numeric" placeholder="123" maxlength="4" required></div>
+      <div class="pay-2col">
+        <div class="co-field"><label for="f-user">Roblox username</label>
+          <input id="f-user" name="user" required autocomplete="off" placeholder="Who we friend"></div>
+        <div class="co-field"><label for="f-mail">Email</label>
+          <input id="f-mail" name="mail" type="email" required autocomplete="email" placeholder="For your receipt"></div>
       </div>
-      <p class="co-note">Test checkout. No card gets charged and nothing is sent anywhere.</p>
-      <button class="primary-btn" type="submit">Pay ${money(payingTotal)}</button>
+
+      <p class="pay-label">Pay with</p>
+      <div class="pay-methods" role="radiogroup" aria-label="Payment method">
+        <button type="button" class="pay-m is-on" data-m="card" role="radio" aria-checked="true"><span class="pay-m-ic">${PAY_IC.card}</span>Card</button>
+        <button type="button" class="pay-m" data-m="paypal" role="radio" aria-checked="false"><span class="pay-m-ic">${PAY_IC.paypal}</span>PayPal</button>
+        <button type="button" class="pay-m" data-m="apple" role="radio" aria-checked="false"><span class="pay-m-ic">${PAY_IC.apple}</span>Apple&nbsp;Pay</button>
+        <button type="button" class="pay-m" data-m="google" role="radio" aria-checked="false"><span class="pay-m-ic">${PAY_IC.google}</span>Google&nbsp;Pay</button>
+      </div>
+
+      <div class="pay-panel" data-panel="card">
+        <div class="co-field"><label for="f-card">Card number</label>
+          <input id="f-card" name="card" inputmode="numeric" placeholder="1234 1234 1234 1234" maxlength="19" autocomplete="cc-number"></div>
+        <div class="pay-2col">
+          <div class="co-field"><label for="f-exp">Expiry</label>
+            <input id="f-exp" name="exp" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp"></div>
+          <div class="co-field"><label for="f-cvc">CVC</label>
+            <input id="f-cvc" name="cvc" inputmode="numeric" placeholder="CVC" maxlength="4" autocomplete="cc-csc"></div>
+        </div>
+      </div>
+      <div class="pay-panel pay-wallet" data-panel="wallet" hidden>
+        <p>You'll finish securely with <b data-wallet-name>PayPal</b>. Your payment details are never seen by us.</p>
+      </div>
+
+      <button class="primary-btn pay-submit" type="submit"><span class="pay-lock">${PAY_IC.lock}</span><span data-pay-label>Pay ${money(payingTotal)}</span></button>
+      <p class="co-note pay-secure"><span class="pay-lock">${PAY_IC.lock}</span> Secure checkout, powered by Stripe. Card entry is a preview until Stripe is connected, so no real charge is made yet.</p>
     </form>`;
+
+  const methods = $$(".pay-m", coBody);
+  const cardPanel = $('[data-panel="card"]', coBody);
+  const walletPanel = $('[data-panel="wallet"]', coBody);
+  const payLabel = $("[data-pay-label]", coBody);
+  const walletName = $("[data-wallet-name]", coBody);
+  const cardInputs = () => $$("#f-card, #f-exp, #f-cvc", coBody);
+  const setCardRequired = on => cardInputs().forEach(inp => { inp.required = on; if (!on) inp.setCustomValidity(""); });
+  setCardRequired(true);
+
+  methods.forEach(b => b.addEventListener("click", () => {
+    const m = b.dataset.m;
+    methods.forEach(x => { const on = x === b; x.classList.toggle("is-on", on); x.setAttribute("aria-checked", on); });
+    const isCard = m === "card";
+    cardPanel.hidden = !isCard;
+    walletPanel.hidden = isCard;
+    setCardRequired(isCard);
+    walletName.textContent = names[m] || "PayPal";
+    payLabel.textContent = isCard ? `Pay ${money(payingTotal)}` : `Pay ${money(payingTotal)} with ${names[m]}`;
+  }));
+
   $("#payForm").addEventListener("submit", e => {
     e.preventDefault();
     const f = e.target;
@@ -1135,7 +1192,7 @@ function openQV(id) {
       <h2 class="qv-name">${i.name}</h2>
       <p class="qv-sub">${GAME_LABEL[i.game] || ""} · ${i.stock > 0 ? `×${i.stock} in stock` : "out of stock"}</p>
       <div class="qv-row">
-        <span class="qv-prices"><span class="qv-price">${money(i.price)}</span><s class="card-was">${money(saleInfo(i).was)}</s><span class="qv-save">-${saleInfo(i).pct}%</span></span>
+        <span class="qv-prices"><span class="qv-price">${money(i.price)}</span>${(() => { const s = saleInfo(i); return s ? `<s class="card-was">${money(s.was)}</s><span class="qv-save">-${s.pct}%</span>` : ""; })()}</span>
         <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${left <= 0 ? "disabled" : ""}>
           ${left <= 0 ? "In cart" : state.cart[id] ? "Add another" : "Add to cart"}
         </button>
