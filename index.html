@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260713j">
+<link rel="stylesheet" href="css/styles.css?v=20260713k">
 </head>
 <body>
 
@@ -67,10 +67,6 @@
         <span class="hf-tx"><b>582 items</b><i>in stock right now</i></span></li>
       <li><span class="hf-ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></span>
         <span class="hf-tx"><b>Same-day delivery</b><i>traded to you in game</i></span></li>
-      <li><span class="hf-ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg></span>
-        <span class="hf-tx"><b>Instant code</b><i>the moment you check out</i></span></li>
-      <li><span class="hf-ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-        <span class="hf-tx"><b>Fair prices</b><i>checked against live shops</i></span></li>
     </ul>
   </div>
 </section>
@@ -187,7 +183,7 @@
     <li>
       <span class="how-num" aria-hidden="true">3</span>
       <b>Join the VIP server</b>
-      <p>When it's your turn, open the VIP server link for your game and hop in. Account orders open a live chat instead.</p>
+      <p>When it's your turn, open the VIP server link for your game and hop in. Can't get in? The live chat lets you set it up manually. Account orders use the live chat instead.</p>
     </li>
     <li>
       <span class="how-num" aria-hidden="true">4</span>
@@ -320,7 +316,20 @@
   </div>
 </div>
 
-<script src="js/catalog.js?v=20260713j"></script>
-<script src="js/app.js?v=20260713j"></script>
+<!-- Owner console: unlocked only on the owner's own device -->
+<button class="owner-fab" id="ownerBtn" hidden aria-label="Open owner console">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>
+  <span>Owner</span>
+  <b class="owner-fab-badge" id="ownerFabBadge" hidden>0</b>
+</button>
+<div class="checkout" id="ownerPanel" hidden>
+  <div class="checkout-panel co-wide" role="dialog" aria-modal="true" aria-label="Owner console">
+    <button class="icon-btn checkout-close" id="closeOwner" aria-label="Close owner console">✕</button>
+    <div id="ownerBody"></div>
+  </div>
+</div>
+
+<script src="js/catalog.js?v=20260713k"></script>
+<script src="js/app.js?v=20260713k"></script>
 </body>
 </html>

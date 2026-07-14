@@ -646,124 +646,118 @@ function queueInfo(order, orders) {
   return { pos, ahead, waitLo, waitHi, waitUnit, pct };
 }
 
+/* shared inline icons */
+const IC = {
+  link: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>`,
+  chat: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>`,
+  bell: `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`,
+  user: `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6.4 8-6.4s7 2.2 8 6.4"/></svg>`,
+  gift: `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg>`,
+  send: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>`,
+  chev: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
+};
+
+const CHAT_SEED = {
+  account: "The account login lands right here the moment the owner is online. Leave a message and it'll be waiting.",
+  fallback: "Can't get into the VIP server? Send a message here and the owner will sort out another way to trade.",
+};
+
+/* one chat log per order, keyed by order number. Each message carries who:
+   "buyer" | "owner"; perspective decides which side is "me" (right) vs "them". */
+function paintChat(logEl, key, perspective, seed) {
+  const msgs = load(key, []);
+  logEl.innerHTML =
+    (seed ? `<div class="chat-msg chat-sys">${seed}</div>` : "") +
+    msgs.map(m => `<div class="chat-msg ${(m.who || "buyer") === perspective ? "chat-me" : "chat-them"}">${esc(m.t)}</div>`).join("");
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function pushChat(key, text, who) {
+  const msgs = load(key, []);
+  msgs.push({ t: text, when: Date.now(), who });
+  save(key, msgs);
+}
+
 function queueHTML(order, orders) {
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
   const vipGames = games.filter(g => VIP_LINKS[g]);
   const hasAccounts = games.includes("accounts");
   const accountsOnly = hasAccounts && !vipGames.length;
+  const chatMode = hasAccounts ? "account" : "fallback";
 
-  const icLink = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>`;
-  const icChat = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>`;
-  const icBell = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
-  const icUser = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6.4 8-6.4s7 2.2 8 6.4"/></svg>`;
-  const icGift = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8a3 3 0 1 0-3-3c0 2 3 3 3 3ZM12 8a3 3 0 1 1 3-3c0 2-3 3-3 3Z"/></svg>`;
-  const icSend = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>`;
-
-  // one live chat per order. mode "account" = the delivery channel (waits for the
-  // owner); mode "fallback" = a manual backup for buyers who can't join the server
-  const chatBox = mode => `
-    <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${mode}">
-      <div class="chat-head">
-        <span class="chat-ic">${icChat}</span>
-        <div class="chat-h-tx">
-          <b>${mode === "account" ? "Live chat" : "Can't join the server?"}</b>
-          <i class="chat-status"><span class="chat-dot"></span>${mode === "account"
-            ? "The owner delivers your account here"
-            : "Message the owner to trade another way"}</i>
-        </div>
+  // the chat stays folded until you click the summary — keeps the page calm
+  const chatFold = summary => `
+    <details class="coq-fold coq-chatfold">
+      <summary><span class="fold-ic">${IC.chat}</span><span class="fold-tx">${summary}</span><span class="fold-chev">${IC.chev}</span></summary>
+      <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${chatMode}">
+        <div class="chat-log" aria-live="polite"></div>
+        <form class="chat-form" autocomplete="off">
+          <input class="chat-input" type="text" maxlength="240" placeholder="Message the owner" aria-label="Message the owner">
+          <button class="chat-send" type="submit" aria-label="Send message">${IC.send}</button>
+        </form>
       </div>
-      <div class="chat-log" aria-live="polite"></div>
-      <form class="chat-form" autocomplete="off">
-        <input class="chat-input" type="text" maxlength="240" placeholder="${mode === "account"
-          ? "Message the owner while you wait"
-          : "Tell the owner you can't get in the server"}" aria-label="Message the owner">
-        <button class="chat-send" type="submit" aria-label="Send message">${icSend}</button>
-      </form>
-    </div>`;
+    </details>`;
 
-  /* account-only orders: no queue, no wait time. The account is handed over in the
-     live chat as soon as the owner is online. */
+  /* account-only orders: no queue, no wait — just the live chat, one click away */
   if (accountsOnly) {
     return `
-      <div class="q-panel q-acct">
-        <div class="qp-head"><h3>Your account order</h3><span class="q-live"><i></i>Chat open</span></div>
+      <div class="q-slim">
         <div class="q-order">
           <span class="qo-label">Your order number</span>
           <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-plain">No queue</span>
-          <p class="qo-wait">Handed to you straight through the live chat below.</p>
+          <p class="qo-wait">Delivered to you in the live chat.</p>
         </div>
-        <p class="qo-fine">The owner sends the account email and password in the chat as soon as they're online. Message anytime meanwhile.</p>
-      </div>
-      <div class="coq-links">${chatBox("account")}</div>`;
+        ${chatFold("Open live chat")}
+        <p class="qo-fine">The owner sends the account email and password in the chat as soon as they're online.</p>
+      </div>`;
   }
 
-  /* game / mixed orders: queue + the right VIP link(s), with a live chat as the
-     manual fallback for anyone who can't get into the private server */
+  /* game / mixed orders: order number + wait, the VIP link, and two folded panels
+     (the steps, and the chat fallback) so nothing hits all at once */
   const q = queueInfo(order, orders);
   const waitTxt = `${q.waitLo} to ${q.waitHi} ${q.waitUnit}`;
   const vipTiles = vipGames.map(g =>
     `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
-       <span class="qi-ic">${icLink}</span>
+       <span class="qi-ic">${IC.link}</span>
        <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>Open it when it's your turn</i></span></a>`).join("");
-  const chat = chatBox(hasAccounts ? "account" : "fallback");
 
   return `
-    <div class="coq-grid">
-      <div class="q-panel">
-        <div class="qp-head"><h3>Your queue status</h3><span class="q-live"><i></i>Queue open</span></div>
-        <div class="q-order">
-          <span class="qo-label">Your order number</span>
-          <b class="qo-code">${esc(order.no)}</b><span class="qo-pos">${q.ahead === 0 ? "You're next" : q.ahead + " ahead of you"}</span>
-          <p class="qo-wait">Estimated wait: ${waitTxt}</p>
-        </div>
-        <div class="q-progress">
-          <div class="qp-top"><span>Queue progress</span><span>${q.pct}%</span></div>
-          <div class="qp-bar"><i style="width:${q.pct}%"></i></div>
-          <p>The VIP server link is ready below. Can't get in? Use the live chat.</p>
-        </div>
-        <p class="qo-fine">Wait times aren't always exact, they shift with the owner's availability.</p>
+    <div class="q-slim">
+      <div class="q-order">
+        <span class="qo-label">Your order number</span>
+        <b class="qo-code">${esc(order.no)}</b><span class="qo-pos">${q.ahead === 0 ? "You're next" : q.ahead + " ahead of you"}</span>
+        <p class="qo-wait">Estimated wait: ${waitTxt}</p>
       </div>
-      <div class="q-panel">
-        <div class="qp-head"><h3>When it's your turn</h3></div>
+      <div class="coq-links">${vipTiles}</div>
+      <details class="coq-fold">
+        <summary><span class="fold-ic">${IC.bell}</span><span class="fold-tx">When it's your turn</span><span class="fold-chev">${IC.chev}</span></summary>
         <ol class="q-turn">
-          <li><span class="qt-ic">${icBell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
-          <li><span class="qt-ic">${icLink}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link for your game below and hop in. Can't join? Use the chat.</p></div></li>
-          <li><span class="qt-ic">${icUser}</span><div class="qt-tx"><b>3. Meet at spawn</b><p>Head to spawn with your order code ready.</p></div></li>
-          <li><span class="qt-ic">${icGift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
+          <li><span class="qt-ic">${IC.bell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
+          <li><span class="qt-ic">${IC.link}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link above and hop in. Can't join? Use the chat.</p></div></li>
+          <li><span class="qt-ic">${IC.user}</span><div class="qt-tx"><b>3. Meet at spawn</b><p>Head to spawn with your order code ready.</p></div></li>
+          <li><span class="qt-ic">${IC.gift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
         </ol>
-      </div>
-    </div>
-    <div class="coq-links">${vipTiles}${chat}</div>`;
+      </details>
+      ${chatFold("Can't join the server? Open live chat")}
+      <p class="qo-fine">Wait times aren't always exact, they shift with the owner's availability.</p>
+    </div>`;
 }
 
-/* the live chat is device-local: messages persist per order number so the buyer's
-   notes are still there when they reopen "My order" */
+/* buyer-side chat: buyer messages sit right, owner replies land left */
 function bindQueueChat(root = document) {
   $$(".coq-chat", root).forEach(box => {
     const key = "rbx-chat-" + box.dataset.order;
-    const mode = box.dataset.mode || "account";
-    const seed = mode === "account"
-      ? "The account login lands right here the moment the owner is online. Leave a message and it'll be waiting."
-      : "Can't get into the VIP server? Send a message here and the owner will sort out another way to trade.";
+    const seed = CHAT_SEED[box.dataset.mode] || CHAT_SEED.account;
     const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
-    const paint = () => {
-      const msgs = load(key, []);
-      log.innerHTML =
-        `<div class="chat-msg chat-sys">${seed}</div>` +
-        msgs.map(m => `<div class="chat-msg chat-me">${esc(m.t)}</div>`).join("");
-      log.scrollTop = log.scrollHeight;
-    };
+    const repaint = () => paintChat(log, key, "buyer", seed);
     form.addEventListener("submit", e => {
       e.preventDefault();
       const t = input.value.trim();
       if (!t) return;
-      const msgs = load(key, []);
-      msgs.push({ t, when: Date.now() });
-      save(key, msgs);
+      pushChat(key, t, "buyer");
       input.value = "";
-      paint();
+      repaint();
     });
-    paint();
+    repaint();
   });
 }
 let payingTotal = 0;
@@ -843,7 +837,7 @@ function stepDone(username) {
   const order = orders[orders.length - 1];
   const gamesInOrder = [...new Set(es.map(([id]) => byId[id]?.game).filter(Boolean))];
   const acctOnly = gamesInOrder.length > 0 && gamesInOrder.every(g => g === "accounts");
-  setCoWide(true);
+  setCoWide(false);
   coBody.innerHTML = `
     <p class="co-step">Step 3 of 3</p>
     <h2 class="co-title" id="checkoutTitle">${acctOnly ? `Your account is on the way, ${esc(username)}` : `You're in the queue, ${esc(username)}`}</h2>
@@ -860,8 +854,8 @@ function stepDone(username) {
   syncCount(); render();
 }
 
-/* ---------- order lookup ---------- */
-$("#orderLookupBtn").addEventListener("click", () => {
+/* ---------- order lookup: past orders are clickable and pull themselves up ---------- */
+function openMyOrder(selectedNo) {
   const orders = load("rbx-orders", []);
   co.hidden = false;
   if (!orders.length) {
@@ -872,16 +866,136 @@ $("#orderLookupBtn").addEventListener("click", () => {
       shows up here.</p>`;
     return;
   }
-  setCoWide(true);
+  setCoWide(false);
+  const sel = orders.find(o => o.no === selectedNo) || orders[orders.length - 1];
+  const others = orders.filter(o => o.no !== sel.no).reverse();
   coBody.innerHTML = `
     <h2 class="co-title" id="checkoutTitle">My order${orders.length > 1 ? "s" : ""}</h2>
-    ${queueHTML(orders[orders.length - 1], orders)}
-    ${orders.length > 1 ? `<div class="order-list" style="margin-top:14px">` +
-      orders.slice(0, -1).reverse().map(o => `
-      <div class="co-line"><span><b>${o.no}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
-      <span class="co-price">${money(o.total)}</span></div>`).join("") + `</div>` : ""}`;
+    ${queueHTML(sel, orders)}
+    ${others.length ? `<div class="order-list">
+      <p class="ol-label">Past orders</p>` +
+      others.map(o => `
+      <button class="order-row${o.no === sel.no ? " is-on" : ""}" data-order-no="${esc(o.no)}">
+        <span><b>${esc(o.no)}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
+        <span class="co-price">${money(o.total)}</span></button>`).join("") + `</div>` : ""}`;
+  $$("#checkoutBody .order-row").forEach(b =>
+    b.addEventListener("click", () => openMyOrder(b.dataset.orderNo)));
   bindQueueChat(coBody);
-});
+}
+$("#orderLookupBtn").addEventListener("click", () => openMyOrder());
+
+/* ---------- owner console: unlocked only on the owner's own device ----------
+   Visiting ?owner=<key> once flips a localStorage flag on THIS device; the console
+   then lists every order on the device with its own separate chat thread so the
+   owner can read and reply. (Live chat across devices would need a shared backend;
+   here each browser keeps its own copy.) */
+const OWNER_KEY = "CHANCEBLOX-OWNER-2026";
+const ownerPanel = $("#ownerPanel"), ownerBody = $("#ownerBody"), ownerBtn = $("#ownerBtn");
+
+function unreadFor(no) {
+  const seen = load("rbx-seen-" + no, 0);
+  return load("rbx-chat-" + no, []).slice(seen).filter(m => (m.who || "buyer") === "buyer").length;
+}
+function ownerUnread() {
+  return load("rbx-orders", []).reduce((n, o) => n + unreadFor(o.no), 0);
+}
+function refreshOwnerBadge() {
+  const badge = $("#ownerFabBadge");
+  if (!badge) return;
+  const n = ownerUnread();
+  badge.textContent = n;
+  badge.hidden = n === 0;
+}
+
+(function ownerUnlock() {
+  const p = new URLSearchParams(location.search);
+  if (p.get("owner") === OWNER_KEY) {
+    localStorage.setItem("rbx-owner", "1");
+    p.delete("owner");
+    const qs = p.toString();
+    history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+  }
+  if (localStorage.getItem("rbx-owner") === "1" && ownerBtn) {
+    ownerBtn.hidden = false;
+    refreshOwnerBadge();
+    window.addEventListener("storage", refreshOwnerBadge);
+    setInterval(refreshOwnerBadge, 20000);
+  }
+})();
+
+function openOwner() { renderOwnerList(); ownerPanel.hidden = false; }
+function closeOwner() { ownerPanel.hidden = true; refreshOwnerBadge(); }
+
+function renderOwnerList() {
+  const orders = load("rbx-orders", []).slice().reverse();
+  if (!orders.length) {
+    ownerBody.innerHTML = `
+      <h2 class="co-title">Owner console</h2>
+      <p class="co-note">No orders on this device yet. Orders placed here show up with their
+      own live chat so you can reply.</p>`;
+    return;
+  }
+  ownerBody.innerHTML = `
+    <h2 class="co-title">Owner console</h2>
+    <p class="co-note">Every order has its own separate chat. Pick one to read and reply.</p>
+    <div class="own-list">` +
+    orders.map(o => {
+      const unread = unreadFor(o.no);
+      const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
+      const tag = games.length === 1 && games[0] === "accounts"
+        ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
+      return `
+        <button class="own-row" data-own="${esc(o.no)}">
+          <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
+          <span class="own-main">
+            <b>${esc(o.user || "Buyer")}</b>
+            <i>${esc(o.no)} · ${o.items.reduce((n, x) => n + x.q, 0)} items · ${esc(tag || "order")}</i>
+          </span>
+          ${unread ? `<span class="own-badge">${unread}</span>` : ""}
+          <span class="own-go">${IC.chev}</span>
+        </button>`;
+    }).join("") + `</div>`;
+  $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
+}
+
+function renderOwnerChat(no) {
+  const orders = load("rbx-orders", []);
+  const o = orders.find(x => x.no === no);
+  if (!o) return renderOwnerList();
+  const key = "rbx-chat-" + no;
+  const lines = (o.items || []).map(x => `${byId[x.id]?.name || x.id}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
+  ownerBody.innerHTML = `
+    <button class="own-back" id="ownBack">${IC.chev}<span>All chats</span></button>
+    <div class="own-chat-head">
+      <span class="own-av own-av-lg">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
+      <div><b>${esc(o.user || "Buyer")}</b><i>${esc(no)} · ${money(o.total)}</i></div>
+    </div>
+    <p class="own-items">${esc(lines)}</p>
+    <div class="coq-chat own-chat" data-order="${esc(no)}">
+      <div class="chat-log" aria-live="polite"></div>
+      <form class="chat-form" autocomplete="off">
+        <input class="chat-input" type="text" maxlength="240" placeholder="Reply to ${esc(o.user || "the buyer")}" aria-label="Reply to buyer">
+        <button class="chat-send" type="submit" aria-label="Send reply">${IC.send}</button>
+      </form>
+    </div>`;
+  $("#ownBack").addEventListener("click", renderOwnerList);
+  const box = $(".own-chat", ownerBody);
+  const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
+  const repaint = () => paintChat(log, key, "owner", "");
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const t = input.value.trim();
+    if (!t) return;
+    pushChat(key, t, "owner");
+    input.value = "";
+    repaint();
+  });
+  save("rbx-seen-" + no, load(key, []).length);   // mark this thread read
+  repaint();
+}
+
+ownerBtn?.addEventListener("click", openOwner);
+$("#closeOwner")?.addEventListener("click", closeOwner);
 
 /* ---------- quick view: click a card to enlarge it ---------- */
 const qv = $("#qv"), qvBody = $("#qvBody");

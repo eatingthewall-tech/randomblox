@@ -1412,11 +1412,12 @@ body.hero-off .hero-glow, body.hero-off .wall-grid { animation-play-state: pause
 .hero-inner { display: flex; flex-direction: column; justify-content: center; }
 .hero-inner > .hero-facts {
   position: absolute; z-index: 4;
-  left: clamp(20px, 5vw, 48px); right: clamp(20px, 5vw, 48px);
+  left: clamp(20px, 5vw, 48px); right: auto;
   bottom: clamp(16px, 3vh, 34px);
-  margin: 0; padding: 15px clamp(16px, 2vw, 24px);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px 20px;
+  width: max-content; max-width: calc(100% - 2 * clamp(20px, 5vw, 48px));
+  margin: 0; padding: 15px clamp(18px, 2vw, 26px);
+  grid-auto-flow: column; grid-template-columns: none;
+  gap: 14px 36px;
   border-radius: 18px; border: 1px solid rgb(255 255 255 / .08);
   background: linear-gradient(180deg, rgb(14 9 26 / .72), rgb(9 5 18 / .82));
   box-shadow: 0 22px 48px -26px rgb(0 0 0 / .85);
@@ -1427,8 +1428,8 @@ body.hero-off .hero-glow, body.hero-off .wall-grid { animation-play-state: pause
   .hero { align-items: center; }
   .hero-inner { display: block; }
   .hero-inner > .hero-facts {
-    position: static; left: auto; right: auto; bottom: auto;
-    margin: 30px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px;
+    position: static; left: auto; right: auto; bottom: auto; width: auto; max-width: none;
+    margin: 30px 0 0; grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px;
   }
   .hero-inner > .hero-facts .hf-tx b { white-space: normal; }
 }
@@ -1506,3 +1507,65 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 }
 .chat-send:hover { transform: translateY(-1px); box-shadow: 0 0 22px -6px var(--brand); }
 .chat-send:active { transform: scale(.95); }
+
+/* ============================================================
+   v5.7 — minimal queue (folds) · clickable past orders · owner console
+   ============================================================ */
+
+/* slim, calm confirmation: order card, link, and folded panels */
+.q-slim { display: flex; flex-direction: column; gap: 10px; }
+.q-slim > * { margin: 0; }
+.q-slim .coq-links { grid-template-columns: 1fr; margin: 0; }
+.q-slim .qo-fine { border-top: 0; padding-top: 2px; }
+
+/* collapsible panels (native <details>) — the chat only opens on click */
+.coq-fold { border: 1px solid rgb(255 255 255 / .08); border-radius: 14px; background: rgb(255 255 255 / .02); overflow: hidden; }
+.coq-fold > summary { display: flex; align-items: center; gap: 11px; padding: 13px 15px; cursor: pointer; list-style: none; font: 700 .9rem var(--font); color: var(--ink); }
+.coq-fold > summary::-webkit-details-marker { display: none; }
+.coq-fold > summary:hover { background: rgb(255 255 255 / .03); }
+.fold-ic { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--brand-soft); color: var(--brand-up); flex: none; }
+.fold-tx { flex: 1; }
+.fold-chev { color: var(--ink-3); display: flex; transition: transform .2s var(--ease); }
+.coq-fold[open] > summary { border-bottom: 1px solid rgb(255 255 255 / .06); }
+.coq-fold[open] .fold-chev { transform: rotate(180deg); }
+.coq-fold .q-turn { padding: 14px 16px; margin: 0; }
+.coq-chatfold .coq-chat { border: 0; border-radius: 0; background: transparent; }
+
+/* owner reply lands as a neutral left bubble in the buyer's chat (and vice-versa) */
+.chat-them { align-self: flex-start; background: rgb(255 255 255 / .1); color: var(--ink); border-bottom-left-radius: 4px; }
+
+/* clickable past orders */
+.order-list { margin-top: 6px; }
+.ol-label { font: 700 .74rem var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin: 6px 0 8px; }
+.order-row { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: rgb(255 255 255 / .02); color: var(--ink-2); font: 500 .88rem var(--font); cursor: pointer; margin-bottom: 8px; transition: border-color .16s, background .16s; }
+.order-row:hover { border-color: var(--brand-up); background: var(--brand-soft); }
+.order-row.is-on { border-color: var(--brand-up); }
+.order-row b { color: var(--ink); }
+.order-row .co-price { color: var(--gold); font-weight: 700; }
+
+/* owner floating button (only shown on the unlocked device) */
+.owner-fab { position: fixed; left: 18px; bottom: 18px; z-index: var(--z-sticky); display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px 11px 13px; border: none; border-radius: 999px; cursor: pointer; font: 700 .9rem var(--font); color: #fff; background: linear-gradient(95deg, #8b5cf6, #6d28d9); box-shadow: 0 12px 30px -10px rgb(0 0 0 / .7), 0 0 22px -8px var(--brand); transition: transform .12s var(--ease); }
+.owner-fab:hover { transform: translateY(-1px); }
+.owner-fab-badge { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #ff5470; color: #fff; border: 2px solid var(--bg); font: 800 .68rem/16px var(--font); display: grid; place-items: center; }
+@media (max-width: 720px) { .owner-fab { bottom: 74px; } }
+
+/* owner console */
+.own-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.own-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border: 1px solid rgb(255 255 255 / .08); border-radius: 14px; background: rgb(255 255 255 / .02); color: var(--ink); cursor: pointer; transition: border-color .16s, background .16s; }
+.own-row:hover { border-color: var(--brand-up); background: var(--brand-soft); }
+.own-av { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; flex: none; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; font: 800 1rem var(--font); text-transform: uppercase; }
+.own-av-lg { width: 46px; height: 46px; font-size: 1.15rem; }
+.own-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.own-main b { font: 700 .95rem var(--font); }
+.own-main i { font: 500 .78rem var(--font); font-style: normal; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.own-badge { flex: none; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #ff5470; color: #fff; font: 800 .72rem/22px var(--font); text-align: center; }
+.own-go { color: var(--ink-3); display: flex; transform: rotate(-90deg); }
+.own-back { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: var(--ink-2); font: 600 .88rem var(--font); cursor: pointer; padding: 4px 0; margin-bottom: 10px; }
+.own-back svg { transform: rotate(90deg); }
+.own-back:hover { color: var(--ink); }
+.own-chat-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.own-chat-head b { display: block; font: 700 1.05rem var(--font); }
+.own-chat-head i { font: 500 .8rem var(--font-mono); font-style: normal; color: var(--ink-3); }
+.own-items { font: 500 .82rem var(--font); color: var(--ink-2); margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.own-chat { border: 1px solid rgb(255 255 255 / .08); border-radius: 16px; background: rgb(255 255 255 / .02); }
+.own-chat .chat-log { min-height: 200px; max-height: 46vh; }
