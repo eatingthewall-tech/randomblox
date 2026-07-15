@@ -1776,3 +1776,14 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .own-deliver p:last-child { margin-bottom: 0; }
 .own-deliver span { color: var(--ink-3); flex: 0 0 62px; }
 .own-deliver b { color: var(--ink); font-weight: 700; word-break: break-word; }
+
+/* footer Discord support link */
+.footer-discord {
+  display: inline-flex; align-items: center; gap: 9px;
+  margin: 4px 0 14px; padding: 10px 16px; border-radius: 999px;
+  background: #5865f2; color: #fff; text-decoration: none;
+  font: 700 .88rem var(--font);
+  transition: filter .15s var(--ease), transform .12s;
+}
+.footer-discord:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.footer-discord:active { transform: scale(.98); }

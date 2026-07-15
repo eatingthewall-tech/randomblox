@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260714d";                       // bump when item art changes
+const IMG_V = "20260714h";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -676,19 +676,23 @@ const IC = {
   chev: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
 };
 
+const DISCORD_URL = "https://discord.gg/JmKxSrYX6N";
 const CHAT_SEED = {
-  account: "The account login lands right here the moment the owner is online. Leave a message and it'll be waiting.",
-  fallback: "Can't get into the VIP server? Send a message here and the owner will sort out another way to trade.",
+  account: "The account login lands right here the moment the owner is online. Leave a message here, or join our Discord for the fastest reply.",
+  fallback: "Can't get into the VIP server? Message here, or join our Discord and the owner will sort out another way to trade.",
+  general: "Hey! Ask us anything about items, prices, or your order, no purchase needed. Prefer Discord? Join at discord.gg/JmKxSrYX6N.",
 };
 
 /* one chat log per order, keyed by order number. Each message carries who:
    "buyer" | "owner"; perspective decides which side is "me" (right) vs "them". */
-function paintChat(logEl, key, perspective, seed) {
-  const msgs = load(key, []);
+function renderMsgs(logEl, msgs, perspective, seed) {
   logEl.innerHTML =
     (seed ? `<div class="chat-msg chat-sys">${seed}</div>` : "") +
     msgs.map(m => `<div class="chat-msg ${(m.who || "buyer") === perspective ? "chat-me" : "chat-them"}">${esc(m.t)}</div>`).join("");
   logEl.scrollTop = logEl.scrollHeight;
+}
+function paintChat(logEl, key, perspective, seed) {
+  renderMsgs(logEl, load(key, []), perspective, seed);
 }
 function pushChat(key, text, who) {
   const msgs = load(key, []);
@@ -696,27 +700,73 @@ function pushChat(key, text, who) {
   save(key, msgs);
 }
 
+/* ---------- shared-store chat transport (Vercel KV) with on-device fallback ----------
+   Every visitor gets a stable id so their chat is one thread, separate from
+   everyone else's. When the KV store is connected the owner sees all of them on
+   any device; without it, chat degrades to this device's localStorage. */
+const VISITOR = (() => {
+  let u = localStorage.getItem("rbx-uid");
+  if (!u) { u = "v" + Math.random().toString(36).slice(2, 10); localStorage.setItem("rbx-uid", u); }
+  return u;
+})();
+const visitorName = () => localStorage.getItem("rbx-name") || ("Guest-" + VISITOR.slice(1, 5).toUpperCase());
+let CHAT_API = true;                              // flips off after the first failure this session
+async function chatApiGet(thread) {
+  if (!CHAT_API) return null;
+  try {
+    const r = await fetch(`/api/chat?thread=${encodeURIComponent(thread)}`);
+    if (r.status === 501 || r.status === 404) { CHAT_API = false; return null; }
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d.messages) ? d.messages : null;
+  } catch { return null; }
+}
+async function chatApiPost(thread, name, who, text) {
+  if (!CHAT_API) return false;
+  try {
+    const r = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(who === "owner" ? { "x-owner-key": ownerKey() } : {}) },
+      body: JSON.stringify({ thread, name, who, text }),
+    });
+    if (r.status === 501 || r.status === 404) { CHAT_API = false; return false; }
+    return r.ok;
+  } catch { return false; }
+}
+async function chatApiThreads() {
+  if (!CHAT_API) return null;
+  try {
+    const r = await fetch("/api/chat?threads=1", { headers: { "x-owner-key": ownerKey() } });
+    if (r.status === 501 || r.status === 404) { CHAT_API = false; return null; }
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d.threads) ? d.threads : null;
+  } catch { return null; }
+}
+
 /* live sync: any open chat repaints the moment the other side sends, with no
    reload. A `storage` event fires in every OTHER tab of this browser, and the
    interval catches the sending tab too. (Across separate devices, live chat
    needs a shared backend — localStorage only syncs within one browser.) */
-function syncChats() {
-  $$(".coq-chat").forEach(box => {
+async function syncChats() {
+  for (const box of $$(".coq-chat")) {
     const log = $(".chat-log", box);
-    if (!log) return;
-    const key = "rbx-chat-" + box.dataset.order;
-    const msgs = load(key, []);
-    if (+log.dataset.n === msgs.length) return;          // nothing new — don't disturb
+    if (!log) continue;
+    const thread = box.dataset.order;
     const persp = box.dataset.persp || "buyer";
     const seed = persp === "owner" ? "" : (CHAT_SEED[box.dataset.mode] || CHAT_SEED.account);
-    paintChat(log, key, persp, seed);
+    const api = await chatApiGet(thread);                 // shared store if connected
+    const msgs = api || load("rbx-chat-" + thread, []);    // else this device's copy
+    if (+log.dataset.n === msgs.length) continue;          // nothing new — don't disturb
+    renderMsgs(log, msgs, persp, seed);
     log.dataset.n = msgs.length;
-    if (persp === "owner") save("rbx-seen-" + box.dataset.order, msgs.length);
-  });
+    if (api) save("rbx-chat-" + thread, api);              // mirror so it survives offline
+    if (persp === "owner") save("rbx-seen-" + thread, msgs.length);
+  }
   if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
 }
 window.addEventListener("storage", syncChats);
-setInterval(syncChats, 1200);
+setInterval(syncChats, 2500);
 
 function queueHTML(order, orders) {
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
@@ -729,7 +779,7 @@ function queueHTML(order, orders) {
   const chatFold = summary => `
     <details class="coq-fold coq-chatfold">
       <summary><span class="fold-ic">${IC.chat}</span><span class="fold-tx">${summary}</span><span class="fold-chev">${IC.chev}</span></summary>
-      <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${chatMode}" data-persp="buyer">
+      <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${chatMode}" data-persp="buyer" data-buyer="${esc(order.user || "")}">
         <div class="chat-log" aria-live="polite"></div>
         <form class="chat-form" autocomplete="off">
           <input class="chat-input" type="text" maxlength="240" placeholder="Message the owner" aria-label="Message the owner">
@@ -806,17 +856,20 @@ function queueHTML(order, orders) {
 /* buyer-side chat: buyer messages sit right, owner replies land left */
 function bindQueueChat(root = document) {
   $$(".coq-chat", root).forEach(box => {
-    const key = "rbx-chat-" + box.dataset.order;
+    const thread = box.dataset.order;
+    const key = "rbx-chat-" + thread;
     const seed = CHAT_SEED[box.dataset.mode] || CHAT_SEED.account;
     const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
     const repaint = () => paintChat(log, key, "buyer", seed);
-    form.addEventListener("submit", e => {
+    form.addEventListener("submit", async e => {
       e.preventDefault();
       const t = input.value.trim();
       if (!t) return;
-      pushChat(key, t, "buyer");
+      pushChat(key, t, "buyer");                 // local echo + offline fallback
       input.value = "";
       repaint();
+      await chatApiPost(thread, box.dataset.buyer || "", "buyer", t);   // shared store
+      syncChats();
     });
     repaint();
   });
@@ -1059,12 +1112,24 @@ $("#orderLookupBtn").addEventListener("click", () => openMyOrder());
    then lists every order on the device with its own separate chat thread so the
    owner can read and reply. (Live chat across devices would need a shared backend;
    here each browser keeps its own copy.) */
-/* The owner password is NEVER in this file — it lives in the OWNER_PASSWORD env
-   var on Vercel and is only ever checked server-side. Visiting /?owner=<password>
-   once stores it on this device and reveals the console. */
+/* No owner password ships in this bundle. The owner types it once via
+   ?owner=<password>; it's stored on their device and sent as x-owner-key to the
+   server, which is the ONLY place it's checked (api/orders.js, timing-safe vs the
+   OWNER_PASSWORD env var). The owner button/console only appear after the server
+   confirms the key (verifyOwner), so a wrong ?owner value or a hand-set flag gets
+   nothing. Real security lives on the server; the client just reflects it. */
 const ownerPanel = $("#ownerPanel"), ownerBody = $("#ownerBody"), ownerBtn = $("#ownerBtn");
 const ownerKey = () => localStorage.getItem("rbx-owner-key") || "";
 let ownerOrders = [];
+async function verifyOwner() {
+  const k = ownerKey();
+  if (!k) return false;
+  try {
+    const r = await fetch("/api/owner", { headers: { "x-owner-key": k } });
+    if (r.status === 401) { localStorage.removeItem("rbx-owner-key"); return false; }
+    return r.ok;                       // 200 = the server accepted this owner key
+  } catch { return false; }            // no server reachable = no owner access
+}
 
 function unreadFor(no) {
   const seen = load("rbx-seen-" + no, 0);
@@ -1081,25 +1146,30 @@ function refreshOwnerBadge() {
   badge.hidden = n === 0;
 }
 
-(function ownerUnlock() {
+(async function ownerUnlock() {
   const p = new URLSearchParams(location.search);
   const given = p.get("owner");
   if (given) {
-    localStorage.setItem("rbx-owner-key", given);   // verified server-side, not here
-    localStorage.setItem("rbx-owner", "1");
+    localStorage.setItem("rbx-owner-key", given);   // the server decides if it's valid
+    localStorage.removeItem("rbx-owner");            // retire the old open flag
     p.delete("owner");
     const qs = p.toString();
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
   }
-  if (localStorage.getItem("rbx-owner") === "1" && ownerBtn) {
+  if (ownerBtn && (await verifyOwner())) {
     ownerBtn.hidden = false;
     refreshOwnerBadge();
     window.addEventListener("storage", refreshOwnerBadge);
     setInterval(refreshOwnerBadge, 20000);
+  } else if (ownerBtn) {
+    ownerBtn.hidden = true;
   }
 })();
 
-function openOwner() { renderOwnerList(); ownerPanel.hidden = false; }
+async function openOwner() {
+  if (!(await verifyOwner())) { if (ownerBtn) ownerBtn.hidden = true; return; }
+  renderOwnerList(); ownerPanel.hidden = false;
+}
 function closeOwner() { ownerPanel.hidden = true; refreshOwnerBadge(); }
 
 /* Delivered-state lives in the owner's own storage, keyed by order number, so it
@@ -1129,11 +1199,26 @@ function generalRowHTML() {
     </button>`;
 }
 
-/* Real paid orders come from Stripe (every buyer, any device), not localStorage. */
+/* One row per person: each website visitor's own thread (from the shared store),
+   then every paid order (from Stripe). Both are cross-device. */
+function webRowHTML(t) {
+  const name = t.name || "Website visitor";
+  const unread = 0;   // per-thread unread needs a seen marker per visitor; kept simple
+  return `
+    <button class="own-row" data-own="${esc(t.thread)}">
+      <span class="own-av own-av-web">${IC.chat}</span>
+      <span class="own-main">
+        <b>${esc(name)}</b>
+        <i>Website chat · ${t.last ? new Date(t.last).toLocaleDateString() : "no messages yet"}</i>
+      </span>
+      ${unread ? `<span class="own-badge">${unread}</span>` : ""}
+      <span class="own-go">${IC.chev}</span>
+    </button>`;
+}
 async function renderOwnerList() {
   ownerBody.innerHTML = `
     <h2 class="co-title">Owner console</h2>
-    <p class="co-note">Loading paid orders from Stripe…</p>
+    <p class="co-note">Loading chats and paid orders…</p>
     <div class="own-list">${generalRowHTML()}</div>`;
   $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
 
@@ -1147,13 +1232,19 @@ async function renderOwnerList() {
     err = "Couldn't reach the server. Orders only load on the live site, not a local preview.";
   }
 
+  const threads = await chatApiThreads();          // shared-store chat threads (per person)
+  const webRows = threads
+    ? threads.filter(t => (t.kind || "").indexOf("order") !== 0 && String(t.thread).indexOf("web:") === 0)
+        .map(webRowHTML).join("")
+    : generalRowHTML();                            // fallback: this device's website chat
+
   ownerBody.innerHTML = `
     <h2 class="co-title">Owner console</h2>
-    <p class="co-note">${err ? "Website chat still works below." :
+    <p class="co-note">${err ? "Live chat still works below." :
       `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"} from Stripe, newest first. Every buyer, any device.`}</p>
     ${err ? `<p class="pay-err">${esc(err)}</p>` : ""}
     <div class="own-list">
-      ${generalRowHTML()}
+      ${webRows || generalRowHTML()}
       ${ownerOrders.map(o => {
         const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
         const tag = games.length === 1 && games[0] === "accounts"
@@ -1177,9 +1268,10 @@ async function renderOwnerList() {
 }
 
 function renderOwnerChat(no) {
-  const isGeneral = no === "general";
+  // "general" and any "web:<id>" thread are chat-only (no order attached)
+  const isGeneral = no === "general" || String(no).indexOf("web:") === 0;
   const o = isGeneral
-    ? { no: "general", user: "Website visitor", total: 0, items: [] }
+    ? { no, user: "Website visitor", total: 0, items: [] }
     : (ownerOrders.find(x => x.no === no) || load("rbx-orders", []).find(x => x.no === no));
   if (!o) return renderOwnerList();
   const key = "rbx-chat-" + no;
@@ -1217,16 +1309,19 @@ function renderOwnerChat(no) {
   const box = $(".own-chat", ownerBody);
   const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
   const repaint = () => paintChat(log, key, "owner", "");
-  form.addEventListener("submit", e => {
+  form.addEventListener("submit", async e => {
     e.preventDefault();
     const t = input.value.trim();
     if (!t) return;
-    pushChat(key, t, "owner");
+    pushChat(key, t, "owner");                    // local echo + offline fallback
     input.value = "";
     repaint();
+    await chatApiPost(no, o.user || "", "owner", t);   // shared store (owner-gated)
+    syncChats();
   });
   save("rbx-seen-" + no, load(key, []).length);   // mark this thread read
   repaint();
+  syncChats();                                     // pull any shared-store history
 }
 
 ownerBtn?.addEventListener("click", openOwner);
@@ -1236,26 +1331,43 @@ $("#closeOwner")?.addEventListener("click", closeOwner);
 (function liveChatWidget() {
   const fab = $("#chatFab"), widget = $("#chatWidget");
   if (!fab || !widget) return;
-  const KEY = "rbx-chat-general", SEEN = "rbx-cw-seen";
-  const SEED = "Hey! Ask us anything about items, prices, or your order, no purchase needed. Drop a message and we'll reply right here.";
+  const thread = "web:" + VISITOR, KEY = "rbx-chat-" + thread, SEEN = "rbx-cw-seen";
+  const SEED = CHAT_SEED.general;
   const log = $("#cwLog"), form = $("#cwForm"), input = $("#cwInput"), badge = $("#chatFabBadge");
-  let open = false;
+  let open = false, lastN = -1, poll = null;
 
   const unread = () => load(KEY, []).slice(load(SEEN, 0)).filter(m => (m.who || "buyer") === "owner").length;
   const refreshBadge = () => { const n = unread(); badge.textContent = n; badge.hidden = n === 0; };
-  const repaint = () => paintChat(log, KEY, "buyer", SEED);
+  async function repaint() {
+    const api = await chatApiGet(thread);            // shared store if connected
+    if (api) { renderMsgs(log, api, "buyer", SEED); save(KEY, api); lastN = api.length; }
+    else paintChat(log, KEY, "buyer", SEED);         // else this device's copy
+  }
   const setOpen = o => {
     open = o; widget.hidden = !o; fab.classList.toggle("is-open", o);
     fab.setAttribute("aria-label", o ? "Close chat" : "Chat with us");
-    if (o) { repaint(); save(SEEN, load(KEY, []).length); refreshBadge(); setTimeout(() => input.focus(), 60); }
+    if (o) {
+      repaint().then(() => { save(SEEN, load(KEY, []).length); refreshBadge(); });
+      setTimeout(() => input.focus(), 60);
+      poll = setInterval(async () => {
+        const api = await chatApiGet(thread);
+        if (api && api.length !== lastN) {
+          renderMsgs(log, api, "buyer", SEED); save(KEY, api); lastN = api.length;
+          save(SEEN, api.length); refreshBadge();
+        }
+      }, 3000);
+    } else if (poll) { clearInterval(poll); poll = null; }
   };
 
   fab.addEventListener("click", () => setOpen(!open));
   $("#chatWidgetClose").addEventListener("click", () => setOpen(false));
-  form.addEventListener("submit", e => {
+  form.addEventListener("submit", async e => {
     e.preventDefault();
     const t = input.value.trim(); if (!t) return;
-    pushChat(KEY, t, "buyer"); input.value = ""; repaint();
+    pushChat(KEY, t, "buyer"); input.value = "";     // local echo + offline fallback
+    await repaint();
+    await chatApiPost(thread, visitorName(), "buyer", t);   // shared store
+    await repaint();
     if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
   });
   window.addEventListener("storage", refreshBadge);
