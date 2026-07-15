@@ -871,73 +871,61 @@ function stepSummary() {
   $("#coNext").addEventListener("click", stepPay);
 }
 
+/* Step 2: collect who we're delivering to, then hand off to Stripe's hosted
+   checkout. Card details never touch this site. */
 function stepPay() {
   payingTotal = cartTotal();
-  const names = { card: "Pay", paypal: "PayPal", apple: "Apple Pay", google: "Google Pay" };
   coBody.innerHTML = `
     <p class="co-step">Step 2 of 3</p>
-    <h2 class="co-title" id="checkoutTitle">Payment</h2>
+    <h2 class="co-title" id="checkoutTitle">Your details</h2>
     <form id="payForm" novalidate>
       <div class="co-field"><label for="f-name">Full name</label>
         <input id="f-name" name="name" required autocomplete="name"></div>
       <div class="pay-2col">
         <div class="co-field"><label for="f-user">Roblox username</label>
-          <input id="f-user" name="user" required autocomplete="off" placeholder="Who we friend"></div>
+          <input id="f-user" name="user" required autocomplete="off" placeholder="Who gets the items"></div>
         <div class="co-field"><label for="f-mail">Email</label>
           <input id="f-mail" name="mail" type="email" required autocomplete="email" placeholder="For your receipt"></div>
       </div>
 
-      <p class="pay-label">Pay with</p>
-      <div class="pay-methods" role="radiogroup" aria-label="Payment method">
-        <button type="button" class="pay-m is-on" data-m="card" role="radio" aria-checked="true"><span class="pay-m-ic">${PAY_IC.card}</span>Card</button>
-        <button type="button" class="pay-m" data-m="paypal" role="radio" aria-checked="false"><span class="pay-m-ic">${PAY_IC.paypal}</span>PayPal</button>
-        <button type="button" class="pay-m" data-m="apple" role="radio" aria-checked="false"><span class="pay-m-ic">${PAY_IC.apple}</span>Apple&nbsp;Pay</button>
-        <button type="button" class="pay-m" data-m="google" role="radio" aria-checked="false"><span class="pay-m-ic">${PAY_IC.google}</span>Google&nbsp;Pay</button>
-      </div>
-
-      <div class="pay-panel" data-panel="card">
-        <div class="co-field"><label for="f-card">Card number</label>
-          <input id="f-card" name="card" inputmode="numeric" placeholder="1234 1234 1234 1234" maxlength="19" autocomplete="cc-number"></div>
-        <div class="pay-2col">
-          <div class="co-field"><label for="f-exp">Expiry</label>
-            <input id="f-exp" name="exp" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp"></div>
-          <div class="co-field"><label for="f-cvc">CVC</label>
-            <input id="f-cvc" name="cvc" inputmode="numeric" placeholder="CVC" maxlength="4" autocomplete="cc-csc"></div>
-        </div>
-      </div>
-      <div class="pay-panel pay-wallet" data-panel="wallet" hidden>
-        <p>You'll finish securely with <b data-wallet-name>PayPal</b>. Your payment details are never seen by us.</p>
+      <div class="pay-panel pay-wallet">
+        <p>You'll finish on <b>Stripe's secure page</b> — card, Apple&nbsp;Pay or Google&nbsp;Pay. Your card details are never seen by us.</p>
       </div>
 
       <button class="primary-btn pay-submit" type="submit"><span class="pay-lock">${PAY_IC.lock}</span><span data-pay-label>Pay ${money(payingTotal)}</span></button>
-      <p class="co-note pay-secure"><span class="pay-lock">${PAY_IC.lock}</span> Secure checkout, powered by Stripe. Card entry is a preview until Stripe is connected, so no real charge is made yet.</p>
+      <p class="pay-err" id="payErr" hidden></p>
+      <p class="co-note pay-secure"><span class="pay-lock">${PAY_IC.lock}</span> Secure checkout, powered by Stripe.</p>
     </form>`;
 
-  const methods = $$(".pay-m", coBody);
-  const cardPanel = $('[data-panel="card"]', coBody);
-  const walletPanel = $('[data-panel="wallet"]', coBody);
-  const payLabel = $("[data-pay-label]", coBody);
-  const walletName = $("[data-wallet-name]", coBody);
-  const cardInputs = () => $$("#f-card, #f-exp, #f-cvc", coBody);
-  const setCardRequired = on => cardInputs().forEach(inp => { inp.required = on; if (!on) inp.setCustomValidity(""); });
-  setCardRequired(true);
-
-  methods.forEach(b => b.addEventListener("click", () => {
-    const m = b.dataset.m;
-    methods.forEach(x => { const on = x === b; x.classList.toggle("is-on", on); x.setAttribute("aria-checked", on); });
-    const isCard = m === "card";
-    cardPanel.hidden = !isCard;
-    walletPanel.hidden = isCard;
-    setCardRequired(isCard);
-    walletName.textContent = names[m] || "PayPal";
-    payLabel.textContent = isCard ? `Pay ${money(payingTotal)}` : `Pay ${money(payingTotal)} with ${names[m]}`;
-  }));
-
-  $("#payForm").addEventListener("submit", e => {
+  const form = $("#payForm");
+  form.addEventListener("submit", async e => {
     e.preventDefault();
-    const f = e.target;
-    if (!f.checkValidity()) { f.reportValidity(); return; }
-    stepDone(f.user.value.trim());
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const btn = $(".pay-submit", coBody), label = $("[data-pay-label]", coBody), err = $("#payErr");
+    err.hidden = true;
+    btn.disabled = true;
+    label.textContent = "Taking you to Stripe…";
+    try {
+      const r = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: entries().map(([id, q]) => ({ id, q })),
+          user: form.user.value.trim(),
+          email: form.mail.value.trim(),
+          name: form.name.value.trim(),
+          orderNo: orderNumber(),
+        }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.url) throw new Error(d.error || "Could not start checkout.");
+      location.href = d.url;
+    } catch (ex) {
+      btn.disabled = false;
+      label.textContent = `Pay ${money(payingTotal)}`;
+      err.textContent = `${ex.message} If it keeps happening, message us in the live chat.`;
+      err.hidden = false;
+    }
   });
 }
 
@@ -974,6 +962,67 @@ function stepDone(username) {
   save("rbx-cart", state.cart);
   syncCount(); render();
 }
+
+/* Shown when Stripe sends the buyer back after a real payment. `d` comes from
+   /api/order, which asks Stripe directly — so this can't be faked from the URL. */
+function showPaidOrder(d) {
+  const orders = load("rbx-orders", []);
+  if (!orders.some(o => o.no === d.orderNo)) {
+    orders.push({ no: d.orderNo, when: new Date().toISOString(), user: d.user,
+      total: d.total, items: d.items, paid: true });
+    save("rbx-orders", orders);
+  }
+  const order = orders.find(o => o.no === d.orderNo);
+  const es = (d.items || []).map(x => [x.id, x.q]);
+  const games = [...new Set(es.map(([id]) => byId[id]?.game).filter(Boolean))];
+  const acctOnly = games.length > 0 && games.every(g => g === "accounts");
+
+  setCoWide(false);
+  co.hidden = false;
+  coBody.innerHTML = `
+    <p class="co-step">Payment confirmed</p>
+    <h2 class="co-title" id="checkoutTitle">${acctOnly ? `Your account is on the way, ${esc(d.user)}` : `You're in the queue, ${esc(d.user)}`}</h2>
+    ${queueHTML(order, orders)}
+    <p class="co-note">Paid ${money(d.total)}. Your order number is saved on this device under "My order".
+    Have it handy ${acctOnly ? "in the chat" : "for the trade"}.</p>
+    ${es.length ? linesHTML(es) : ""}
+    <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
+  $("#coDone").addEventListener("click", closeCheckout);
+  bindQueueChat(coBody);
+
+  state.cart = {};
+  save("rbx-cart", state.cart);
+  syncCount(); render();
+}
+
+/* Stripe return: /?paid=<session_id> on success, /?canceled=1 if they backed out */
+(function stripeReturn() {
+  const p = new URLSearchParams(location.search);
+  const paid = p.get("paid"), canceled = p.get("canceled");
+  if (!paid && !canceled) return;
+  const clean = () => history.replaceState(null, "", location.pathname + location.hash);
+
+  if (canceled) { clean(); openDrawer(); return; }
+
+  setCoWide(false);
+  co.hidden = false;
+  coBody.innerHTML = `<h2 class="co-title">Confirming your payment…</h2>
+    <p class="co-note">One second, checking with Stripe.</p>`;
+
+  fetch(`/api/order?session_id=${encodeURIComponent(paid)}`)
+    .then(r => r.json())
+    .then(d => {
+      clean();
+      if (d && d.paid) showPaidOrder(d);
+      else coBody.innerHTML = `<h2 class="co-title">Payment wasn't completed</h2>
+        <p class="co-note">Nothing was charged. If you think this is wrong, open the live chat and we'll check it.</p>`;
+    })
+    .catch(() => {
+      clean();
+      coBody.innerHTML = `<h2 class="co-title">Couldn't confirm the payment</h2>
+        <p class="co-note">If you were charged, open the live chat with your email and we'll sort it right away.</p>`;
+    });
+})();
 
 /* ---------- order lookup: past orders are clickable and pull themselves up ---------- */
 function openMyOrder(selectedNo) {

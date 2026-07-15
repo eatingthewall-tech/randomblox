@@ -6708,3 +6708,6 @@ const CATALOG = [
    "badge": ""
   }
 ];
+
+/* also importable by the Vercel serverless functions (browser ignores this) */
+if (typeof module !== "undefined") module.exports = CATALOG;

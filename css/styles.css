@@ -1762,3 +1762,10 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
   .pay-methods { grid-template-columns: repeat(2, 1fr); }
   .pay-2col { grid-template-columns: 1fr; }
 }
+
+/* checkout: Stripe error line */
+.pay-err {
+  margin: 10px 0 0; padding: 10px 13px; border-radius: 11px;
+  background: rgb(229 72 77 / .12); border: 1px solid rgb(229 72 77 / .4);
+  color: #ffb4b7; font: 600 .84rem var(--font); line-height: 1.45;
+}
