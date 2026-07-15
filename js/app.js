@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260715a";                       // bump when item art changes
+const IMG_V = "20260715c";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -48,10 +48,18 @@ if (localStorage.getItem("rbx-reset") !== RESET_TAG) {
   localStorage.setItem("rbx-reset", RESET_TAG);
 }
 
-/* ---------- featured shelf: priciest MM2/AM grails (NFL & Baddies keep their own tabs) ----------
+/* ---------- featured shelf: priciest MM2/AM grails + one NFL + one Baddies ----------
    9 cards = one 2x2 grail + 8 singles, filling the 6-column bento exactly */
 (function featured() {
-  const top = [...CATALOG].filter(i => i.game === "mm2" || i.game === "am").sort((a, b) => b.price - a.price).slice(0, 9);
+  const topOf = g => [...CATALOG].filter(i => i.game === g && i.img).sort((a, b) => b.price - a.price)[0];
+  const nflPick = topOf("nfl"), baddiesPick = topOf("baddies");
+  // the 9 priciest MM2/Adopt Me grails, then drop the two cheapest Adopt Me picks
+  // to make room for one NFL Universe and one Baddies headliner
+  const base = [...CATALOG].filter(i => (i.game === "mm2" || i.game === "am") && i.img)
+    .sort((a, b) => b.price - a.price).slice(0, 9);
+  const drop = new Set(base.filter(i => i.game === "am").slice(-2));
+  const top = [...base.filter(i => !drop.has(i)), nflPick, baddiesPick]
+    .filter(Boolean).sort((a, b) => b.price - a.price).slice(0, 9);
   $("#featuredRow").innerHTML = top.map(cardHTML).join("");
   bindBuyButtons($("#featuredRow"));
 })();
@@ -967,7 +975,7 @@ function stepPay() {
       </div>
 
       <div class="pay-panel pay-wallet">
-        <p>You'll finish on <b>Stripe's secure page</b> — card, Apple&nbsp;Pay or Google&nbsp;Pay. Your card details are never seen by us.</p>
+        <p>You'll finish on <b>Stripe's secure page</b> — pay by card, PayPal, Cash&nbsp;App&nbsp;Pay, or Apple&nbsp;Pay&nbsp;/&nbsp;Google&nbsp;Pay. Your card details are never seen by us.</p>
       </div>
 
       <button class="primary-btn pay-submit" type="submit"><span class="pay-lock">${PAY_IC.lock}</span><span data-pay-label>Pay ${money(payingTotal)}</span></button>

@@ -49,10 +49,12 @@ module.exports = async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      // explicit rather than relying on dashboard dynamic payment methods, which
-      // are empty on a fresh account. Apple Pay / Google Pay ride the card rail,
-      // so Checkout still offers them automatically.
-      payment_method_types: ["card"],
+      // No explicit payment_method_types: Checkout renders every method that is
+      // turned on in the Stripe Dashboard (Settings -> Payment methods) and is
+      // eligible for this transaction, each in its own section — Card (credit/
+      // debit), PayPal, Cash App Pay, plus Apple Pay / Google Pay on supported
+      // devices. Enable a method in the Dashboard and it appears here with no
+      // code change.
       line_items,
       customer_email: email ? String(email).slice(0, 120) : undefined,
       client_reference_id: orderNo ? String(orderNo).slice(0, 60) : undefined,
