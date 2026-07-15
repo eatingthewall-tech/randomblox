@@ -768,6 +768,31 @@ async function syncChats() {
 window.addEventListener("storage", syncChats);
 setInterval(syncChats, 2500);
 
+/* Buyer side: pick up the owner's "delivered" tick from the shared store, so the
+   order drops out of the queue on THEIR device too — not just the owner's. */
+let DELIVERED_API = true;
+async function syncDelivered() {
+  if (!DELIVERED_API || document.hidden) return;
+  const orders = load("rbx-orders", []);
+  const pending = orders.filter(o => !o.done);
+  if (!pending.length) return;
+  let changed = false;
+  for (const o of pending) {
+    try {
+      const r = await fetch(`/api/delivered?no=${encodeURIComponent(o.no)}`);
+      if (r.status === 501 || r.status === 404) { DELIVERED_API = false; return; }
+      if (!r.ok) continue;
+      const d = await r.json();
+      if (d && d.done) { o.done = true; changed = true; }
+    } catch { return; }
+  }
+  if (!changed) return;
+  save("rbx-orders", orders);
+  if (!co.hidden && $("#checkoutBody .q-slim")) openMyOrder();   // refresh the open queue view
+}
+setInterval(syncDelivered, 6000);
+syncDelivered();
+
 function queueHTML(order, orders) {
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
   const vipGames = games.filter(g => VIP_LINKS[g]);
@@ -1182,6 +1207,12 @@ function setOrderDone(no, done) {
   const orders = load("rbx-orders", []);          // keep a same-device buyer record in sync
   const o = orders.find(x => x.no === no);
   if (o) { o.done = done; save("rbx-orders", orders); }
+  // and push it to the shared store so the BUYER's device drops it from the queue
+  fetch("/api/delivered", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() },
+    body: JSON.stringify({ no, done: !!done }),
+  }).catch(() => {});
 }
 
 function generalRowHTML() {
