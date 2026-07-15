@@ -1549,6 +1549,9 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 
 /* owner console */
 .own-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.own-group { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--ink); margin: 14px 2px 2px; }
+.own-group:first-child { margin-top: 2px; }
+.own-group span { font-weight: 500; letter-spacing: .02em; text-transform: none; color: var(--ink-2); }
 .own-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border: 1px solid rgb(0 0 0 / .08); border-radius: 14px; background: rgb(0 0 0 / .02); color: var(--ink); cursor: pointer; transition: border-color .16s, background .16s; }
 .own-row:hover { border-color: var(--brand-up); background: var(--brand-soft); }
 .own-av { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; flex: none; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; font: 800 1rem var(--font); text-transform: uppercase; }

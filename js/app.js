@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260714h";                       // bump when item art changes
+const IMG_V = "20260715a";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -40,7 +40,7 @@ const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 
 /* one-time reset: wipe every order / chat / read-marker so the queue starts
    empty and at #1 for everyone. Bump RESET_TAG to reset again later. */
-const RESET_TAG = "2026-07-14";
+const RESET_TAG = "2026-07-15-reset";
 if (localStorage.getItem("rbx-reset") !== RESET_TAG) {
   Object.keys(localStorage)
     .filter(k => k === "rbx-orders" || k.startsWith("rbx-chat-") || k.startsWith("rbx-seen-"))
@@ -1244,7 +1244,9 @@ async function renderOwnerList() {
       `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"} from Stripe, newest first. Every buyer, any device.`}</p>
     ${err ? `<p class="pay-err">${esc(err)}</p>` : ""}
     <div class="own-list">
+      <p class="own-group">Live chats <span>· questions only, not the queue</span></p>
       ${webRows || generalRowHTML()}
+      ${ownerOrders.length ? `<p class="own-group">Paid orders <span>· these form the delivery queue</span></p>` : ""}
       ${ownerOrders.map(o => {
         const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
         const tag = games.length === 1 && games[0] === "accounts"
