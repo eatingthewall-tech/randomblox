@@ -1284,12 +1284,13 @@ async function renderOwnerList() {
           ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
         const n = (o.items || []).reduce((a, x) => a + x.q, 0);
         const unread = unreadFor(o.no);
-        const done = isDone(o.no);
+        const done = o.done || isDone(o.no);
+        const pos = done ? null : o.queuePos;
         return `
         <button class="own-row${done ? " own-row-done" : ""}" data-own="${esc(o.no)}">
           <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
           <span class="own-main">
-            <b>${esc(o.user || "Buyer")}</b>
+            <b>${esc(o.user || "Buyer")}${pos ? `<span class="own-pos">#${pos} in queue</span>` : ""}</b>
             <i>${esc(o.no)} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : esc(tag || "order")}</i>
           </span>
           ${unread ? `<span class="own-badge">${unread}</span>` : ""}
@@ -1308,7 +1309,8 @@ function renderOwnerChat(no) {
     : (ownerOrders.find(x => x.no === no) || load("rbx-orders", []).find(x => x.no === no));
   if (!o) return renderOwnerList();
   const key = "rbx-chat-" + no;
-  const done = isGeneral ? false : isDone(no);
+  const done = isGeneral ? false : (o.done || isDone(no));
+  const pos = isGeneral || done ? null : o.queuePos;   // real position across every buyer
   const lines = isGeneral
     ? "Pre-sale / general question — no order attached yet."
     : (o.items || []).map(x => `${byId[x.id]?.name || x.id}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
@@ -1321,6 +1323,8 @@ function renderOwnerChat(no) {
     </div>
     ${isGeneral ? "" : `
     <div class="own-deliver">
+      <p><span>Queue</span><b>${done ? "Delivered — out of the queue"
+        : pos ? `#${pos} in line${pos === 1 ? " — they're next" : ""}` : "—"}</b></p>
       <p><span>Trade to</span><b>${esc(o.user || "—")}</b></p>
       <p><span>Items</span><b>${esc(lines || "—")}</b></p>
       ${o.email ? `<p><span>Email</span><b>${esc(o.email)}</b></p>` : ""}
@@ -1336,7 +1340,10 @@ function renderOwnerChat(no) {
     </div>`;
   $("#ownBack").addEventListener("click", renderOwnerList);
   $("#ownDone")?.addEventListener("click", () => {
-    setOrderDone(no, !isDone(no));
+    const nowDone = !(o.done || isDone(no));
+    setOrderDone(no, nowDone);
+    const cached = ownerOrders.find(x => x.no === no);
+    if (cached) { cached.done = nowDone; if (nowDone) cached.queuePos = null; }
     renderOwnerChat(no);
   });
   const box = $(".own-chat", ownerBody);

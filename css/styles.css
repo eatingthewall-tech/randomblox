@@ -1790,3 +1790,6 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 }
 .footer-discord:hover { filter: brightness(1.08); transform: translateY(-1px); }
 .footer-discord:active { transform: scale(.98); }
+
+/* owner console: real queue position badge */
+.own-pos { margin-left: 8px; font: 700 .68rem var(--font); color: var(--brand-up); background: var(--brand-soft); border: 1px solid var(--brand-soft-2); border-radius: 999px; padding: 2px 8px; vertical-align: 1px; white-space: nowrap; }

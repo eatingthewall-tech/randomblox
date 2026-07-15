@@ -7,6 +7,18 @@
 const Stripe = require("stripe");
 const crypto = require("crypto");
 
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+async function kv(cmd) {
+  const r = await fetch(KV_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify(cmd),
+  });
+  return r.json();
+}
+
 function sameSecret(a, b) {
   const x = Buffer.from(String(a));
   const y = Buffer.from(String(b));
@@ -48,7 +60,29 @@ module.exports = async (req, res) => {
           items,
         };
       });
-    return res.status(200).json({ orders });
+
+    // which orders are already delivered (shared KV, so it's the same answer on
+    // every device the owner uses — not just whichever browser ticked the box)
+    let doneSet = new Set();
+    if (KV_URL && KV_TOKEN) {
+      try {
+        const r = await kv(["SMEMBERS", "orders:done"]);
+        doneSet = new Set((r && r.result) || []);
+      } catch { /* store down: fall back to nothing delivered */ }
+    }
+    orders.forEach(o => { o.done = doneSet.has(o.no); });
+
+    /* Real queue position, across every buyer: oldest undelivered order is #1.
+       (The buyer's own page can only see its own order, so it always says
+       "You're next" — this is the true backlog.) */
+    orders
+      .filter(o => !o.done)
+      .sort((a, b) => new Date(a.when) - new Date(b.when))
+      .forEach((o, i) => { o.queuePos = i + 1; });
+    orders.forEach(o => { if (o.done) o.queuePos = null; });
+
+    orders.sort((a, b) => new Date(b.when) - new Date(a.when));   // newest first for the list
+    return res.status(200).json({ orders, pending: orders.filter(o => !o.done).length });
   } catch (e) {
     console.error("orders error:", e);
     return res.status(500).json({ error: e.message || "Could not load orders." });
