@@ -62,7 +62,9 @@ module.exports = async (req, res) => {
         buyer_name: String(name || "").slice(0, 80),
         cart,
       },
-      success_url: `${origin}/?paid={CHECKOUT_SESSION_ID}`,
+      // a dedicated path so ad platforms can count a purchase without firing on
+      // every homepage visit (the app renders the confirmation there via rewrite)
+      success_url: `${origin}/thank-you?paid={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?canceled=1`,
     });
 
