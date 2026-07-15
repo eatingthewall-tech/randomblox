@@ -413,7 +413,7 @@ function visible() {
 /* deterministic "market value" compare-at price so each item shows an honest-feeling
    discount off what the value sites list (the shops all do this) */
 function saleInfo(i) {
-  if (i.price <= 60) return null;                        // only premium items are on sale
+  if (i.price <= 45) return null;                        // only premium items are on sale
   let h = 2166136261;
   for (let k = 0; k < i.id.length; k++) { h ^= i.id.charCodeAt(k); h = Math.imul(h, 16777619); }
   const mult = 1.2 + ((h >>> 0) % 55) / 100;            // 1.20 .. 1.74
