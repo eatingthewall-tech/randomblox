@@ -8,11 +8,14 @@
    number for a paid order. Owner-only routes are gated by OWNER_PASSWORD. */
 const crypto = require("crypto");
 
+// Works with either name the Upstash/Vercel integration injects.
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
 async function kv(cmd) {
-  const url = process.env.KV_REST_API_URL, tok = process.env.KV_REST_API_TOKEN;
-  const r = await fetch(url, {
+  const r = await fetch(KV_URL, {
     method: "POST",
-    headers: { Authorization: `Bearer ${tok}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, "Content-Type": "application/json" },
     body: JSON.stringify(cmd),
   });
   return r.json();
@@ -30,7 +33,7 @@ function ownerOK(req) {
 }
 
 module.exports = async (req, res) => {
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+  if (!KV_URL || !KV_TOKEN) {
     return res.status(501).json({ error: "Chat store not connected." });
   }
 
