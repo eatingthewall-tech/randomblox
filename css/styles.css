@@ -1769,3 +1769,10 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
   background: rgb(229 72 77 / .12); border: 1px solid rgb(229 72 77 / .4);
   color: #ffb4b7; font: 600 .84rem var(--font); line-height: 1.45;
 }
+
+/* owner console: the delivery card (who to trade, what to send) */
+.own-deliver { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 0 0 12px; background: var(--surface-2); }
+.own-deliver p { display: flex; gap: 10px; margin: 0 0 7px; font-size: .86rem; align-items: baseline; }
+.own-deliver p:last-child { margin-bottom: 0; }
+.own-deliver span { color: var(--ink-3); flex: 0 0 62px; }
+.own-deliver b { color: var(--ink); font-weight: 700; word-break: break-word; }

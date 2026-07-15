@@ -1059,8 +1059,12 @@ $("#orderLookupBtn").addEventListener("click", () => openMyOrder());
    then lists every order on the device with its own separate chat thread so the
    owner can read and reply. (Live chat across devices would need a shared backend;
    here each browser keeps its own copy.) */
-const OWNER_KEY = "CHANCEBLOX-OWNER-2026";
+/* The owner password is NEVER in this file — it lives in the OWNER_PASSWORD env
+   var on Vercel and is only ever checked server-side. Visiting /?owner=<password>
+   once stores it on this device and reveals the console. */
 const ownerPanel = $("#ownerPanel"), ownerBody = $("#ownerBody"), ownerBtn = $("#ownerBtn");
+const ownerKey = () => localStorage.getItem("rbx-owner-key") || "";
+let ownerOrders = [];
 
 function unreadFor(no) {
   const seen = load("rbx-seen-" + no, 0);
@@ -1079,7 +1083,9 @@ function refreshOwnerBadge() {
 
 (function ownerUnlock() {
   const p = new URLSearchParams(location.search);
-  if (p.get("owner") === OWNER_KEY) {
+  const given = p.get("owner");
+  if (given) {
+    localStorage.setItem("rbx-owner-key", given);   // verified server-side, not here
     localStorage.setItem("rbx-owner", "1");
     p.delete("owner");
     const qs = p.toString();
@@ -1096,17 +1102,22 @@ function refreshOwnerBadge() {
 function openOwner() { renderOwnerList(); ownerPanel.hidden = false; }
 function closeOwner() { ownerPanel.hidden = true; refreshOwnerBadge(); }
 
+/* Delivered-state lives in the owner's own storage, keyed by order number, so it
+   works for Stripe orders too (which never touch this device's rbx-orders). */
+function isDone(no) { return !!load("rbx-done", {})[no]; }
 function setOrderDone(no, done) {
-  const orders = load("rbx-orders", []);
+  const m = load("rbx-done", {});
+  if (done) m[no] = true; else delete m[no];
+  save("rbx-done", m);
+  const orders = load("rbx-orders", []);          // keep a same-device buyer record in sync
   const o = orders.find(x => x.no === no);
   if (o) { o.done = done; save("rbx-orders", orders); }
 }
 
-function renderOwnerList() {
-  const orders = load("rbx-orders", []).slice().reverse();
+function generalRowHTML() {
   const gUnread = unreadFor("general");
   const gCount = load("rbx-chat-general", []).length;
-  const generalRow = `
+  return `
     <button class="own-row" data-own="general">
       <span class="own-av own-av-web">${IC.chat}</span>
       <span class="own-main">
@@ -1116,47 +1127,81 @@ function renderOwnerList() {
       ${gUnread ? `<span class="own-badge">${gUnread}</span>` : ""}
       <span class="own-go">${IC.chev}</span>
     </button>`;
+}
+
+/* Real paid orders come from Stripe (every buyer, any device), not localStorage. */
+async function renderOwnerList() {
   ownerBody.innerHTML = `
     <h2 class="co-title">Owner console</h2>
-    <p class="co-note">Every order and the website chat has its own thread. Pick one to read and reply.</p>
+    <p class="co-note">Loading paid orders from Stripe…</p>
+    <div class="own-list">${generalRowHTML()}</div>`;
+  $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
+
+  let err = null;
+  try {
+    const r = await fetch("/api/orders", { headers: { "x-owner-key": ownerKey() } });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) err = d.error || `Couldn't load orders (${r.status}).`;
+    else ownerOrders = d.orders || [];
+  } catch {
+    err = "Couldn't reach the server. Orders only load on the live site, not a local preview.";
+  }
+
+  ownerBody.innerHTML = `
+    <h2 class="co-title">Owner console</h2>
+    <p class="co-note">${err ? "Website chat still works below." :
+      `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"} from Stripe, newest first. Every buyer, any device.`}</p>
+    ${err ? `<p class="pay-err">${esc(err)}</p>` : ""}
     <div class="own-list">
-      ${generalRow}` +
-    orders.map(o => {
-      const unread = unreadFor(o.no);
-      const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
-      const tag = games.length === 1 && games[0] === "accounts"
-        ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
-      return `
-        <button class="own-row${o.done ? " own-row-done" : ""}" data-own="${esc(o.no)}">
+      ${generalRowHTML()}
+      ${ownerOrders.map(o => {
+        const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
+        const tag = games.length === 1 && games[0] === "accounts"
+          ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
+        const n = (o.items || []).reduce((a, x) => a + x.q, 0);
+        const unread = unreadFor(o.no);
+        const done = isDone(o.no);
+        return `
+        <button class="own-row${done ? " own-row-done" : ""}" data-own="${esc(o.no)}">
           <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
           <span class="own-main">
             <b>${esc(o.user || "Buyer")}</b>
-            <i>${esc(o.no)} · ${o.items.reduce((n, x) => n + x.q, 0)} items · ${o.done ? "Delivered" : esc(tag || "order")}</i>
+            <i>${esc(o.no)} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : esc(tag || "order")}</i>
           </span>
           ${unread ? `<span class="own-badge">${unread}</span>` : ""}
           <span class="own-go">${IC.chev}</span>
         </button>`;
-    }).join("") + `</div>`;
+      }).join("")}
+    </div>`;
   $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
 }
 
 function renderOwnerChat(no) {
   const isGeneral = no === "general";
-  const orders = load("rbx-orders", []);
-  const o = isGeneral ? { no: "general", user: "Website visitor", total: 0, items: [] } : orders.find(x => x.no === no);
+  const o = isGeneral
+    ? { no: "general", user: "Website visitor", total: 0, items: [] }
+    : (ownerOrders.find(x => x.no === no) || load("rbx-orders", []).find(x => x.no === no));
   if (!o) return renderOwnerList();
   const key = "rbx-chat-" + no;
+  const done = isGeneral ? false : isDone(no);
   const lines = isGeneral
     ? "Pre-sale / general question — no order attached yet."
     : (o.items || []).map(x => `${byId[x.id]?.name || x.id}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
+  const when = o.when ? new Date(o.when).toLocaleString() : "";
   ownerBody.innerHTML = `
     <button class="own-back" id="ownBack">${IC.chev}<span>All chats</span></button>
     <div class="own-chat-head">
       <span class="own-av own-av-lg${isGeneral ? " own-av-web" : ""}">${isGeneral ? IC.chat : esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
-      <div><b>${esc(o.user || "Buyer")}</b><i>${isGeneral ? "Website chat" : esc(no) + " · " + money(o.total)}</i></div>
+      <div><b>${esc(o.user || "Buyer")}</b><i>${isGeneral ? "Website chat" : esc(no) + " · " + money(o.total) + (when ? " · " + esc(when) : "")}</i></div>
     </div>
-    <p class="own-items">${esc(lines)}</p>
-    ${isGeneral ? "" : `<button class="own-done-btn${o.done ? " is-done" : ""}" id="ownDone">${o.done ? "Delivered — tap to reopen" : "Mark delivered &amp; remove from queue"}</button>`}
+    ${isGeneral ? "" : `
+    <div class="own-deliver">
+      <p><span>Trade to</span><b>${esc(o.user || "—")}</b></p>
+      <p><span>Items</span><b>${esc(lines || "—")}</b></p>
+      ${o.email ? `<p><span>Email</span><b>${esc(o.email)}</b></p>` : ""}
+    </div>`}
+    ${isGeneral ? `<p class="own-items">${esc(lines)}</p>` : ""}
+    ${isGeneral ? "" : `<button class="own-done-btn${done ? " is-done" : ""}" id="ownDone">${done ? "Delivered — tap to reopen" : "Mark delivered &amp; remove from queue"}</button>`}
     <div class="coq-chat own-chat" data-order="${esc(no)}" data-persp="owner">
       <div class="chat-log" aria-live="polite"></div>
       <form class="chat-form" autocomplete="off">
@@ -1166,8 +1211,7 @@ function renderOwnerChat(no) {
     </div>`;
   $("#ownBack").addEventListener("click", renderOwnerList);
   $("#ownDone")?.addEventListener("click", () => {
-    const cur = load("rbx-orders", []).find(x => x.no === no);
-    setOrderDone(no, !cur?.done);
+    setOrderDone(no, !isDone(no));
     renderOwnerChat(no);
   });
   const box = $(".own-chat", ownerBody);
