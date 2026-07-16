@@ -6750,7 +6750,7 @@ const CATALOG = [
    "kind": "collectible",
    "rarity": "Common",
    "variant": "base",
-   "price": 0.01,
+   "price": 0.51,
    "img": "",
    "stock": 99,
    "badge": "",
