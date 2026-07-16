@@ -95,7 +95,7 @@ function hasNewOwnerMsg(prevN, msgs) {
 
 /* ---------- featured shelf: priciest MM2/AM grails + one NFL + one Baddies ----------
    9 cards = one 2x2 grail + 8 singles, filling the 6-column bento exactly */
-(function featured() {
+function renderFeatured() {
   const topOf = g => [...CATALOG].filter(i => i.game === g && i.img).sort((a, b) => b.price - a.price)[0];
   const nflPick = topOf("nfl"), baddiesPick = topOf("baddies");
   // the 9 priciest MM2/Adopt Me grails, then drop the two cheapest Adopt Me picks
@@ -107,7 +107,8 @@ function hasNewOwnerMsg(prevN, msgs) {
     .filter(Boolean).sort((a, b) => b.price - a.price).slice(0, 9);
   $("#featuredRow").innerHTML = top.map(cardHTML).join("");
   bindBuyButtons($("#featuredRow"));
-})();
+}
+renderFeatured();
 
 /* ---------- hero: the collector wall (his real inventory, racked in 3D) ---------- */
 (function heroWall() {
@@ -157,11 +158,11 @@ function hasNewOwnerMsg(prevN, msgs) {
 })();
 
 /* ---------- pick-your-game: the official game covers, full bleed ---------- */
-(function gameBand() {
+function renderGameBand() {
   const box = $("#gameBand");
   if (!box) return;
   box.innerHTML = ["mm2", "am", "nfl", "baddies"].map(g => {
-    const n = shopItems().filter(i => i.game === g).length;
+    const n = shopItems().filter(i => i.game === g && i.stock > 0).length;
     return `<button class="gcard" data-jump="${g}" style="--ga:var(--g-${g})">
       <img class="gcard-cover" src="${imgSrc(`assets/games/${g}-thumb.png`)}" alt="" loading="lazy" decoding="async">
       <span class="gcard-scrim" aria-hidden="true"></span>
@@ -172,7 +173,8 @@ function hasNewOwnerMsg(prevN, msgs) {
       <span class="gcard-go" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </button>`;
   }).join("");
-})();
+}
+renderGameBand();
 
 /* ---------- roblox accounts: carousels + gender pick ---------- */
 const ACCT_IMGS = {
@@ -476,6 +478,7 @@ function saleInfo(i) {
 }
 function cardHTML(i) {
   const left = i.stock - (state.cart[i.id] || 0);
+  const soldOut = i.stock <= 0;                       // gone for good, not just in a cart
   const inCart = (state.cart[i.id] || 0) > 0;
   const pill = PILL[i.rarity] || "common";
   const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/") || i.img.startsWith("assets/accounts/"));
@@ -483,12 +486,13 @@ function cardHTML(i) {
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   const fx = i.badge === "FX" ? `<span class="pill">FX</span>` : "";
   const s = saleInfo(i);
-  return `<article class="card" data-id="${i.id}" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
+  return `<article class="card${soldOut ? " is-sold" : ""}" data-id="${i.id}" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
     <div class="card-art ${crop ? "is-crop" : ""}">
       ${i.img ? `<img loading="lazy" src="${imgSrc(i.img)}" alt="">`
               : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
-      ${s ? `<span class="card-save">-${s.pct}%</span>` : ""}
-      ${i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
+      ${soldOut ? `<span class="card-sold">Out of stock</span>` : ""}
+      ${s && !soldOut ? `<span class="card-save">-${s.pct}%</span>` : ""}
+      ${!soldOut && i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
     </div>
     <div class="card-body">
       <div class="card-name">${i.name}</div>
@@ -498,8 +502,8 @@ function cardHTML(i) {
       </div>
       <div class="card-row">
         <span class="card-prices"><span class="card-price">${money(i.price)}</span>${s ? `<s class="card-was">${money(s.was)}</s>` : ""}</span>
-        <button class="card-buy ${inCart ? "in-cart" : ""}" data-add="${i.id}" ${left <= 0 ? "disabled" : ""}>
-          ${left <= 0 ? "In cart" : inCart ? `Add another` : "Add to cart"}
+        <button class="card-buy ${inCart ? "in-cart" : ""}" data-add="${i.id}" ${soldOut || left <= 0 ? "disabled" : ""}>
+          ${soldOut ? "Out of stock" : left <= 0 ? "In cart" : inCart ? `Add another` : "Add to cart"}
         </button>
       </div>
     </div>
@@ -558,8 +562,8 @@ function render() {
   $$("#featuredRow [data-add]").forEach(b => {
     const i = byId[b.dataset.add];
     const left = i.stock - (state.cart[i.id] || 0);
-    b.disabled = left <= 0;
-    b.textContent = left <= 0 ? "In cart" : (state.cart[i.id] ? "Add another" : "Add to cart");
+    b.disabled = i.stock <= 0 || left <= 0;
+    b.textContent = i.stock <= 0 ? "Out of stock" : left <= 0 ? "In cart" : (state.cart[i.id] ? "Add another" : "Add to cart");
     b.classList.toggle("in-cart", (state.cart[i.id] || 0) > 0);
   });
 }
@@ -1679,8 +1683,9 @@ function openQV(id) {
   const badge = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   qvBody.innerHTML = `
-    <div class="qv-art ${crop ? "is-crop" : ""}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
+    <div class="qv-art ${crop ? "is-crop" : ""}${i.stock <= 0 ? " is-sold" : ""}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
       ${i.img ? `<img src="${imgSrc(i.img)}" alt="${i.name}">` : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
+      ${i.stock <= 0 ? `<span class="card-sold">Out of stock</span>` : ""}
     </div>
     <div class="qv-info">
       <div class="card-tags">
@@ -1690,8 +1695,8 @@ function openQV(id) {
       <p class="qv-sub">${GAME_LABEL[i.game] || ""} · ${i.stock > 0 ? `×${i.stock} in stock` : "out of stock"}</p>
       <div class="qv-row">
         <span class="qv-prices"><span class="qv-price">${money(i.price)}</span>${(() => { const s = saleInfo(i); return s ? `<s class="card-was">${money(s.was)}</s><span class="qv-save">-${s.pct}%</span>` : ""; })()}</span>
-        <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${left <= 0 ? "disabled" : ""}>
-          ${left <= 0 ? "In cart" : state.cart[id] ? "Add another" : "Add to cart"}
+        <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${i.stock <= 0 || left <= 0 ? "disabled" : ""}>
+          ${i.stock <= 0 ? "Out of stock" : left <= 0 ? "In cart" : state.cart[id] ? "Add another" : "Add to cart"}
         </button>
       </div>
     </div>`;
@@ -1731,4 +1736,45 @@ syncCount();
 setStickyVars();
 $("#searchInput").value = "";
 setSort(state.sort);   // sync sort control + first render (grouped by rarity)
+
+/* ---------- real stock: catalog numbers minus what's already sold ----------
+   /api/stock tallies every paid Stripe order, so a 6x that sold once shows 5x
+   and the last one flips to Out of stock — for every visitor, on every device.
+   The catalog's own numbers are the starting point (baseStock), so repeated
+   syncs never compound. If the endpoint is unreachable we just leave the
+   catalog as-is; checkout re-checks stock server-side before charging. */
+async function syncStock() {
+  let sold;
+  try {
+    const r = await fetch("/api/stock");
+    if (!r.ok) return;
+    const d = await r.json();
+    sold = d && d.sold;
+  } catch { return; }
+  if (!sold || typeof sold !== "object") return;
+
+  let changed = false;
+  for (const i of CATALOG) {
+    if (i.baseStock == null) i.baseStock = Number(i.stock) || 0;
+    const left = Math.max(0, i.baseStock - (Number(sold[i.id]) || 0));
+    if (i.stock !== left) { i.stock = left; changed = true; }
+  }
+  if (!changed) return;
+
+  // drop anything from the cart that sold out from under them
+  let cartFixed = false;
+  for (const id of Object.keys(state.cart)) {
+    const cap = byId[id] ? byId[id].stock : 0;
+    const q = Math.min(state.cart[id], cap);
+    if (q !== state.cart[id]) { cartFixed = true; if (q > 0) state.cart[id] = q; else delete state.cart[id]; }
+  }
+  if (cartFixed) { save("rbx-cart", state.cart); syncCount(); }
+
+  renderFeatured();
+  renderGameBand();
+  buildRarityChips();
+  render();
+}
+syncStock();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) syncStock(); });
 })();

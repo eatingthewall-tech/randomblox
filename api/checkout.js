@@ -4,6 +4,7 @@
 const Stripe = require("stripe");
 const crypto = require("crypto");
 const CATALOG = require("../js/catalog.js");
+const { getSold } = require("../lib/sold.js");
 
 /* ownerOnly items (the $0.01 Testing item) can't be bought by a normal visitor,
    even one who reads catalog.js and hand-crafts a request. */
@@ -36,13 +37,21 @@ module.exports = async (req, res) => {
     const line_items = [];
     const origin = req.headers.origin || `https://${req.headers.host}`;
 
+    // What's already sold, straight from Stripe. Uncached here: being a minute
+    // stale could sell the same one-of-a-kind item twice.
+    let sold = {};
+    try { sold = await getSold(stripe, { fresh: true }); } catch (e) { console.error("stock check failed:", e); }
+
     const isOwner = ownerOK(req);
+    const bought = [];                       // the quantities we actually charge for
     for (const row of items) {
       const item = byId[row && row.id];
       if (!item) return res.status(400).json({ error: `That item is no longer available (${row && row.id}).` });
       if (item.ownerOnly && !isOwner) return res.status(400).json({ error: `That item is no longer available (${row.id}).` });
-      const stock = Number(item.stock) || 1;
-      const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, stock));
+      const left = Math.max(0, (Number(item.stock) || 0) - (sold[item.id] || 0));
+      if (left <= 0) return res.status(400).json({ error: `${item.name} just sold out.` });
+      const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, left));
+      bought.push({ id: item.id, q: qty });
       line_items.push({
         quantity: qty,
         price_data: {
@@ -57,8 +66,16 @@ module.exports = async (req, res) => {
       });
     }
 
-    // compact cart so the success page can rebuild the exact order
-    const cart = items.map(x => `${x.id}:${x.q}`).join(",").slice(0, 480);
+    /* Compact cart so the success page can rebuild the order — and so future
+       stock tallies can count it. Uses the quantities we actually charged, and
+       drops whole entries (never a half-truncated id) to stay under Stripe's
+       500-char metadata limit. */
+    let cart = "";
+    for (const b of bought) {
+      const part = `${b.id}:${b.q}`;
+      if (cart.length + part.length + 1 > 480) break;
+      cart += (cart ? "," : "") + part;
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
