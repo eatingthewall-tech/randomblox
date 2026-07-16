@@ -1471,6 +1471,7 @@ function renderOwnerChat(no) {
       ${o.email ? `<p><span>Email</span><b>${esc(o.email)}</b></p>` : ""}
     </div>`}
     ${isGeneral ? `<p class="own-items">${esc(lines)}</p>` : ""}
+    ${isGeneral ? `<button class="own-del-btn" id="ownDel">Delete this chat</button>` : ""}
     ${isGeneral ? "" : `<button class="own-done-btn${done ? " is-done" : ""}" id="ownDone">${done ? "Delivered — tap to reopen" : "Mark delivered &amp; remove from queue"}</button>`}
     <div class="coq-chat own-chat" data-order="${esc(no)}" data-persp="owner">
       <div class="chat-log" aria-live="polite"></div>
@@ -1480,6 +1481,17 @@ function renderOwnerChat(no) {
       </form>
     </div>`;
   $("#ownBack").addEventListener("click", renderOwnerList);
+  $("#ownDel")?.addEventListener("click", async () => {
+    if (!confirm("Delete this chat for good? This can't be undone.")) return;
+    try {
+      await fetch(`/api/chat?thread=${encodeURIComponent(no)}`, {
+        method: "DELETE", headers: { "x-owner-key": ownerKey() },
+      });
+    } catch { /* offline: the list refresh below will just show it again */ }
+    ownerChatThreads = ownerChatThreads.filter(t => t.thread !== no);
+    localStorage.removeItem("rbx-chat-" + no);
+    renderOwnerList();
+  });
   $("#ownDone")?.addEventListener("click", () => {
     const nowDone = !(o.done || isDone(no));
     setOrderDone(no, nowDone);

@@ -1804,3 +1804,13 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 
 /* owner console: real queue position badge */
 .own-pos { margin-left: 8px; font: 700 .68rem var(--font); color: var(--brand-up); background: var(--brand-soft); border: 1px solid var(--brand-soft-2); border-radius: 999px; padding: 2px 8px; vertical-align: 1px; white-space: nowrap; }
+
+/* owner console: bin a chat thread (spam / finished conversation) */
+.own-del-btn {
+  display: block; width: 100%; margin: 0 0 12px;
+  padding: 10px 14px; border-radius: 12px; cursor: pointer;
+  background: none; border: 1px solid var(--line-2);
+  color: var(--ink-3); font: 600 .84rem var(--font);
+  transition: color .16s, border-color .16s, background .16s;
+}
+.own-del-btn:hover { color: #fff; border-color: var(--danger); background: var(--danger); }

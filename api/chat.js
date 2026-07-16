@@ -82,7 +82,17 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true });
     }
 
-    return res.status(405).json({ error: "GET or POST" });
+    // owner: bin a thread (spam, or a finished conversation)
+    if (req.method === "DELETE") {
+      if (!ownerOK(req)) return res.status(401).json({ error: "Owner only." });
+      const thread = clip(req.query && req.query.thread, 80);
+      if (!thread) return res.status(400).json({ error: "thread required" });
+      await kv(["DEL", "chat:m:" + thread]);
+      await kv(["HDEL", "chat:threads", thread]);
+      return res.status(200).json({ ok: true, deleted: thread });
+    }
+
+    return res.status(405).json({ error: "GET, POST or DELETE" });
   } catch (e) {
     console.error("chat error:", e);
     return res.status(500).json({ error: "Chat store error." });
