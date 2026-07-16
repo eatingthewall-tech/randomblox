@@ -1216,6 +1216,7 @@ const ownerPanel = $("#ownerPanel"), ownerBody = $("#ownerBody"), ownerBtn = $("
 const ownerKey = () => localStorage.getItem("rbx-owner-key") || "";
 let ownerOrders = [];
 let ownerView = null;   // "list" | "chat" | null — so background refresh never clobbers an open chat
+let ownerChatThreads = [];   // declared up here: ownerUnread() below reads it
 async function verifyOwner() {
   const k = ownerKey();
   if (!k) return false;
@@ -1231,7 +1232,9 @@ function unreadFor(no) {
   return load("rbx-chat-" + no, []).slice(seen).filter(m => (m.who || "buyer") === "buyer").length;
 }
 function ownerUnread() {
-  return unreadFor("general") + load("rbx-orders", []).reduce((n, o) => n + unreadFor(o.no), 0);
+  return ownerChatUnread()                                   // shared-store chat threads
+    + unreadFor("general")                                   // on-device fallback chat
+    + load("rbx-orders", []).reduce((n, o) => n + unreadFor(o.no), 0);
 }
 function refreshOwnerBadge() {
   const badge = $("#ownerFabBadge");
@@ -1258,6 +1261,8 @@ function refreshOwnerBadge() {
     setInterval(refreshOwnerBadge, 20000);
     syncOwnerOrders(true);                 // learn the current orders without chiming
     setInterval(syncOwnerOrders, 7000);    // then chime + live-refresh on every new purchase
+    syncOwnerChats(true);                  // same for live chat: seed silently...
+    setInterval(syncOwnerChats, 7000);     // ...then chime on every new buyer message
   } else if (ownerBtn) {
     ownerBtn.hidden = true;
   }
@@ -1285,6 +1290,42 @@ async function syncOwnerOrders(silent) {
     ringBell();                                             // new order came in
     if (!ownerPanel.hidden && ownerView === "list") renderOwnerList(true);
   }
+}
+
+/* Owner: poll the shared chat threads so a new buyer message chimes and drops
+   into the console, exactly like a new purchase does. */
+let OWN_CHAT_API = true;
+async function syncOwnerChats(silent) {
+  if (!OWN_CHAT_API || !ownerKey()) return;
+  const threads = await chatApiThreads();
+  if (!threads) return;                                  // store not connected — stay quiet
+  ownerChatThreads = threads;
+  const seen = load("rbx-own-chat-seen", null);          // null until first seeded
+  const map = {};
+  let fresh = 0;
+  for (const t of threads) {
+    map[t.thread] = t.last || 0;
+    // only a buyer's message counts, never the owner's own reply
+    if (seen && t.who !== "owner" && (t.last || 0) > (seen[t.thread] || 0)) fresh++;
+  }
+  save("rbx-own-chat-seen", map);
+  refreshOwnerBadge();
+  if (!silent && fresh) {
+    ringBell();                                          // a buyer just messaged
+    if (!ownerPanel.hidden && ownerView === "list") renderOwnerList(true);
+  }
+}
+/* unread = threads with a buyer message newer than the last time it was opened */
+function ownerChatUnread() {
+  const read = load("rbx-own-chat-read", {});
+  return ownerChatThreads.filter(t => t.who !== "owner" && (t.last || 0) > (read[t.thread] || 0)).length;
+}
+function markThreadRead(thread) {
+  const t = ownerChatThreads.find(x => x.thread === thread);
+  if (!t) return;
+  const read = load("rbx-own-chat-read", {});
+  read[thread] = t.last || Date.now();
+  save("rbx-own-chat-read", read);
 }
 
 async function openOwner() {
@@ -1459,7 +1500,9 @@ function renderOwnerChat(no) {
     await chatApiPost(no, o.user || "", "owner", t);   // shared store (owner-gated)
     syncChats();
   });
-  save("rbx-seen-" + no, load(key, []).length);   // mark this thread read
+  save("rbx-seen-" + no, load(key, []).length);   // mark this thread read (on-device chat)
+  markThreadRead(no);                             // ...and in the shared store, so the badge clears
+  refreshOwnerBadge();
   repaint();
   syncChats();                                     // pull any shared-store history
 }

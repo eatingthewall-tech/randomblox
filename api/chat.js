@@ -75,7 +75,9 @@ module.exports = async (req, res) => {
       const msg = { t: text, who, when: Date.now(), ...(name ? { name } : {}) };
       await kv(["RPUSH", "chat:m:" + thread, JSON.stringify(msg)]);
       await kv(["LTRIM", "chat:m:" + thread, "-300", "-1"]);
-      const meta = { name, last: msg.when, kind: thread.indexOf("web:") === 0 ? "web" : "order" };
+      // `who` lets the owner console tell a buyer's message from its own reply,
+      // so the new-message chime never fires at the owner for their own text
+      const meta = { name, last: msg.when, who, kind: thread.indexOf("web:") === 0 ? "web" : "order" };
       await kv(["HSET", "chat:threads", thread, JSON.stringify(meta)]);
       return res.status(200).json({ ok: true });
     }
