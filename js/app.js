@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260715d";                       // bump when item art changes
+const IMG_V = "20260716a";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -179,6 +179,7 @@ renderGameBand();
 /* ---------- roblox accounts: carousels + gender pick ---------- */
 const ACCT_IMGS = {
   korblox: ["korblox-1","korblox-2","korblox-3"].map(n => `assets/accounts/${n}.png`),
+  korbloxf: ["kf-1","kf-2","kf-3"].map(n => `assets/accounts/${n}.png`),
   random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11","r12"].map(n => `assets/accounts/${n}.png`),
 };
 (function accounts() {
@@ -204,10 +205,19 @@ const ACCT_IMGS = {
     restart();
   });
 
+  // the Korblox accounts are specific accounts, so they add straight to the cart;
+  // only the random SKU needs the male/female pick
   $$("[data-acct-add]").forEach(b => b.addEventListener("click", () => {
-    if (b.dataset.acctAdd === "acc-korblox") addToCart("acc-korblox", b);
-    else openGenderPick(b);
+    const id = b.dataset.acctAdd;
+    if (id === "acc-random") openGenderPick(b);
+    else addToCart(id, b);
   }));
+
+  // prices come from the catalog so the card can never drift from what Stripe charges
+  $$("[data-acct-price]").forEach(el => {
+    const i = byId[el.dataset.acctPrice];
+    if (i) el.textContent = money(i.price);
+  });
 })();
 
 const genderPick = $("#genderPick");
@@ -223,19 +233,24 @@ $$(".gp-choice").forEach(c => c.addEventListener("click", () => {
 
 function syncAcctButtons() {
   $$("[data-acct-add]").forEach(b => {
-    let left, inCart;
-    if (b.dataset.acctAdd === "acc-korblox") {
-      const i = byId["acc-korblox"];
-      left = i.stock - (state.cart[i.id] || 0);
-      inCart = (state.cart[i.id] || 0) > 0;
-    } else {
+    const id = b.dataset.acctAdd;
+    let left, inCart, soldOut;
+    if (id === "acc-random") {                   // one button covers both genders
       const m = byId["acc-random-male"], f = byId["acc-random-female"];
       left = (m.stock - (state.cart[m.id] || 0)) + (f.stock - (state.cart[f.id] || 0));
       inCart = (state.cart[m.id] || 0) + (state.cart[f.id] || 0) > 0;
+      soldOut = m.stock + f.stock <= 0;
+    } else {
+      const i = byId[id];
+      if (!i) return;
+      left = i.stock - (state.cart[i.id] || 0);
+      inCart = (state.cart[i.id] || 0) > 0;
+      soldOut = i.stock <= 0;
     }
-    b.disabled = left <= 0;
-    b.textContent = left <= 0 ? "In cart" : inCart ? "Add another" : "Add to cart";
+    b.disabled = soldOut || left <= 0;
+    b.textContent = soldOut ? "Out of stock" : left <= 0 ? "In cart" : inCart ? "Add another" : "Add to cart";
     b.classList.toggle("in-cart", inCart);
+    b.closest(".acct-card")?.classList.toggle("is-sold", !!soldOut);
   });
 }
 

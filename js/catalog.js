@@ -6759,12 +6759,24 @@ const CATALOG = [
   {
    "id": "acc-korblox",
    "game": "accounts",
-   "name": "100K+ Summary Korblox Account",
+   "name": "100K+ Summary Korblox Account (Male)",
+   "kind": "account",
+   "rarity": "Korblox",
+   "variant": "base",
+   "price": 140,
+   "img": "assets/accounts/korblox-1.png",
+   "stock": 1,
+   "badge": ""
+  },
+  {
+   "id": "acc-korblox-f",
+   "game": "accounts",
+   "name": "80K+ Summary Korblox Account (Female)",
    "kind": "account",
    "rarity": "Korblox",
    "variant": "base",
    "price": 120,
-   "img": "assets/accounts/korblox-1.png",
+   "img": "assets/accounts/kf-1.png",
    "stock": 1,
    "badge": ""
   },
@@ -6777,7 +6789,7 @@ const CATALOG = [
    "variant": "base",
    "price": 20,
    "img": "assets/accounts/r04.png",
-   "stock": 10,
+   "stock": 2,
    "badge": ""
   },
   {
@@ -6789,7 +6801,7 @@ const CATALOG = [
    "variant": "base",
    "price": 20,
    "img": "assets/accounts/r02.png",
-   "stock": 10,
+   "stock": 2,
    "badge": ""
   }
 ];
