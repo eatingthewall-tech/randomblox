@@ -1546,11 +1546,28 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 /* clickable past orders */
 .order-list { margin-top: 6px; }
 .ol-label { font: 700 .74rem var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin: 6px 0 8px; }
-.order-row { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: rgb(0 0 0 / .02); color: var(--ink-2); font: 500 .88rem var(--font); cursor: pointer; margin-bottom: 8px; transition: border-color .16s, background .16s; }
-.order-row:hover { border-color: var(--brand-up); background: var(--brand-soft); }
-.order-row.is-on { border-color: var(--brand-up); }
-.order-row b { color: var(--ink); }
-.order-row .co-price { color: var(--gold); font-weight: 700; }
+/* a past order: the row pulls it up, the button jumps into its live chat */
+.order-row { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+.order-row-main {
+  flex: 1; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  text-align: left; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+  background: rgb(0 0 0 / .02); color: var(--ink-2); font: 500 .88rem var(--font);
+  cursor: pointer; transition: border-color .16s, background .16s;
+}
+.order-row-main:hover { border-color: var(--brand-up); background: var(--brand-soft); }
+.order-row-main b { color: var(--ink); }
+.order-row-main .co-price { color: var(--gold); font-weight: 700; }
+.order-row-support {
+  flex: none; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: none;
+  color: var(--ink-3); font: 600 .8rem var(--font); white-space: nowrap; cursor: pointer;
+  transition: color .16s, border-color .16s, background .16s;
+}
+.order-row-support:hover { color: #fff; border-color: var(--brand); background: var(--brand); }
+@media (max-width: 560px) {
+  .order-row { flex-direction: column; gap: 6px; }
+  .order-row-support { padding: 10px 14px; }
+}
 
 /* owner floating button (only shown on the unlocked device) */
 .owner-fab { position: fixed; left: 18px; bottom: 18px; z-index: var(--z-sticky); display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px 11px 13px; border: none; border-radius: 999px; cursor: pointer; font: 700 .9rem var(--font); color: #fff; background: linear-gradient(95deg, #8b5cf6, #6d28d9); box-shadow: 0 12px 30px -10px rgb(0 0 0 / .7), 0 0 22px -8px var(--brand); transition: transform .12s var(--ease); }

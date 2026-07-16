@@ -677,6 +677,8 @@ scrim.addEventListener("click", () => { closeSheet(); closeDrawer(); });
 
 /* ---------- checkout ---------- */
 const co = $("#checkout"), coBody = $("#checkoutBody");
+let viewingOrder = null;   // order number the buyer currently has open, so a background
+                           // refresh (or a reload) puts them back on the same one
 const setCoWide = on => $(".checkout-panel")?.classList.toggle("co-wide", !!on);
 
 /* real VIP private-server links, one per game. Accounts use the live chat instead. */
@@ -823,22 +825,25 @@ let DELIVERED_API = true;
 async function syncDelivered() {
   if (!DELIVERED_API || document.hidden) return;
   const orders = load("rbx-orders", []);
-  const pending = orders.filter(o => !o.done);
-  if (!pending.length) return;
+  if (!orders.length) return;
   let changed = false;
-  for (const o of pending) {
+  // every order, not just the pending ones: if the owner un-ticks "delivered" by
+  // mistake, this puts the buyer back on the queue instead of stranding them on
+  // the thank-you screen forever
+  for (const o of orders) {
     try {
       const r = await fetch(`/api/delivered?no=${encodeURIComponent(o.no)}`);
       if (r.status === 501 || r.status === 404) { DELIVERED_API = false; return; }
       if (!r.ok) continue;
       const d = await r.json();
-      if (d && d.done) { o.done = true; changed = true; }
+      const done = !!(d && d.done);
+      if (done !== !!o.done) { o.done = done; changed = true; }
     } catch { return; }
   }
   if (!changed) return;
   save("rbx-orders", orders);
-  maybeRingTurn();                                               // did a later order reach the front?
-  if (!co.hidden && $("#checkoutBody .q-slim")) openMyOrder();   // refresh the open queue view
+  maybeRingTurn();                                       // did a later order reach the front?
+  if (!co.hidden && $("#checkoutBody .q-slim")) openMyOrder(viewingOrder);   // same order, refreshed
 }
 setInterval(syncDelivered, 6000);
 syncDelivered();
@@ -974,7 +979,12 @@ function openCheckout() {
   if (!entries().length) return;
   closeDrawer(); co.hidden = false; stepSummary();
 }
-function closeCheckout() { co.hidden = true; }
+/* Closing is the ONLY thing that drops you off the queue view — a reload keeps it. */
+function closeCheckout() {
+  co.hidden = true;
+  viewingOrder = null;
+  localStorage.removeItem("rbx-open-order");
+}
 $("#closeCheckout").addEventListener("click", closeCheckout);
 
 function linesHTML(es) {
@@ -1126,6 +1136,8 @@ function showPaidOrder(d) {
 
   setCoWide(false);
   co.hidden = false;
+  viewingOrder = d.orderNo;
+  save("rbx-open-order", d.orderNo);        // reloading keeps them on the queue
   coBody.innerHTML = `
     <p class="co-step">Payment confirmed</p>
     <h2 class="co-title" id="checkoutTitle">${acctOnly ? `Your account is on the way, ${esc(d.user)}` : `You're in the queue, ${esc(d.user)}`}</h2>
@@ -1172,11 +1184,15 @@ function showPaidOrder(d) {
 })();
 
 /* ---------- order lookup: past orders are clickable and pull themselves up ---------- */
-function openMyOrder(selectedNo) {
+/* `openChat` jumps straight into that order's live chat (the "Contact support"
+   button on a past order). */
+function openMyOrder(selectedNo, openChat) {
   const orders = load("rbx-orders", []);
   co.hidden = false;
   if (!orders.length) {
     setCoWide(false);
+    viewingOrder = null;
+    localStorage.removeItem("rbx-open-order");
     coBody.innerHTML = `
       <h2 class="co-title" id="checkoutTitle">My order</h2>
       <p class="co-note">No orders on this device yet. When you check out, your order number
@@ -1186,20 +1202,51 @@ function openMyOrder(selectedNo) {
   setCoWide(false);
   const sel = orders.find(o => o.no === selectedNo) || orders[orders.length - 1];
   const others = orders.filter(o => o.no !== sel.no).reverse();
+  viewingOrder = sel.no;
+  save("rbx-open-order", sel.no);            // survive a reload until they close it
   coBody.innerHTML = `
     <h2 class="co-title" id="checkoutTitle">My order${orders.length > 1 ? "s" : ""}</h2>
     ${queueHTML(sel, orders)}
     ${others.length ? `<div class="order-list">
       <p class="ol-label">Past orders</p>` +
       others.map(o => `
-      <button class="order-row${o.no === sel.no ? " is-on" : ""}" data-order-no="${esc(o.no)}">
-        <span><b>${esc(o.no)}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
-        <span class="co-price">${money(o.total)}</span></button>`).join("") + `</div>` : ""}`;
-  $$("#checkoutBody .order-row").forEach(b =>
+      <div class="order-row">
+        <button class="order-row-main" data-order-no="${esc(o.no)}">
+          <span><b>${esc(o.no)}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
+          <span class="co-price">${money(o.total)}</span>
+        </button>
+        <button class="order-row-support" data-support-no="${esc(o.no)}">Contact support</button>
+      </div>`).join("") + `</div>` : ""}`;
+  $$("#checkoutBody .order-row-main").forEach(b =>
     b.addEventListener("click", () => openMyOrder(b.dataset.orderNo)));
+  $$("#checkoutBody .order-row-support").forEach(b =>
+    b.addEventListener("click", () => openMyOrder(b.dataset.supportNo, true)));
   bindQueueChat(coBody);
+
+  if (openChat) {
+    const fold = $("#checkoutBody .coq-chatfold");
+    if (fold) {
+      fold.open = true;
+      fold.scrollIntoView({ block: "nearest", behavior: MOTION_OK ? "smooth" : "instant" });
+      setTimeout(() => $(".chat-input", fold)?.focus(), 80);
+    }
+  }
 }
 $("#orderLookupBtn").addEventListener("click", () => openMyOrder());
+
+/* Reloading while on the queue keeps you there — only closing it exits.
+   (Skipped when Stripe is sending them back; stripeReturn owns that.) */
+(function restoreOrderView() {
+  const p = new URLSearchParams(location.search);
+  if (p.get("paid") || p.get("canceled")) return;
+  const no = load("rbx-open-order", null);
+  if (!no) return;
+  if (!load("rbx-orders", []).some(o => o.no === no)) {   // order's gone (reset/cleared)
+    localStorage.removeItem("rbx-open-order");
+    return;
+  }
+  openMyOrder(no);
+})();
 
 /* ---------- owner console: unlocked only on the owner's own device ----------
    Visiting ?owner=<key> once flips a localStorage flag on THIS device; the console
