@@ -6789,7 +6789,7 @@ const CATALOG = [
    "variant": "base",
    "price": 20,
    "img": "assets/accounts/r04.png",
-   "stock": 2,
+   "stock": 10,
    "badge": ""
   },
   {
@@ -6801,7 +6801,7 @@ const CATALOG = [
    "variant": "base",
    "price": 20,
    "img": "assets/accounts/r02.png",
-   "stock": 2,
+   "stock": 10,
    "badge": ""
   }
 ];

@@ -178,8 +178,8 @@ renderGameBand();
 
 /* ---------- roblox accounts: carousels + gender pick ---------- */
 const ACCT_IMGS = {
-  korblox: ["korblox-1","korblox-2","korblox-3"].map(n => `assets/accounts/${n}.png`),
-  korbloxf: ["kf-1","kf-2","kf-3"].map(n => `assets/accounts/${n}.png`),
+  korblox: ["korblox-1","korblox-2","korblox-3","korblox-4"].map(n => `assets/accounts/${n}.png`),
+  korbloxf: ["kf-1","kf-2","kf-3","kf-4"].map(n => `assets/accounts/${n}.png`),
   random: ["r01","r02","r03","r04","r05","r06","r07","r08","r09","r10","r11","r12"].map(n => `assets/accounts/${n}.png`),
 };
 (function accounts() {
