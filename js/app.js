@@ -5,7 +5,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
-const IMG_V = "20260715c";                       // bump when item art changes
+const IMG_V = "20260715d";                       // bump when item art changes
 const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
@@ -46,6 +46,45 @@ if (localStorage.getItem("rbx-reset") !== RESET_TAG) {
     .filter(k => k === "rbx-orders" || k.startsWith("rbx-chat-") || k.startsWith("rbx-seen-"))
     .forEach(k => localStorage.removeItem(k));
   localStorage.setItem("rbx-reset", RESET_TAG);
+}
+
+/* ---------- notification bell: a synthesized chime (Web Audio, no asset) ----------
+   Rings for the owner on a new purchase, and for a buyer when the owner messages
+   them or they reach the front of the queue. Browsers block audio until the user
+   has interacted with the page, so we resume the context on the first gesture. */
+let _bellCtx = null;
+function _ensureAudio() {
+  try {
+    _bellCtx = _bellCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (_bellCtx.state === "suspended") _bellCtx.resume();
+  } catch (e) { /* audio unsupported — silently skip */ }
+  return _bellCtx;
+}
+["pointerdown", "keydown", "touchstart"].forEach(ev =>
+  window.addEventListener(ev, _ensureAudio, { once: true }));
+
+function ringBell() {
+  const ctx = _ensureAudio();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  // two soft strikes (B5 -> E6); each note has an inharmonic partial for a bell timbre
+  [{ f: 987.77, at: 0 }, { f: 1318.51, at: 0.14 }].forEach(({ f, at }) => {
+    const t0 = now + at;
+    [[f, 0.34, 0.9], [f * 2.02, 0.12, 0.5]].forEach(([freq, peak, dur]) => {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = freq;
+      osc.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.start(t0); osc.stop(t0 + dur + 0.02);
+    });
+  });
+}
+/* true if any message after `prevN` (a finite prior count) came from the owner */
+function hasNewOwnerMsg(prevN, msgs) {
+  if (!Number.isFinite(prevN) || msgs.length <= prevN) return false;
+  return msgs.slice(prevN).some(m => (m.who || "buyer") === "owner");
 }
 
 /* ---------- featured shelf: priciest MM2/AM grails + one NFL + one Baddies ----------
@@ -765,11 +804,13 @@ async function syncChats() {
     const seed = persp === "owner" ? "" : (CHAT_SEED[box.dataset.mode] || CHAT_SEED.account);
     const api = await chatApiGet(thread);                 // shared store if connected
     const msgs = api || load("rbx-chat-" + thread, []);    // else this device's copy
-    if (+log.dataset.n === msgs.length) continue;          // nothing new — don't disturb
+    const prevN = +log.dataset.n;                          // NaN on first paint
+    if (prevN === msgs.length) continue;                   // nothing new — don't disturb
     renderMsgs(log, msgs, persp, seed);
     log.dataset.n = msgs.length;
     if (api) save("rbx-chat-" + thread, api);              // mirror so it survives offline
     if (persp === "owner") save("rbx-seen-" + thread, msgs.length);
+    else if (hasNewOwnerMsg(prevN, msgs)) ringBell();      // buyer just heard back from us
   }
   if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
 }
@@ -796,10 +837,30 @@ async function syncDelivered() {
   }
   if (!changed) return;
   save("rbx-orders", orders);
+  maybeRingTurn();                                               // did a later order reach the front?
   if (!co.hidden && $("#checkoutBody .q-slim")) openMyOrder();   // refresh the open queue view
 }
 setInterval(syncDelivered, 6000);
 syncDelivered();
+
+/* ring when an order the buyer is waiting on reaches the FRONT of the queue
+   (people-ahead drops to 0). Seeds silently the first time each order is seen,
+   so it only chimes on a real transition, never on the first render. */
+function maybeRingTurn(silent) {
+  const orders = load("rbx-orders", []);
+  const seen = load("rbx-front", {});
+  let ring = false;
+  orders.filter(o => !o.done).forEach(o => {
+    const atFront = queueInfo(o, orders).ahead === 0;
+    if (!silent && seen[o.no] === false && atFront) ring = true;
+    seen[o.no] = atFront;
+  });
+  const live = new Set(orders.filter(o => !o.done).map(o => o.no));
+  Object.keys(seen).forEach(k => { if (!live.has(k)) delete seen[k]; });
+  save("rbx-front", seen);
+  if (ring) ringBell();
+}
+maybeRingTurn(true);   // seed current queue positions without chiming
 
 function queueHTML(order, orders) {
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
@@ -1154,6 +1215,7 @@ $("#orderLookupBtn").addEventListener("click", () => openMyOrder());
 const ownerPanel = $("#ownerPanel"), ownerBody = $("#ownerBody"), ownerBtn = $("#ownerBtn");
 const ownerKey = () => localStorage.getItem("rbx-owner-key") || "";
 let ownerOrders = [];
+let ownerView = null;   // "list" | "chat" | null — so background refresh never clobbers an open chat
 async function verifyOwner() {
   const k = ownerKey();
   if (!k) return false;
@@ -1194,16 +1256,42 @@ function refreshOwnerBadge() {
     refreshOwnerBadge();
     window.addEventListener("storage", refreshOwnerBadge);
     setInterval(refreshOwnerBadge, 20000);
+    syncOwnerOrders(true);                 // learn the current orders without chiming
+    setInterval(syncOwnerOrders, 7000);    // then chime + live-refresh on every new purchase
   } else if (ownerBtn) {
     ownerBtn.hidden = true;
   }
 })();
 
+/* Owner: poll paid orders so a new purchase chimes and drops into the console
+   live — no page refresh. The first pass seeds the known set silently. */
+let OWN_ORDERS_API = true;
+async function syncOwnerOrders(silent) {
+  if (!OWN_ORDERS_API || !ownerKey()) return;
+  let list;
+  try {
+    const r = await fetch("/api/orders", { headers: { "x-owner-key": ownerKey() } });
+    if (r.status === 501 || r.status === 404) { OWN_ORDERS_API = false; return; }
+    if (!r.ok) return;
+    const d = await r.json().catch(() => ({}));
+    list = d.orders || [];
+  } catch { return; }
+  const nos = list.map(o => o.no);
+  const seen = load("rbx-own-seen", null);                 // null until first seeded
+  const fresh = seen ? nos.filter(no => !seen.includes(no)) : [];
+  save("rbx-own-seen", nos);
+  ownerOrders = list;                                       // keep the global copy fresh
+  if (!silent && fresh.length) {
+    ringBell();                                             // new order came in
+    if (!ownerPanel.hidden && ownerView === "list") renderOwnerList(true);
+  }
+}
+
 async function openOwner() {
   if (!(await verifyOwner())) { if (ownerBtn) ownerBtn.hidden = true; return; }
   renderOwnerList(); ownerPanel.hidden = false;
 }
-function closeOwner() { ownerPanel.hidden = true; refreshOwnerBadge(); }
+function closeOwner() { ownerPanel.hidden = true; ownerView = null; refreshOwnerBadge(); }
 
 /* Delivered-state lives in the owner's own storage, keyed by order number, so it
    works for Stripe orders too (which never touch this device's rbx-orders). */
@@ -1254,12 +1342,15 @@ function webRowHTML(t) {
       <span class="own-go">${IC.chev}</span>
     </button>`;
 }
-async function renderOwnerList() {
-  ownerBody.innerHTML = `
-    <h2 class="co-title">Owner console</h2>
-    <p class="co-note">Loading chats and paid orders…</p>
-    <div class="own-list">${generalRowHTML()}</div>`;
-  $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
+async function renderOwnerList(quiet) {
+  ownerView = "list";
+  if (!quiet) {                                    // background refreshes skip the placeholder
+    ownerBody.innerHTML = `
+      <h2 class="co-title">Owner console</h2>
+      <p class="co-note">Loading chats and paid orders…</p>
+      <div class="own-list">${generalRowHTML()}</div>`;
+    $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
+  }
 
   let err = null;
   try {
@@ -1310,6 +1401,7 @@ async function renderOwnerList() {
 }
 
 function renderOwnerChat(no) {
+  ownerView = "chat";                              // pause background list refreshes
   // "general" and any "web:<id>" thread are chat-only (no order attached)
   const isGeneral = no === "general" || String(no).indexOf("web:") === 0;
   const o = isGeneral
@@ -1400,6 +1492,7 @@ $("#closeOwner")?.addEventListener("click", closeOwner);
       poll = setInterval(async () => {
         const api = await chatApiGet(thread);
         if (api && api.length !== lastN) {
+          if (hasNewOwnerMsg(lastN, api)) ringBell();       // owner replied — chime
           renderMsgs(log, api, "buyer", SEED); save(KEY, api); lastN = api.length;
           save(SEEN, api.length); refreshBadge();
         }
