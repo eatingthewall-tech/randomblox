@@ -6744,6 +6744,19 @@ const CATALOG = [
    "badge": ""
   },
   {
+   "id": "mm2-testing",
+   "game": "mm2",
+   "name": "Testing",
+   "kind": "collectible",
+   "rarity": "Common",
+   "variant": "base",
+   "price": 0.01,
+   "img": "",
+   "stock": 99,
+   "badge": "",
+   "ownerOnly": true
+  },
+  {
    "id": "acc-korblox",
    "game": "accounts",
    "name": "100K+ Summary Korblox Account",

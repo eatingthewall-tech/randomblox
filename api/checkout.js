@@ -2,7 +2,18 @@
    Prices are read from the server-side catalog and NEVER from the request body —
    otherwise anyone could edit the price in their browser and pay a cent. */
 const Stripe = require("stripe");
+const crypto = require("crypto");
 const CATALOG = require("../js/catalog.js");
+
+/* ownerOnly items (the $0.01 Testing item) can't be bought by a normal visitor,
+   even one who reads catalog.js and hand-crafts a request. */
+function ownerOK(req) {
+  const pw = process.env.OWNER_PASSWORD || "";
+  const given = req.headers["x-owner-key"] || "";
+  if (!pw || !given) return false;
+  const a = Buffer.from(String(given)), b = Buffer.from(String(pw));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
 
 const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 const GAME_LABEL = {
@@ -25,9 +36,11 @@ module.exports = async (req, res) => {
     const line_items = [];
     const origin = req.headers.origin || `https://${req.headers.host}`;
 
+    const isOwner = ownerOK(req);
     for (const row of items) {
       const item = byId[row && row.id];
       if (!item) return res.status(400).json({ error: `That item is no longer available (${row && row.id}).` });
+      if (item.ownerOnly && !isOwner) return res.status(400).json({ error: `That item is no longer available (${row.id}).` });
       const stock = Number(item.stock) || 1;
       const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, stock));
       line_items.push({

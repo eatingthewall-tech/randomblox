@@ -38,6 +38,12 @@ function load(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 
+/* Items flagged ownerOnly (the $0.01 "Testing" item) never show in the shop for a
+   normal visitor. Belt and braces: /api/checkout also refuses them unless the
+   request carries the owner key, so reading catalog.js isn't enough to buy one. */
+let IS_OWNER = false;
+const shopItems = () => IS_OWNER ? CATALOG : CATALOG.filter(i => !i.ownerOnly);
+
 /* one-time reset: wipe every order / chat / read-marker so the queue starts
    empty and at #1 for everyone. Bump RESET_TAG to reset again later. */
 const RESET_TAG = "2026-07-15-reset";
@@ -155,7 +161,7 @@ function hasNewOwnerMsg(prevN, msgs) {
   const box = $("#gameBand");
   if (!box) return;
   box.innerHTML = ["mm2", "am", "nfl", "baddies"].map(g => {
-    const n = CATALOG.filter(i => i.game === g).length;
+    const n = shopItems().filter(i => i.game === g).length;
     return `<button class="gcard" data-jump="${g}" style="--ga:var(--g-${g})">
       <img class="gcard-cover" src="${imgSrc(`assets/games/${g}-thumb.png`)}" alt="" loading="lazy" decoding="async">
       <span class="gcard-scrim" aria-hidden="true"></span>
@@ -376,12 +382,12 @@ function buildCatTabs() {
 
 /* ---------- rarity chips (with live facet counts) ---------- */
 function raritiesFor(game) {
-  const present = [...new Set(CATALOG.filter(i => i.game === game).map(i => i.rarity))];
+  const present = [...new Set(shopItems().filter(i => i.game === game).map(i => i.rarity))];
   present.sort((a, b) => RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b));
   return present;
 }
 function facetCount(rar) {
-  return CATALOG.filter(i =>
+  return shopItems().filter(i =>
     i.game === state.game &&
     (state.cat === "all" || catOf(i) === state.cat) &&
     (!state.inStock || i.stock > 0) &&
@@ -443,7 +449,7 @@ function catOf(i) {
   return i.kind; // pet / egg / vehicle / toy
 }
 function visible() {
-  let list = CATALOG.filter(i => i.game === state.game);
+  let list = shopItems().filter(i => i.game === state.game);
   if (state.cat !== "all") list = list.filter(i => catOf(i) === state.cat);
   if (state.rarity.size) list = list.filter(i => state.rarity.has(i.rarity));
   if (state.inStock) list = list.filter(i => i.stock > 0);
@@ -812,7 +818,11 @@ async function syncChats() {
     log.dataset.n = msgs.length;
     if (api) save("rbx-chat-" + thread, api);              // mirror so it survives offline
     if (persp === "owner") save("rbx-seen-" + thread, msgs.length);
-    else if (hasNewOwnerMsg(prevN, msgs)) ringBell();      // buyer just heard back from us
+    else if (hasNewOwnerMsg(prevN, msgs)) {
+      ringBell();                                          // buyer just heard back from us
+      const fold = box.closest(".coq-chatfold");           // pop it open so they actually read it
+      if (fold && !fold.open) fold.open = true;
+    }
   }
   if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
 }
@@ -825,19 +835,18 @@ let DELIVERED_API = true;
 async function syncDelivered() {
   if (!DELIVERED_API || document.hidden) return;
   const orders = load("rbx-orders", []);
-  if (!orders.length) return;
+  // delivered is one-way and final (Ron's call): once it's ticked the buyer keeps
+  // the thank-you. If something went wrong they use the past order + Contact support.
+  const pending = orders.filter(o => !o.done);
+  if (!pending.length) return;
   let changed = false;
-  // every order, not just the pending ones: if the owner un-ticks "delivered" by
-  // mistake, this puts the buyer back on the queue instead of stranding them on
-  // the thank-you screen forever
-  for (const o of orders) {
+  for (const o of pending) {
     try {
       const r = await fetch(`/api/delivered?no=${encodeURIComponent(o.no)}`);
       if (r.status === 501 || r.status === 404) { DELIVERED_API = false; return; }
       if (!r.ok) continue;
       const d = await r.json();
-      const done = !!(d && d.done);
-      if (done !== !!o.done) { o.done = done; changed = true; }
+      if (d && d.done) { o.done = true; changed = true; }
     } catch { return; }
   }
   if (!changed) return;
@@ -1065,7 +1074,8 @@ function stepPay() {
     try {
       const r = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // the owner key rides along so the server accepts the owner-only Testing item
+        headers: { "Content-Type": "application/json", ...(ownerKey() ? { "x-owner-key": ownerKey() } : {}) },
         body: JSON.stringify({
           items: entries().map(([id, q]) => ({ id, q })),
           user: form.user.value.trim(),
@@ -1302,6 +1312,8 @@ function refreshOwnerBadge() {
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
   }
   if (ownerBtn && (await verifyOwner())) {
+    IS_OWNER = true;
+    render();                              // reveal the owner-only Testing item
     ownerBtn.hidden = false;
     refreshOwnerBadge();
     window.addEventListener("storage", refreshOwnerBadge);
