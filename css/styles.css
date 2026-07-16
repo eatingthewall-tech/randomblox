@@ -494,7 +494,8 @@ button { font-family: inherit; }
 }
 .search-wrap input::placeholder { color: var(--ink-3); }
 
-.cat-tabs { display: flex; gap: 2px; background: rgb(0 0 0 / .3); border-radius: 12px; padding: 4px; border: 1px solid rgb(0 0 0 / .04); }
+/* wraps onto a second row rather than running off the page — Baddies has 14 tabs */
+.cat-tabs { display: flex; flex-wrap: wrap; gap: 3px; background: rgb(0 0 0 / .3); border-radius: 12px; padding: 4px; border: 1px solid rgb(0 0 0 / .04); }
 .cat-tab {
   background: none; border: none; cursor: pointer;
   font: 600 .88rem var(--font); color: var(--ink-2);
