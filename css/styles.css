@@ -752,6 +752,9 @@ button { font-family: inherit; }
 .footer-brand { display: flex; align-items: center; gap: 10px; font: 700 .95rem var(--font-display); color: var(--ink); margin-bottom: 12px; }
 .footer-brand .logo-mark { width: 26px; height: 26px; border-radius: 8px; }
 .footer-in p { margin: 0 0 5px; max-width: 74ch; }
+.footer-legal { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 14px 0 10px; }
+.footer-legal a { font-size: .85rem; font-weight: 500; color: var(--ink-2); text-decoration: none; transition: color .15s var(--ease); }
+.footer-legal a:hover { color: var(--brand-up); text-decoration: underline; }
 .footer-fine { font-size: .8rem; opacity: .75; }
 
 /* ---------- drawer / cart ---------- */

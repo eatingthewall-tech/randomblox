@@ -1,6 +1,7 @@
 {
   "rewrites": [
-    { "source": "/thank-you", "destination": "/index.html" }
+    { "source": "/thank-you", "destination": "/index.html" },
+    { "source": "/policy", "destination": "/policy.html" }
   ],
   "headers": [
     {
