@@ -83,7 +83,10 @@ module.exports = async (req, res) => {
       cancel_url: `${origin}/?canceled=1`,
     });
 
-    return res.status(200).json({ url: session.url });
+    // `id` lets the browser recover the order if the buyer returns without the
+    // success_url params (mobile wallets like Cash App often send them back by
+    // app-switch rather than the redirect).
+    return res.status(200).json({ url: session.url, id: session.id });
   } catch (e) {
     console.error("checkout error:", e);
     return res.status(500).json({ error: e.message || "Could not start checkout." });

@@ -913,7 +913,10 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
 [hidden] { display: none !important; }
 
 /* ---------- responsive ---------- */
-@media (max-width: 1120px) { .topnav-sec { display: none; } }
+/* tight header: drop the "How it works" text but keep the Discord icon */
+@media (max-width: 1120px) { .topnav-link { display: none; } }
+/* narrow phones: the dice mark carries the brand so My order + Discord + Cart fit */
+@media (max-width: 560px) { .logo-word { display: none; } }
 @media (max-width: 920px) {
   .hero { min-height: 0; padding: clamp(48px, 9vh, 84px) 0 64px; }
   .hero-copy { max-width: 40rem; }
@@ -925,9 +928,13 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
   .games-band { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 720px) {
-  .game-toggle, .topnav-sec, .order-lookup { display: none; }
+  .game-toggle { display: none; }              /* games live in the bottom nav */
   .cart-btn-label { display: none; }
   .cart-btn { padding: 10px 13px; }
+  /* keep "My order" and Discord reachable on phones — buyers need the queue */
+  .topbar-right { gap: 6px; }
+  .order-lookup { padding: 9px 12px; font-size: .82rem; white-space: nowrap; }
+  .topnav-discord { width: 34px; height: 34px; }
 
   .browse-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .cat-tabs { overflow-x: auto; scrollbar-width: none; }

@@ -1086,6 +1086,9 @@ function stepPay() {
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok || !d.url) throw new Error(d.error || "Could not start checkout.");
+      // remember the session so we can recover the order even if they come back
+      // without the success_url params (Cash App / wallets app-switch back)
+      if (d.id) save("rbx-pending", { id: d.id, at: Date.now() });
       location.href = d.url;
     } catch (ex) {
       btn.disabled = false;
@@ -1171,7 +1174,7 @@ function showPaidOrder(d) {
   if (!paid && !canceled) return;
   const clean = () => history.replaceState(null, "", location.pathname + location.hash);
 
-  if (canceled) { clean(); openDrawer(); return; }
+  if (canceled) { localStorage.removeItem("rbx-pending"); clean(); openDrawer(); return; }
 
   setCoWide(false);
   co.hidden = false;
@@ -1182,6 +1185,7 @@ function showPaidOrder(d) {
     .then(r => r.json())
     .then(d => {
       clean();
+      localStorage.removeItem("rbx-pending");        // handled — nothing to recover
       if (d && d.paid) showPaidOrder(d);
       else coBody.innerHTML = `<h2 class="co-title">Payment wasn't completed</h2>
         <p class="co-note">Nothing was charged. If you think this is wrong, open the live chat and we'll check it.</p>`;
@@ -1192,6 +1196,39 @@ function showPaidOrder(d) {
         <p class="co-note">If you were charged, open the live chat with your email and we'll sort it right away.</p>`;
     });
 })();
+
+/* Mobile wallets (Cash App, PayPal) hand control to their own app and the buyer
+   often comes back by app-switching rather than following Stripe's redirect — so
+   the ?paid= params never arrive and the order never lands on their device. We
+   stash the session id before leaving for Stripe, then re-check it with the
+   server whenever they come back: on load, on bfcache restore, and every time
+   the tab becomes visible again. Stripe stays the source of truth. */
+let resuming = false;
+async function resumePending() {
+  if (resuming) return;
+  const p = new URLSearchParams(location.search);
+  if (p.get("paid") || p.get("canceled")) return;      // stripeReturn owns those
+  const pend = load("rbx-pending", null);
+  if (!pend || !pend.id) return;
+  if (Date.now() - (pend.at || 0) > 24 * 3600 * 1000) {  // stale — they never paid
+    localStorage.removeItem("rbx-pending");
+    return;
+  }
+  resuming = true;
+  try {
+    const r = await fetch(`/api/order?session_id=${encodeURIComponent(pend.id)}`);
+    const d = await r.json().catch(() => null);
+    if (d && d.paid) {
+      localStorage.removeItem("rbx-pending");
+      showPaidOrder(d);                                 // drops them straight on the queue
+    }
+  } catch { /* offline — try again next time they come back */ }
+  finally { resuming = false; }
+}
+// pageshow covers the first load AND every bfcache restore, so it's the only
+// boot hook we need; visibilitychange catches the app-switch back from a wallet.
+window.addEventListener("pageshow", resumePending);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) resumePending(); });
 
 /* ---------- order lookup: past orders are clickable and pull themselves up ---------- */
 /* `openChat` jumps straight into that order's live chat (the "Contact support"
