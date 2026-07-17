@@ -43,6 +43,15 @@ function load(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; }
 function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 const byId = Object.fromEntries(CATALOG.map(i => [i.id, i]));
 
+/* theme: applied before first paint so there's no flash. Dark is the default;
+   a signed-in account's saved theme takes over once auth loads. */
+function applyTheme(t) {
+  const theme = t === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = theme;
+  save("rbx-theme", theme);
+}
+applyTheme(load("rbx-theme", "dark"));
+
 /* Items flagged ownerOnly (the $0.01 "Testing" item) never show in the shop for a
    normal visitor. Belt and braces: /api/checkout also refuses them unless the
    request carries the owner key, so reading catalog.js isn't enough to buy one. */
@@ -1892,10 +1901,193 @@ document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
   if (!qv.hidden) closeQV();
   else if (!genderPick.hidden) closeGenderPick();
+  else if (acctModal && !acctModal.hidden) closeAccount();
   else if (!co.hidden) closeCheckout();
   else if (!filterSheet.hidden) closeSheet();
   else if (!drawer.hidden) closeDrawer();
 });
+
+/* ---------- accounts: profile button, login / signup, settings, past orders ----------
+   The profile icon just opens a panel — nobody is forced to log in. A session
+   lives in an HttpOnly cookie the browser sends automatically, so the client
+   never handles a token. */
+const acctModal = $("#account"), acctBody = $("#accountBody");
+const profileBtn = $("#profileBtn"), profileIni = $("#profileIni");
+let ME = null;                     // {email, name, theme} when signed in
+let AUTH_API = true;
+
+async function authGet() {
+  if (!AUTH_API) return null;
+  try {
+    const r = await fetch("/api/auth", { headers: { "Accept": "application/json" } });
+    if (r.status === 501 || r.status === 404) { AUTH_API = false; return null; }
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d.user || null;
+  } catch { return null; }
+}
+async function authPost(payload) {
+  const r = await fetch("/api/auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || "Something went wrong.");
+  return d.user || null;
+}
+
+function paintProfileBtn() {
+  if (!profileBtn) return;
+  if (ME) {
+    const ini = (ME.name || ME.email || "?").trim()[0].toUpperCase();
+    profileIni.textContent = ini; profileIni.hidden = false;
+    profileBtn.classList.add("is-in");
+    profileBtn.setAttribute("aria-label", `Account — ${ME.name || ME.email}`);
+  } else {
+    profileIni.hidden = true;
+    profileBtn.classList.remove("is-in");
+    profileBtn.setAttribute("aria-label", "Log in");
+  }
+}
+function setMe(u) {
+  ME = u;
+  if (u && (u.theme === "light" || u.theme === "dark")) applyTheme(u.theme);
+  paintProfileBtn();
+}
+
+function openAccount() { acctModal.hidden = false; ME ? renderProfile() : renderAuth("login"); }
+function closeAccount() { acctModal.hidden = true; }
+
+/* ----- logged-out: login / signup ----- */
+function renderAuth(tab) {
+  acctBody.innerHTML = `
+    <h2 class="co-title" id="accountTitle">${tab === "signup" ? "Create your account" : "Log in"}</h2>
+    <div class="seg auth-tabs" role="tablist">
+      <button role="tab" data-atab="login" aria-selected="${tab !== "signup"}">Log in</button>
+      <button role="tab" data-atab="signup" aria-selected="${tab === "signup"}">Sign up</button>
+    </div>
+    <form id="authForm" novalidate>
+      ${tab === "signup" ? `<div class="co-field"><label for="au-name">Name <span class="au-opt">(optional)</span></label>
+        <input id="au-name" name="name" autocomplete="nickname" maxlength="40"></div>` : ""}
+      <div class="co-field"><label for="au-email">Email</label>
+        <input id="au-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com"></div>
+      <div class="co-field"><label for="au-pass">Password</label>
+        <input id="au-pass" name="password" type="password" required autocomplete="${tab === "signup" ? "new-password" : "current-password"}" placeholder="${tab === "signup" ? "At least 8 characters" : ""}"></div>
+      <button class="primary-btn" type="submit" id="authSubmit">${tab === "signup" ? "Create account" : "Log in"}</button>
+      <p class="pay-err" id="authErr" hidden></p>
+      <p class="co-note auth-note">${tab === "signup"
+        ? "Signing up with the email you bought from links your past orders automatically."
+        : "New here? Use Sign up — if you've ordered before with this email, your orders will appear."}</p>
+    </form>`;
+  $$("#accountBody [data-atab]").forEach(b => b.addEventListener("click", () => renderAuth(b.dataset.atab)));
+  const form = $("#authForm"), err = $("#authErr"), btn = $("#authSubmit");
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!form.checkValidity()) return form.reportValidity();
+    err.hidden = true; btn.disabled = true; btn.textContent = "One moment…";
+    try {
+      const u = await authPost({
+        action: tab === "signup" ? "signup" : "login",
+        email: form.email.value, password: form.password.value,
+        name: tab === "signup" ? (form.name ? form.name.value : "") : undefined,
+      });
+      setMe(u);
+      renderProfile();
+    } catch (ex) {
+      err.textContent = ex.message; err.hidden = false;
+      btn.disabled = false; btn.textContent = tab === "signup" ? "Create account" : "Log in";
+    }
+  });
+  setTimeout(() => $("#au-email")?.focus(), 60);
+}
+
+/* ----- logged-in: profile menu ----- */
+function renderProfile() {
+  const light = (document.documentElement.dataset.theme === "light");
+  acctBody.innerHTML = `
+    <div class="pf-head">
+      <span class="pf-av">${esc((ME.name || ME.email || "?").trim()[0].toUpperCase())}</span>
+      <div><b id="accountTitle">${esc(ME.name || ME.email.split("@")[0])}</b><i>${esc(ME.email)}</i></div>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">Appearance</p>
+      <div class="seg pf-theme" role="radiogroup" aria-label="Theme">
+        <button role="radio" data-theme="dark" aria-checked="${!light}">Dark</button>
+        <button role="radio" data-theme="light" aria-checked="${light}">Light</button>
+      </div>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">Display name</p>
+      <form id="pfNameForm" class="pf-name-row">
+        <input id="pf-name" maxlength="40" value="${esc(ME.name || "")}" placeholder="Your name">
+        <button class="btn-light" type="submit">Save</button>
+      </form>
+      <p class="pay-err" id="pfErr" hidden></p>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">Previous orders</p>
+      <div id="pfOrders" class="pf-orders"><p class="co-note">Loading…</p></div>
+    </div>
+
+    <button class="btn-light pf-logout" id="pfLogout">Log out</button>`;
+
+  $$("#accountBody [data-theme]").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.theme)));
+
+  $("#pfNameForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#pfErr"); err.hidden = true;
+    try { setMe(await authPost({ action: "settings", name: $("#pf-name").value })); renderProfile(); }
+    catch (ex) { err.textContent = ex.message; err.hidden = false; }
+  });
+
+  $("#pfLogout").addEventListener("click", async () => {
+    try { await authPost({ action: "logout" }); } catch {}
+    setMe(null); renderAuth("login");
+  });
+
+  loadMyOrders();
+}
+
+async function setTheme(theme) {
+  applyTheme(theme);
+  $$("#accountBody [data-theme]").forEach(b => b.setAttribute("aria-checked", b.dataset.theme === theme));
+  if (ME) { try { setMe(await authPost({ action: "settings", theme })); } catch {} }
+}
+
+async function loadMyOrders() {
+  const box = $("#pfOrders");
+  if (!box) return;
+  try {
+    const r = await fetch("/api/my-orders");
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || "Couldn't load orders.");
+    const orders = d.orders || [];
+    if (!orders.length) {
+      box.innerHTML = `<p class="co-note">No orders yet on this email. When you buy something, it shows up here.</p>`;
+      return;
+    }
+    box.innerHTML = orders.map(o => {
+      const items = (o.items || []).map(x => `${esc(x.name)}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
+      const date = new Date(o.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+      return `<div class="pf-order">
+        <div class="pf-order-top"><b>${esc(o.no || "Order")}</b><span class="pf-status ${o.done ? "is-done" : ""}">${o.done ? "Delivered" : "In progress"}</span></div>
+        <p class="pf-order-items">${items || "—"}</p>
+        <p class="pf-order-meta">${date} · ${money(o.total)}</p>
+      </div>`;
+    }).join("");
+  } catch (ex) {
+    box.innerHTML = `<p class="co-note">${esc(ex.message)}</p>`;
+  }
+}
+
+profileBtn?.addEventListener("click", openAccount);
+$("#closeAccount")?.addEventListener("click", closeAccount);
+acctModal?.addEventListener("click", e => { if (e.target === acctModal) closeAccount(); });
+(async function bootAuth() { setMe(await authGet()); })();
 
 /* ---------- boot ---------- */
 document.body.dataset.game = state.game;

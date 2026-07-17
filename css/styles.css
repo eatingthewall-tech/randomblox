@@ -81,6 +81,40 @@
   color-scheme: dark;
 }
 
+/* ---------- light theme (opt-in from the profile menu) ---------- */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f3f0fb; --bg-2: #ffffff; --surface: #ffffff; --surface-2: #f4f0fc;
+  --tile: #efeafa; --tile-lo: #e7e0f6;
+  --ink: #201938; --ink-2: #5a5182; --ink-3: #8981ab;
+  --line: #e7e0f4; --line-2: #d8ccec;
+  --brand-soft: rgb(124 58 237 / .08); --brand-soft-2: rgb(124 58 237 / .14);
+  --gold: #9a6b00; --go: #12925a; --danger: #d63a4a;
+  --shadow-float: 0 24px 60px -24px rgb(76 40 130 / .28);
+  /* rarity pills: darker, saturated ink so it reads on light tints */
+  --pill-godly-ink: #c81e7d;  --pill-chroma-ink: #6d3ae0;  --pill-ancient-ink: #0d8f78;
+  --pill-vintage-ink: #a9750c; --pill-legendary-ink: #d23b3b; --pill-rare-ink: #2f5fd8;
+  --pill-uncommon-ink: #159254; --pill-common-ink: #5b6478;
+  --pill-nflmvp-ink: #0f86a6; --pill-nflallpro-ink: #6b3ae0; --pill-nflpro-ink: #d1324e;
+  --pill-nflstarter-ink: #a9750c; --pill-nflrookie-ink: #5b6478; --pill-bdlegend-ink: #a9750c;
+}
+html[data-theme="light"] body {
+  background:
+    radial-gradient(125% 62% at 50% -12%, #eae2fb, transparent 60%),
+    radial-gradient(90% 60% at 100% 8%, #efe9fc, transparent 55%),
+    var(--bg);
+}
+html[data-theme="light"] .topbar-in { background: rgb(255 255 255 / .82); border-color: rgb(76 40 130 / .1); }
+html[data-theme="light"] .botnav { background: rgb(255 255 255 / .92); }
+html[data-theme="light"] .card { border-color: rgb(76 40 130 / .1); }
+html[data-theme="light"] .footer { background: #201938; }
+/* dark input wells (rgb 0 0 0 / .3) read as grey on light — swap to a light well */
+html[data-theme="light"] .search-wrap,
+html[data-theme="light"] .cat-tabs,
+html[data-theme="light"] .sort-wrap select,
+html[data-theme="light"] .co-field input,
+html[data-theme="light"] .pf-name-row input { background: #efe9fa; }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -162,6 +196,46 @@ button { font-family: inherit; }
 }
 .topnav-discord:hover { color: #fff; background: #5865f2; }
 .topnav-discord:active { transform: scale(.94); }
+.profile-btn {
+  position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px;
+  border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
+  cursor: pointer; transition: border-color .16s var(--ease), background .16s var(--ease), transform .16s var(--ease);
+}
+.profile-btn:hover { border-color: var(--brand-up); background: var(--brand-soft); }
+.profile-btn:active { transform: scale(.95); }
+.profile-btn.is-in { background: linear-gradient(140deg, var(--brand-up), var(--brand-down)); border-color: transparent; }
+.profile-btn.is-in svg { display: none; }
+.profile-ini { font: 800 .92rem var(--font); color: #fff; }
+
+/* ---------- account panel ---------- */
+.auth-tabs { margin: 4px 0 20px; }
+.au-opt { color: var(--ink-3); font-weight: 400; }
+.auth-note { margin: 14px 0 0; }
+.pf-head { display: flex; align-items: center; gap: 13px; margin-bottom: 8px; }
+.pf-av { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 999px;
+  background: linear-gradient(140deg, var(--brand-up), var(--brand-down)); color: #fff; font: 800 1.15rem var(--font); }
+.pf-head b { display: block; font: 700 1.15rem var(--font-display); }
+.pf-head i { color: var(--ink-2); font-style: normal; font-size: .88rem; }
+.pf-block { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 18px; }
+.pf-label { font: 700 .72rem var(--font); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin-bottom: 9px; }
+.pf-theme, .pf-name-row { max-width: 100%; }
+.pf-name-row { display: flex; gap: 8px; }
+.pf-name-row input { flex: 1; }
+.co-field input, .pf-name-row input {
+  width: 100%; font: 500 .95rem var(--font); color: var(--ink);
+  background: var(--tile); border: 1px solid var(--line-2); border-radius: 11px; padding: 11px 13px;
+}
+.co-field input:focus, .pf-name-row input:focus { outline: none; border-color: var(--brand-up); box-shadow: 0 0 0 3px var(--brand-soft-2); }
+.pf-orders { display: flex; flex-direction: column; gap: 9px; }
+.pf-order { border: 1px solid var(--line); border-radius: 13px; padding: 12px 14px; background: rgb(0 0 0 / .04); }
+.pf-order-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.pf-order-top b { font: 700 .92rem var(--font); letter-spacing: .02em; }
+.pf-status { font: 700 .68rem var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--gold);
+  border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 9px; }
+.pf-status.is-done { color: var(--go); border-color: rgb(95 212 139 / .4); }
+.pf-order-items { color: var(--ink); font-size: .9rem; margin: 7px 0 3px; }
+.pf-order-meta { color: var(--ink-2); font-size: .82rem; }
+.pf-logout { margin-top: 20px; width: 100%; }
 .order-lookup {
   background: none; border: 1px solid var(--line-2); border-radius: 10px;
   font: 600 .88rem var(--font); color: var(--ink-2);
