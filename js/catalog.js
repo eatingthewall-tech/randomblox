@@ -2083,7 +2083,7 @@ const CATALOG = [
    "name": "America",
    "kind": "knife",
    "rarity": "Vintage",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-america.png",
    "stock": 2
@@ -2094,7 +2094,7 @@ const CATALOG = [
    "name": "Swirly Blade",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.84,
+   "price": 4.45,
    "was": 5.69,
    "img": "assets/hd/mm2-swirly-blade.png",
    "stock": 1
@@ -2149,7 +2149,7 @@ const CATALOG = [
    "name": "Battle Axe",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.84,
+   "price": 4.45,
    "was": 5.69,
    "img": "assets/hd/mm2-battleaxe.png",
    "stock": 1
@@ -2171,7 +2171,7 @@ const CATALOG = [
    "name": "Ghost",
    "kind": "knife",
    "rarity": "Vintage",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-ghost.png",
    "stock": 3
@@ -2193,7 +2193,7 @@ const CATALOG = [
    "name": "Phaser",
    "kind": "gun",
    "rarity": "Vintage",
-   "price": 3.6,
+   "price": 3.31,
    "was": 4.24,
    "img": "assets/hd/mm2-phaser.png",
    "stock": 5
@@ -2304,7 +2304,7 @@ const CATALOG = [
    "name": "Hallow's Blade",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/hd/mm2-hallows-blade.png",
    "stock": 1
@@ -2436,7 +2436,7 @@ const CATALOG = [
    "name": "Frostbite",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/hd/mm2-frostbite.png",
    "stock": 3
@@ -2458,7 +2458,7 @@ const CATALOG = [
    "name": "Hallow's Edge",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.2,
+   "price": 3.86,
    "was": 4.94,
    "img": "assets/hd/mm2-hallows-edge.png",
    "stock": 2
@@ -2469,7 +2469,7 @@ const CATALOG = [
    "name": "Cowboy",
    "kind": "gun",
    "rarity": "Vintage",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/hd/mm2-cowboy.png",
    "stock": 2
@@ -2480,7 +2480,7 @@ const CATALOG = [
    "name": "Golden",
    "kind": "gun",
    "rarity": "Vintage",
-   "price": 3.37,
+   "price": 3.1,
    "was": 3.96,
    "img": "assets/hd/mm2-golden.png",
    "stock": 3
@@ -2502,7 +2502,7 @@ const CATALOG = [
    "name": "Prismatic",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.37,
+   "price": 3.1,
    "was": 3.96,
    "img": "assets/hd/mm2-prismatic.png",
    "stock": 1
@@ -2513,7 +2513,7 @@ const CATALOG = [
    "name": "Winter's Edge",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/hd/mm2-winters-edge.png",
    "stock": 2
@@ -2524,7 +2524,7 @@ const CATALOG = [
    "name": "Pumpking",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-pumpking.png",
    "stock": 1
@@ -2535,7 +2535,7 @@ const CATALOG = [
    "name": "Xmas",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-xmas.png",
    "stock": 1
@@ -2546,7 +2546,7 @@ const CATALOG = [
    "name": "Shadow",
    "kind": "knife",
    "rarity": "Vintage",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/hd/mm2-shadow.png",
    "stock": 3
@@ -2557,7 +2557,7 @@ const CATALOG = [
    "name": "Splitter",
    "kind": "knife",
    "rarity": "Vintage",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-splitter.png",
    "stock": 2
@@ -2568,7 +2568,7 @@ const CATALOG = [
    "name": "Xmas Gifts (2015)",
    "kind": "collectible",
    "rarity": "Uncommon",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-gifts-2015.png",
    "stock": 1
@@ -2579,7 +2579,7 @@ const CATALOG = [
    "name": "Snowflake Key (2018)",
    "kind": "collectible",
    "rarity": "Uncommon",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/hd/mm2-snowflake-key-2018.png",
    "stock": 1
@@ -2590,7 +2590,7 @@ const CATALOG = [
    "name": "Skulls (2019)",
    "kind": "collectible",
    "rarity": "Uncommon",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-skulls-2019.png",
    "stock": 12
@@ -2601,7 +2601,7 @@ const CATALOG = [
    "name": "Bioblade",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-bioblade.png",
    "stock": 4
@@ -2612,7 +2612,7 @@ const CATALOG = [
    "name": "Eternal III",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-eternal-iii.png",
    "stock": 3
@@ -2623,7 +2623,7 @@ const CATALOG = [
    "name": "Eternal IV",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-eternal-iv.png",
    "stock": 2
@@ -2645,7 +2645,7 @@ const CATALOG = [
    "name": "Eternal",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-eternal.png",
    "stock": 4
@@ -2656,7 +2656,7 @@ const CATALOG = [
    "name": "Eternal II",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-eternal-ii.png",
    "stock": 3
@@ -2667,7 +2667,7 @@ const CATALOG = [
    "name": "Fang",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.68,
+   "price": 4.31,
    "was": 5.51,
    "img": "assets/hd/mm2-fang.png",
    "stock": 1
@@ -2678,7 +2678,7 @@ const CATALOG = [
    "name": "Flames",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/hd/mm2-flames.png",
    "stock": 1
@@ -2689,7 +2689,7 @@ const CATALOG = [
    "name": "Cookieblade",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/hd/mm2-cookieblade.png",
    "stock": 2
@@ -2700,7 +2700,7 @@ const CATALOG = [
    "name": "Frostsaber",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.37,
+   "price": 4.02,
    "was": 5.14,
    "img": "assets/hd/mm2-frostsaber.png",
    "stock": 3
@@ -2722,7 +2722,7 @@ const CATALOG = [
    "name": "Ice Dragon",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/hd/mm2-ice-dragon.png",
    "stock": 3
@@ -2733,7 +2733,7 @@ const CATALOG = [
    "name": "Ice Shard",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.2,
+   "price": 3.86,
    "was": 4.94,
    "img": "assets/hd/mm2-ice-shard.png",
    "stock": 2
@@ -2755,7 +2755,7 @@ const CATALOG = [
    "name": "Boneblade",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-boneblade.png",
    "stock": 1
@@ -2766,7 +2766,7 @@ const CATALOG = [
    "name": "Ghostblade",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-ghostblade.png",
    "stock": 1
@@ -2777,7 +2777,7 @@ const CATALOG = [
    "name": "Orange Seer",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-orange-seer.png",
    "stock": 2
@@ -2788,7 +2788,7 @@ const CATALOG = [
    "name": "Purple Seer",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-purple-seer.png",
    "stock": 1
@@ -2799,7 +2799,7 @@ const CATALOG = [
    "name": "Red Seer",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-red-seer.png",
    "stock": 2
@@ -2810,7 +2810,7 @@ const CATALOG = [
    "name": "Yellow Seer",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-yellow-seer.png",
    "stock": 2
@@ -2821,7 +2821,7 @@ const CATALOG = [
    "name": "Snowflake",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 3.37,
+   "price": 3.1,
    "was": 3.96,
    "img": "assets/hd/mm2-snowflake.png",
    "stock": 3
@@ -2832,7 +2832,7 @@ const CATALOG = [
    "name": "Prince",
    "kind": "knife",
    "rarity": "Vintage",
-   "price": 3.6,
+   "price": 3.31,
    "was": 4.24,
    "img": "assets/hd/mm2-prince.png",
    "stock": 2
@@ -2854,7 +2854,7 @@ const CATALOG = [
    "name": "Blue Seer",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-blue-seer.png",
    "stock": 3
@@ -2865,7 +2865,7 @@ const CATALOG = [
    "name": "Blood",
    "kind": "knife",
    "rarity": "Vintage",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-blood.png",
    "stock": 2
@@ -2876,7 +2876,7 @@ const CATALOG = [
    "name": "Saw",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/hd/mm2-saw.png",
    "stock": 3
@@ -2887,7 +2887,7 @@ const CATALOG = [
    "name": "Web",
    "kind": "knife",
    "rarity": "Rare",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-web.png",
    "stock": 1
@@ -2898,7 +2898,7 @@ const CATALOG = [
    "name": "Sammy Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/hd/mm2-pet-sammy.png",
    "stock": 3
@@ -2909,7 +2909,7 @@ const CATALOG = [
    "name": "Palms",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/wiki/mm2-palms.png",
    "stock": 8
@@ -2920,7 +2920,7 @@ const CATALOG = [
    "name": "Palms Gun",
    "kind": "gun",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-palms-gun.png",
    "stock": 3
@@ -2931,7 +2931,7 @@ const CATALOG = [
    "name": "Rune",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-rune.png",
    "stock": 2
@@ -2942,7 +2942,7 @@ const CATALOG = [
    "name": "Splash Gun",
    "kind": "gun",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-splash-gun.png",
    "stock": 2
@@ -2953,7 +2953,7 @@ const CATALOG = [
    "name": "Splash",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/cleaned/mm2-splash.png",
    "stock": 2
@@ -2964,7 +2964,7 @@ const CATALOG = [
    "name": "Elite",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-elite.png",
    "stock": 1
@@ -2975,7 +2975,7 @@ const CATALOG = [
    "name": "Midnight",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-midnight.png",
    "stock": 1
@@ -2986,7 +2986,7 @@ const CATALOG = [
    "name": "Overseer",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/wiki/mm2-overseer.png",
    "stock": 2
@@ -2997,7 +2997,7 @@ const CATALOG = [
    "name": "Predator",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/wiki/mm2-predator.png",
    "stock": 3
@@ -3008,7 +3008,7 @@ const CATALOG = [
    "name": "Shiny",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-shiny.png",
    "stock": 2
@@ -3030,7 +3030,7 @@ const CATALOG = [
    "name": "Frozen",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-frozen.png",
    "stock": 2
@@ -3041,7 +3041,7 @@ const CATALOG = [
    "name": "Frozen Gun",
    "kind": "gun",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-frozen-gun.png",
    "stock": 1
@@ -3052,7 +3052,7 @@ const CATALOG = [
    "name": "Nightsky",
    "kind": "gun",
    "rarity": "Legendary",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-nightsky.png",
    "stock": 1
@@ -3063,7 +3063,7 @@ const CATALOG = [
    "name": "Nightstar",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-nightstar.png",
    "stock": 1
@@ -3074,7 +3074,7 @@ const CATALOG = [
    "name": "Gingerbread",
    "kind": "knife",
    "rarity": "Uncommon",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-gingerbread.png",
    "stock": 1
@@ -3085,7 +3085,7 @@ const CATALOG = [
    "name": "Gingerbread Gun",
    "kind": "gun",
    "rarity": "Uncommon",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/wiki/mm2-gingerbread-gun.png",
    "stock": 1
@@ -3096,7 +3096,7 @@ const CATALOG = [
    "name": "Gingerbread Sword",
    "kind": "knife",
    "rarity": "Uncommon",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/cleaned/mm2-gingerbread-sword.png",
    "stock": 1
@@ -3107,7 +3107,7 @@ const CATALOG = [
    "name": "Candied",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-candied.png",
    "stock": 2
@@ -3118,7 +3118,7 @@ const CATALOG = [
    "name": "Ripper",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/wiki/mm2-ripper.png",
    "stock": 2
@@ -3129,7 +3129,7 @@ const CATALOG = [
    "name": "Ripper Gun",
    "kind": "gun",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-ripper-gun.png",
    "stock": 2
@@ -3140,7 +3140,7 @@ const CATALOG = [
    "name": "Vampire",
    "kind": "knife",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-vampire.png",
    "stock": 1
@@ -3151,7 +3151,7 @@ const CATALOG = [
    "name": "Ghastly Gun (2018)",
    "kind": "gun",
    "rarity": "Rare",
-   "price": 3.82,
+   "price": 3.51,
    "was": 4.49,
    "img": "assets/cleaned/mm2-ghastly-gun.png",
    "stock": 1
@@ -3162,7 +3162,7 @@ const CATALOG = [
    "name": "Kraken",
    "kind": "knife",
    "rarity": "Rare",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-kraken.png",
    "stock": 1
@@ -3173,7 +3173,7 @@ const CATALOG = [
    "name": "Ritual",
    "kind": "gun",
    "rarity": "Rare",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-ritual.png",
    "stock": 1
@@ -3184,7 +3184,7 @@ const CATALOG = [
    "name": "Storm",
    "kind": "knife",
    "rarity": "Rare",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-storm.png",
    "stock": 1
@@ -3195,7 +3195,7 @@ const CATALOG = [
    "name": "Wanwood",
    "kind": "knife",
    "rarity": "Uncommon",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/wiki/mm2-wanwood.png",
    "stock": 1
@@ -3206,7 +3206,7 @@ const CATALOG = [
    "name": "Reptile",
    "kind": "knife",
    "rarity": "Common",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-reptile.png",
    "stock": 1
@@ -3217,7 +3217,7 @@ const CATALOG = [
    "name": "Skully Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 3.09,
+   "price": 2.84,
    "was": 3.64,
    "img": "assets/wiki/mm2-pet-skully.png",
    "stock": 1
@@ -3239,7 +3239,7 @@ const CATALOG = [
    "name": "Phoenix Pet",
    "kind": "pet",
    "rarity": "Godly",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/hd/mm2-pet-phoenix.png",
    "stock": 1
@@ -3250,7 +3250,7 @@ const CATALOG = [
    "name": "Skelly Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-pet-skelly.png",
    "stock": 1
@@ -3261,7 +3261,7 @@ const CATALOG = [
    "name": "Stainless",
    "kind": "knife",
    "rarity": "Common",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-stainless.png",
    "stock": 1
@@ -3272,7 +3272,7 @@ const CATALOG = [
    "name": "Whiteout",
    "kind": "knife",
    "rarity": "Common",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-whiteout.png",
    "stock": 4
@@ -3283,7 +3283,7 @@ const CATALOG = [
    "name": "Xbox",
    "kind": "knife",
    "rarity": "Common",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/wiki/mm2-xbox.png",
    "stock": 3
@@ -3294,7 +3294,7 @@ const CATALOG = [
    "name": "Electro Pet",
    "kind": "pet",
    "rarity": "Godly",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/hd/mm2-pet-electro.png",
    "stock": 2
@@ -3305,7 +3305,7 @@ const CATALOG = [
    "name": "Fire Bear Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-bear.png",
    "stock": 1
@@ -3316,7 +3316,7 @@ const CATALOG = [
    "name": "Chroma Fire Bear Pet",
    "kind": "pet",
    "rarity": "Chroma",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-bear.png",
    "stock": 1,
@@ -3328,7 +3328,7 @@ const CATALOG = [
    "name": "Fire Bunny Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-bunny.png",
    "stock": 1
@@ -3339,7 +3339,7 @@ const CATALOG = [
    "name": "Fire Cat Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-cat.png",
    "stock": 2
@@ -3350,7 +3350,7 @@ const CATALOG = [
    "name": "Chroma Fire Dog Pet",
    "kind": "pet",
    "rarity": "Chroma",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-dog.png",
    "stock": 1,
@@ -3362,7 +3362,7 @@ const CATALOG = [
    "name": "Fire Dog Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-dog.png",
    "stock": 1
@@ -3373,7 +3373,7 @@ const CATALOG = [
    "name": "Chroma Fire Fox Pet",
    "kind": "pet",
    "rarity": "Chroma",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-fox.png",
    "stock": 1,
@@ -3385,7 +3385,7 @@ const CATALOG = [
    "name": "Fire Pig Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-pig.png",
    "stock": 2
@@ -3396,7 +3396,7 @@ const CATALOG = [
    "name": "Chroma Fire Pig Pet",
    "kind": "pet",
    "rarity": "Chroma",
-   "price": 2.77,
+   "price": 2.55,
    "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-pig.png",
    "stock": 1,
@@ -3408,7 +3408,7 @@ const CATALOG = [
    "name": "Icey Pet",
    "kind": "pet",
    "rarity": "Legendary",
-   "price": 2.36,
+   "price": 2.17,
    "was": 2.78,
    "img": "assets/hd/mm2-pet-icey.png",
    "stock": 1
@@ -3419,7 +3419,7 @@ const CATALOG = [
    "name": "Vampire Bat Pet",
    "kind": "pet",
    "rarity": "Rare",
-   "price": 4.01,
+   "price": 3.69,
    "was": 4.72,
    "img": "assets/wiki/mm2-pet-vampire-bat.png",
    "stock": 1
@@ -3430,7 +3430,7 @@ const CATALOG = [
    "name": "Ice",
    "kind": "knife",
    "rarity": "Common",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-ice.png",
    "stock": 1
@@ -3441,7 +3441,7 @@ const CATALOG = [
    "name": "Love",
    "kind": "knife",
    "rarity": "Common",
-   "price": 3.37,
+   "price": 3.1,
    "was": 3.96,
    "img": "assets/wiki/mm2-love.png",
    "stock": 1
@@ -3452,7 +3452,7 @@ const CATALOG = [
    "name": "Orange",
    "kind": "knife",
    "rarity": "Common",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/wiki/mm2-orange.png",
    "stock": 1
@@ -3463,7 +3463,7 @@ const CATALOG = [
    "name": "Deathspeaker Pet",
    "kind": "pet",
    "rarity": "Godly",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/hd/mm2-pet-deathspeaker.png",
    "stock": 1
@@ -3474,7 +3474,7 @@ const CATALOG = [
    "name": "Steambird Pet",
    "kind": "pet",
    "rarity": "Godly",
-   "price": 1.35,
+   "price": 1.24,
    "was": 1.59,
    "img": "assets/hd/mm2-pet-steambird.png",
    "stock": 1

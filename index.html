@@ -31,6 +31,55 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=20260716d">
+<!-- Structured data: helps Google understand what the site is and show rich results.
+     Everything here is factual — no fake ratings or invented review counts. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "OnlineStore",
+      "@id": "https://chanceblox.com/#store",
+      "name": "Chanceblox",
+      "url": "https://chanceblox.com/",
+      "description": "Roblox item shop for MM2 (Murder Mystery 2), Adopt Me, NFL Universe and Baddies. Real stock, fair prices, same-day delivery by in-game trade.",
+      "image": "https://chanceblox.com/assets/og-image.png",
+      "priceRange": "$1 - $140",
+      "paymentAccepted": "Credit Card",
+      "currenciesAccepted": "USD",
+      "sameAs": ["https://discord.gg/JmKxSrYX6N"],
+      "knowsAbout": ["Murder Mystery 2", "Adopt Me", "NFL Universe", "Baddies", "Roblox"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://chanceblox.com/#website",
+      "url": "https://chanceblox.com/",
+      "name": "Chanceblox",
+      "publisher": { "@id": "https://chanceblox.com/#store" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Chanceblox?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Chanceblox is a Roblox item shop for Murder Mystery 2, Adopt Me, NFL Universe and Baddies. Items are delivered by in-game trade, usually the same day." }
+        },
+        {
+          "@type": "Question",
+          "name": "How are items delivered?",
+          "acceptedAnswer": { "@type": "Answer", "text": "After checkout you get an order code, join the VIP server for your game, and the items are traded to you in game. Roblox accounts are delivered instantly in live chat." }
+        },
+        {
+          "@type": "Question",
+          "name": "How much do items cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Prices start around $1 and are checked against live market shops. MM2 knives, Adopt Me pets, NFL Universe gear and Baddies skins are all in stock." }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -445,7 +494,7 @@
   </form>
 </div>
 
-<script src="js/catalog.js?v=20260716f"></script>
+<script src="js/catalog.js?v=20260717a"></script>
 <script src="js/app.js?v=20260716g"></script>
 </body>
 </html>
