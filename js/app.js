@@ -402,7 +402,15 @@ function setGame(g) {
 // jump straight to the shop (instant): a smooth scroll across the 25k-px grid
 // stutters and then hard-snaps, which reads as the page "bugging out"
 $$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.nav); scrollToShop(true); }));
-$$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(true); }));
+/* the game cards are rebuilt by every stock sync (renderGameBand wipes the
+   band's innerHTML), so their click is delegated to the document — a fresh
+   render keeps working without rebinding. Binding the cards directly is what
+   broke production: /api/stock succeeded, the band re-rendered, and every
+   game card silently lost its listener. */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-jump]");
+  if (b) { setGame(b.dataset.jump); scrollToShop(true); }
+});
 $("#heroBrowse")?.addEventListener("click", () => {
   const games = $("#games");
   if (games) goTo(() => games.offsetTop - ($(".topbar")?.offsetHeight || 56) - 8);
