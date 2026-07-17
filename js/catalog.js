@@ -6765,7 +6765,7 @@ const CATALOG = [
    "kind": "account",
    "rarity": "Korblox",
    "variant": "base",
-   "price": 140,
+   "price": 120,
    "img": "assets/accounts/korblox-1.png",
    "stock": 1,
    "badge": ""
@@ -6777,7 +6777,7 @@ const CATALOG = [
    "kind": "account",
    "rarity": "Korblox",
    "variant": "base",
-   "price": 120,
+   "price": 100,
    "img": "assets/accounts/kf-1.png",
    "stock": 1,
    "badge": ""
