@@ -28,6 +28,10 @@ const CATS = {
 const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies", accounts: "Roblox Accounts" };
 const GAME_GHOST = { mm2: "MM2", am: "ADOPT ME", nfl: "NFL UF", baddies: "BADDIES", accounts: "ACCOUNTS" };
 const MOTION_OK = matchMedia("(prefers-reduced-motion: no-preference)").matches;
+/* Only items above this show a compare-at badge. Must live up here: renderFeatured()
+   runs during load and reaches saleInfo(), so a const declared further down would
+   still be in its temporal dead zone and take the whole page with it. */
+const SALE_FLOOR = 18;
 const BADDIE_GLYPH = { knuckles: "🥊", taser: "⚡", pan: "🍳", purse: "👛", board: "🛹", mace: "🔨", rpg: "🚀", toilet: "🚽", style: "🥋", weapon: "⚔️", more: "✨" };
 
 const state = {
@@ -519,16 +523,16 @@ function visible() {
 }
 
 /* ---------- card ---------- */
-/* deterministic "market value" compare-at price so each item shows an honest-feeling
-   discount off what the value sites list (the shops all do this) */
+/* Compare-at price. i.was is the price this shop actually charged before the
+   2026-07-16 cut, taken from git history (tools/add_was.py) — never invented,
+   so every strikethrough survives someone asking us to prove it. Items without
+   a recorded former price simply don't show a badge. */
 function saleInfo(i) {
-  if (i.price <= 45) return null;                        // only premium items are on sale
-  let h = 2166136261;
-  for (let k = 0; k < i.id.length; k++) { h ^= i.id.charCodeAt(k); h = Math.imul(h, 16777619); }
-  const mult = 1.2 + ((h >>> 0) % 55) / 100;            // 1.20 .. 1.74
-  const was = Math.max(i.price + 0.5, Math.round(i.price * mult * 100) / 100);
-  const pct = Math.round((was - i.price) / was * 100);
-  return { was, pct, save: Math.round((was - i.price) * 100) / 100 };
+  if (!(i.was > i.price)) return null;                   // no real former price, no claim
+  if (i.price <= SALE_FLOOR) return null;
+  const pct = Math.round((i.was - i.price) / i.was * 100);
+  if (pct < 1) return null;                              // nothing worth shouting about
+  return { was: i.was, pct, save: Math.round((i.was - i.price) * 100) / 100 };
 }
 function cardHTML(i) {
   const left = i.stock - (state.cart[i.id] || 0);

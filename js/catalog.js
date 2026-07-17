@@ -10,6 +10,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 112.2,
+   "was": 132.0,
    "img": "assets/am/am-frost-dragon.png",
    "stock": 1,
    "badge": "R"
@@ -22,6 +23,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 46.08,
+   "was": 54.21,
    "img": "assets/am/am-neon-elephant.png",
    "stock": 1,
    "badge": "NFR"
@@ -34,6 +36,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 41.17,
+   "was": 48.43,
    "img": "assets/am/am-neon-kangaroo.png",
    "stock": 1,
    "badge": "NFR"
@@ -46,6 +49,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 36.37,
+   "was": 42.79,
    "img": "assets/am/am-fr-strawberry-bat-dragon.png",
    "stock": 1,
    "badge": "FR"
@@ -58,6 +62,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 36.1,
+   "was": 42.47,
    "img": "assets/am/am-strawberry-bat-dragon.png",
    "stock": 2,
    "badge": "R"
@@ -70,6 +75,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 33.63,
+   "was": 39.57,
    "img": "assets/am/am-fr-turtle.png",
    "stock": 1,
    "badge": "FR"
@@ -82,6 +88,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 30.53,
+   "was": 35.92,
    "img": "assets/am/am-neon-arctic-fox.png",
    "stock": 1,
    "badge": "NFR"
@@ -94,6 +101,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 29.97,
+   "was": 35.26,
    "img": "assets/am/am-fr-kangaroo.png",
    "stock": 1,
    "badge": "FR"
@@ -106,6 +114,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 21.93,
+   "was": 25.8,
    "img": "assets/am/am-neon-dodo.png",
    "stock": 1,
    "badge": "NFR"
@@ -118,6 +127,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 20.09,
+   "was": 23.63,
    "img": "assets/am/am-neon-reindeer.png",
    "stock": 1,
    "badge": "NFR"
@@ -130,6 +140,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "mega",
    "price": 19.58,
+   "was": 23.04,
    "img": "assets/am/am-mega-monkey.png",
    "stock": 1,
    "badge": "MR"
@@ -142,6 +153,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 19.58,
+   "was": 23.04,
    "img": "assets/am/am-bald-eagle.png",
    "stock": 2,
    "badge": "R"
@@ -154,6 +166,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 19.32,
+   "was": 22.73,
    "img": "assets/am/am-frost-fury.png",
    "stock": 1
   },
@@ -165,6 +178,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 17.65,
+   "was": 20.76,
    "img": "assets/am/am-neon-unicorn.png",
    "stock": 1,
    "badge": "NFR"
@@ -177,6 +191,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 18.51,
+   "was": 21.78,
    "img": "assets/am/am-neon-king-bee.png",
    "stock": 1,
    "badge": "NFR"
@@ -189,6 +204,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "mega",
    "price": 17.65,
+   "was": 20.76,
    "img": "assets/am/am-mega-urchin.png",
    "stock": 1,
    "badge": "MR"
@@ -201,6 +217,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 16.54,
+   "was": 19.46,
    "img": "assets/am/am-egg-chocolate.png",
    "stock": 5
   },
@@ -212,6 +229,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 16.54,
+   "was": 19.46,
    "img": "assets/am/am-veh-unicorn-cycle.png",
    "stock": 1
   },
@@ -223,6 +241,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 16.04,
+   "was": 18.87,
    "img": "assets/am/am-neon-frog.png",
    "stock": 1,
    "badge": "NFR"
@@ -235,6 +254,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 9.71,
+   "was": 11.42,
    "img": "assets/am/am-veh-biplane.png",
    "stock": 1
   },
@@ -246,6 +266,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 4.0,
+   "was": 4.7,
    "img": "assets/am/am-veh-black-roadster.png",
    "stock": 1
   },
@@ -257,6 +278,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 7.34,
+   "was": 8.63,
    "img": "assets/am/am-veh-bone-buggy.png",
    "stock": 1
   },
@@ -268,6 +290,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-box-car.png",
    "stock": 2
   },
@@ -279,6 +302,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-cooler-car.png",
    "stock": 1
   },
@@ -290,6 +314,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 9.52,
+   "was": 11.2,
    "img": "assets/am/am-veh-flower-kart.png",
    "stock": 1
   },
@@ -301,6 +326,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 7.59,
+   "was": 8.93,
    "img": "assets/am/am-veh-future-car.png",
    "stock": 1
   },
@@ -312,6 +338,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-gift-truck.png",
    "stock": 1
   },
@@ -323,6 +350,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-heart-unicycle.png",
    "stock": 1
   },
@@ -334,6 +362,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 7.34,
+   "was": 8.63,
    "img": "assets/am/am-veh-helicopter.png",
    "stock": 1
   },
@@ -345,6 +374,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 7.59,
+   "was": 8.93,
    "img": "assets/am/am-veh-jet-boat.png",
    "stock": 5
   },
@@ -356,6 +386,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 8.52,
+   "was": 10.02,
    "img": "assets/am/am-veh-monster-truck.png",
    "stock": 1
   },
@@ -367,6 +398,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 10.24,
+   "was": 12.05,
    "img": "assets/am/am-veh-santa-sleigh.png",
    "stock": 2
   },
@@ -378,6 +410,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 4.29,
+   "was": 5.05,
    "img": "assets/am/am-veh-shadow-bike.png",
    "stock": 1
   },
@@ -389,6 +422,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 3.41,
+   "was": 4.01,
    "img": "assets/am/am-veh-skull-bike.png",
    "stock": 1
   },
@@ -400,6 +434,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-sports-car.png",
    "stock": 3
   },
@@ -411,6 +446,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-supercar.png",
    "stock": 1
   },
@@ -422,6 +458,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 9.89,
+   "was": 11.64,
    "img": "assets/am/am-veh-taxi.png",
    "stock": 1
   },
@@ -433,6 +470,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-veh-trailer.png",
    "stock": 1
   },
@@ -444,6 +482,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 8.73,
+   "was": 10.27,
    "img": "assets/am/am-veh-train.png",
    "stock": 1
   },
@@ -455,6 +494,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 5.04,
+   "was": 5.93,
    "img": "assets/am/am-veh-wagon.png",
    "stock": 4
   },
@@ -466,6 +506,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "mega",
    "price": 15.51,
+   "was": 18.25,
    "img": "assets/am/am-mega-piranha.png",
    "stock": 1,
    "badge": "MR"
@@ -478,6 +519,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 13.81,
+   "was": 16.25,
    "img": "assets/am/am-fr-queen-bee.png",
    "stock": 1,
    "badge": "FR"
@@ -490,6 +532,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 13.81,
+   "was": 16.25,
    "img": "assets/am/am-golden-penguin.png",
    "stock": 2
   },
@@ -501,6 +544,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 10.58,
+   "was": 12.45,
    "img": "assets/am/am-bat-dog.png",
    "stock": 2
   },
@@ -512,6 +556,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-butterfly.png",
    "stock": 1
   },
@@ -523,6 +568,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 5.83,
+   "was": 6.86,
    "img": "assets/am/am-cockatoo.png",
    "stock": 1,
    "badge": "R"
@@ -535,6 +581,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-egg-durian.png",
    "stock": 5
   },
@@ -546,6 +593,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 12.53,
+   "was": 14.74,
    "img": "assets/am/am-egg-easter.png",
    "stock": 5
   },
@@ -557,6 +605,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/wiki/am-egg-flower.png",
    "stock": 5
   },
@@ -568,6 +617,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 5.46,
+   "was": 6.42,
    "img": "assets/am/am-egg-lantern.png",
    "stock": 5
   },
@@ -579,6 +629,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 4.81,
+   "was": 5.66,
    "img": "assets/am/am-egg-lotus.png",
    "stock": 5
   },
@@ -590,6 +641,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 8.52,
+   "was": 10.02,
    "img": "assets/am/am-fr-flame-dragon.png",
    "stock": 1,
    "badge": "FR"
@@ -602,6 +654,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-goggle-duck.png",
    "stock": 3
   },
@@ -613,6 +666,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 10.24,
+   "was": 12.05,
    "img": "assets/am/am-golden-bird.png",
    "stock": 1
   },
@@ -624,6 +678,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-golden-bonefish.png",
    "stock": 1
   },
@@ -635,6 +690,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 7.06,
+   "was": 8.31,
    "img": "assets/am/am-golden-tiger.png",
    "stock": 1
   },
@@ -646,6 +702,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 9.33,
+   "was": 10.98,
    "img": "assets/am/am-lucky-cat.png",
    "stock": 1
   },
@@ -657,6 +714,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-pegasus.png",
    "stock": 1
   },
@@ -668,6 +726,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 14.41,
+   "was": 16.95,
    "img": "assets/am/am-purple-dragon.png",
    "stock": 2
   },
@@ -679,6 +738,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 14.41,
+   "was": 16.95,
    "img": "assets/am/am-skeleton-dog.png",
    "stock": 1
   },
@@ -690,6 +750,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 12.53,
+   "was": 14.74,
    "img": "assets/am/am-neon-alicorn.png",
    "stock": 1,
    "badge": "NFR"
@@ -702,6 +763,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 12.53,
+   "was": 14.74,
    "img": "assets/hd/am-fly-potion.png",
    "stock": 1
   },
@@ -713,6 +775,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 12.53,
+   "was": 14.74,
    "img": "assets/am/am-fr-axolotl.png",
    "stock": 1,
    "badge": "FR"
@@ -725,6 +788,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "mega",
    "price": 12.53,
+   "was": 14.74,
    "img": "assets/am/am-mega-rabbit.png",
    "stock": 1,
    "badge": "MFR"
@@ -737,6 +801,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 12.11,
+   "was": 14.25,
    "img": "assets/am/am-neon-monkey.png",
    "stock": 1,
    "badge": "NFR"
@@ -749,6 +814,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 11.07,
+   "was": 13.02,
    "img": "assets/am/am-fr-unicorn.png",
    "stock": 1,
    "badge": "FR"
@@ -761,6 +827,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 11.07,
+   "was": 13.02,
    "img": "assets/am/am-axolotl.png",
    "stock": 3
   },
@@ -772,6 +839,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 11.82,
+   "was": 13.91,
    "img": "assets/am/am-cerberus.png",
    "stock": 1,
    "badge": "F"
@@ -784,6 +852,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 11.07,
+   "was": 13.02,
    "img": "assets/am/am-veh-pink-convertible.png",
    "stock": 1
   },
@@ -795,6 +864,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 10.74,
+   "was": 12.64,
    "img": "assets/am/am-fr-robo-dog.png",
    "stock": 1,
    "badge": "FR"
@@ -807,6 +877,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 10.74,
+   "was": 12.64,
    "img": "assets/am/am-octopus.png",
    "stock": 1
   },
@@ -818,6 +889,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-antler-mount.png",
    "stock": 1
   },
@@ -829,6 +901,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-cookie-wand.png",
    "stock": 1
   },
@@ -840,6 +913,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-dancing-banana.png",
    "stock": 1
   },
@@ -851,6 +925,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 5.46,
+   "was": 6.42,
    "img": "assets/am/am-ducky-stick.png",
    "stock": 1
   },
@@ -862,6 +937,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 9.33,
+   "was": 10.98,
    "img": "assets/am/am-fairy-door.png",
    "stock": 1
   },
@@ -873,6 +949,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-flower-crate.png",
    "stock": 1
   },
@@ -884,6 +961,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-monkey-plush.png",
    "stock": 1
   },
@@ -895,6 +973,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/cleaned/am-scooter.png",
    "stock": 3
   },
@@ -906,6 +985,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 9.33,
+   "was": 10.98,
    "img": "assets/am/am-skateboard.png",
    "stock": 1
   },
@@ -917,6 +997,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-unicorn-pogo.png",
    "stock": 1
   },
@@ -928,6 +1009,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 10.41,
+   "was": 12.25,
    "img": "assets/am/am-veh-moped.png",
    "stock": 1
   },
@@ -939,6 +1021,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 1.69,
+   "was": 1.99,
    "img": "assets/am/am-egg-dino.png",
    "stock": 5
   },
@@ -950,6 +1033,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 10.24,
+   "was": 12.05,
    "img": "assets/am/am-golden-hamster.png",
    "stock": 1,
    "badge": "R"
@@ -962,6 +1046,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 10.24,
+   "was": 12.05,
    "img": "assets/am/am-golden-ladybug.png",
    "stock": 1
   },
@@ -973,6 +1058,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "mega",
    "price": 10.24,
+   "was": 12.05,
    "img": "assets/am/am-mega-cat.png",
    "stock": 1,
    "badge": "MR"
@@ -985,6 +1071,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 10.24,
+   "was": 12.05,
    "img": "assets/hd/am-ride-potion.png",
    "stock": 2
   },
@@ -996,6 +1083,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 9.33,
+   "was": 10.98,
    "img": "assets/am/am-unicorn.png",
    "stock": 3,
    "badge": "R"
@@ -1008,6 +1096,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "base",
    "price": 9.89,
+   "was": 11.64,
    "img": "assets/am/am-mushroom-pet.png",
    "stock": 1
   },
@@ -1019,6 +1108,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 9.89,
+   "was": 11.64,
    "img": "assets/am/am-veh-black-cab.png",
    "stock": 1
   },
@@ -1030,6 +1120,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 9.52,
+   "was": 11.2,
    "img": "assets/am/am-king-bee.png",
    "stock": 1
   },
@@ -1041,6 +1132,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 9.33,
+   "was": 10.98,
    "img": "assets/am/am-guardian-lion.png",
    "stock": 1
   },
@@ -1052,6 +1144,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 9.33,
+   "was": 10.98,
    "img": "assets/am/am-veh-ice-cream-truck.png",
    "stock": 1
   },
@@ -1063,6 +1156,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 9.14,
+   "was": 10.75,
    "img": "assets/am/am-banana-pogo.png",
    "stock": 1
   },
@@ -1074,6 +1168,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 7.84,
+   "was": 9.22,
    "img": "assets/am/am-chick.png",
    "stock": 1
   },
@@ -1085,6 +1180,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-chow-chow.png",
    "stock": 1
   },
@@ -1096,6 +1192,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-discosplosion.png",
    "stock": 1
   },
@@ -1107,6 +1204,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 5.46,
+   "was": 6.42,
    "img": "assets/am/am-dragon.png",
    "stock": 2,
    "badge": "R"
@@ -1119,6 +1217,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 4.81,
+   "was": 5.66,
    "img": "assets/am/am-dragonfly.png",
    "stock": 1
   },
@@ -1130,6 +1229,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 2.78,
+   "was": 3.27,
    "img": "assets/am/am-egg-cracked.png",
    "stock": 5
   },
@@ -1141,6 +1241,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 8.93,
+   "was": 10.51,
    "img": "assets/am/am-egg-fool.png",
    "stock": 5
   },
@@ -1152,6 +1253,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 3.02,
+   "was": 3.55,
    "img": "assets/am/am-egg-pet.png",
    "stock": 5
   },
@@ -1163,6 +1265,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 3.41,
+   "was": 4.01,
    "img": "assets/am/am-egg-retired.png",
    "stock": 5
   },
@@ -1174,6 +1277,7 @@ const CATALOG = [
    "rarity": "Egg",
    "variant": "base",
    "price": 3.57,
+   "was": 4.2,
    "img": "assets/am/am-egg-royal.png",
    "stock": 5
   },
@@ -1185,6 +1289,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 8.3,
+   "was": 9.76,
    "img": "assets/am/am-fr-dragon.png",
    "stock": 1,
    "badge": "FR"
@@ -1197,6 +1302,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 8.73,
+   "was": 10.27,
    "img": "assets/am/am-fr-golden-dragon.png",
    "stock": 1,
    "badge": "FR"
@@ -1209,6 +1315,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "fr",
    "price": 8.52,
+   "was": 10.02,
    "img": "assets/am/am-fr-golden-griffin.png",
    "stock": 1,
    "badge": "FR"
@@ -1221,6 +1328,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-golden-dragon.png",
    "stock": 2
   },
@@ -1232,6 +1340,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 5.83,
+   "was": 6.86,
    "img": "assets/am/am-golden-griffin.png",
    "stock": 3
   },
@@ -1243,6 +1352,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 8.73,
+   "was": 10.27,
    "img": "assets/am/am-kangaroo-stroller.png",
    "stock": 1
   },
@@ -1254,6 +1364,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-lemonade-stand.png",
    "stock": 1
   },
@@ -1265,6 +1376,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 3.02,
+   "was": 3.55,
    "img": "assets/am/am-marshmallow-plush.png",
    "stock": 1
   },
@@ -1276,6 +1388,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 6.49,
+   "was": 7.63,
    "img": "assets/am/am-metal-ox.png",
    "stock": 6
   },
@@ -1287,6 +1400,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 8.93,
+   "was": 10.51,
    "img": "assets/am/am-neon-bunny.png",
    "stock": 1,
    "badge": "NFR"
@@ -1299,6 +1413,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 7.96,
+   "was": 9.36,
    "img": "assets/am/am-neon-cat.png",
    "stock": 1,
    "badge": "NFR"
@@ -1311,6 +1426,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 7.96,
+   "was": 9.36,
    "img": "assets/am/am-neon-dog.png",
    "stock": 1,
    "badge": "NFR"
@@ -1323,6 +1439,7 @@ const CATALOG = [
    "rarity": "Rare",
    "variant": "neon",
    "price": 7.06,
+   "was": 8.31,
    "img": "assets/am/am-neon-frost-fairy.png",
    "stock": 1,
    "badge": "NFR"
@@ -1335,6 +1452,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "neon",
    "price": 8.93,
+   "was": 10.51,
    "img": "assets/am/am-neon-zebra.png",
    "stock": 1,
    "badge": "NFR"
@@ -1347,6 +1465,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 6.49,
+   "was": 7.63,
    "img": "assets/am/am-octopus-plush.png",
    "stock": 1
   },
@@ -1358,6 +1477,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 6.17,
+   "was": 7.26,
    "img": "assets/am/am-robin.png",
    "stock": 1
   },
@@ -1369,6 +1489,7 @@ const CATALOG = [
    "rarity": "Legendary",
    "variant": "base",
    "price": 8.3,
+   "was": 9.76,
    "img": "assets/am/am-space-whale.png",
    "stock": 1
   },
@@ -1380,6 +1501,7 @@ const CATALOG = [
    "rarity": "Toy",
    "variant": "base",
    "price": 4.81,
+   "was": 5.66,
    "img": "assets/am/am-teacup-stroller.png",
    "stock": 1
   },
@@ -1391,6 +1513,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 7.06,
+   "was": 8.31,
    "img": "assets/am/am-veh-squirrel-car.png",
    "stock": 1
   },
@@ -1402,6 +1525,7 @@ const CATALOG = [
    "rarity": "Vehicle",
    "variant": "base",
    "price": 4.56,
+   "was": 5.37,
    "img": "assets/am/am-veh-witch-caravan.png",
    "stock": 1
   },
@@ -1412,6 +1536,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 38.28,
+   "was": 45.04,
    "img": "assets/hd/mm2-raygun.png",
    "stock": 1
   },
@@ -1422,6 +1547,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 40.8,
+   "was": 48,
    "img": "assets/hd/mm2-darksword.png",
    "stock": 1
   },
@@ -1432,6 +1558,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 36.17,
+   "was": 42.55,
    "img": "assets/hd/mm2-vampires-axe.png",
    "stock": 2
   },
@@ -1442,6 +1569,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 37.1,
+   "was": 43.65,
    "img": "assets/hd/mm2-blossom.png",
    "stock": 1
   },
@@ -1452,6 +1580,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 33.53,
+   "was": 39.45,
    "img": "assets/hd/mm2-sunrise.png",
    "stock": 1,
    "badge": "FX"
@@ -1463,6 +1592,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 24.7,
+   "was": 29.06,
    "img": "assets/hd/mm2-soul.png",
    "stock": 1
   },
@@ -1473,6 +1603,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 24.48,
+   "was": 28.8,
    "img": "assets/hd/mm2-spirit.png",
    "stock": 1
   },
@@ -1483,6 +1614,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 21.69,
+   "was": 25.52,
    "img": "assets/hd/mm2-flora.png",
    "stock": 1
   },
@@ -1493,6 +1625,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 24.91,
+   "was": 29.31,
    "img": "assets/hd/mm2-sunset.png",
    "stock": 1,
    "badge": "FX"
@@ -1504,6 +1637,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 21.44,
+   "was": 25.22,
    "img": "assets/hd/mm2-bloom.png",
    "stock": 2
   },
@@ -1514,6 +1648,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 18.15,
+   "was": 21.35,
    "img": "assets/hd/mm2-ocean.png",
    "stock": 1
   },
@@ -1524,6 +1659,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 18.0,
+   "was": 21.18,
    "img": "assets/hd/mm2-waves.png",
    "stock": 2
   },
@@ -1534,6 +1670,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 17.54,
+   "was": 20.63,
    "img": "assets/wiki/mm2-flowerwood-gun.png",
    "stock": 2
   },
@@ -1544,6 +1681,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 17.38,
+   "was": 20.45,
    "img": "assets/hd/mm2-flowerwood.png",
    "stock": 1
   },
@@ -1554,6 +1692,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 17.84,
+   "was": 20.99,
    "img": "assets/hd/mm2-xenoknife.png",
    "stock": 1
   },
@@ -1564,6 +1703,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 17.84,
+   "was": 20.99,
    "img": "assets/hd/mm2-xenoshot.png",
    "stock": 1
   },
@@ -1574,6 +1714,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 13.83,
+   "was": 16.27,
    "img": "assets/hd/mm2-borealis.png",
    "stock": 2
   },
@@ -1584,6 +1725,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 13.63,
+   "was": 16.03,
    "img": "assets/hd/mm2-australis.png",
    "stock": 2
   },
@@ -1594,6 +1736,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 11.61,
+   "was": 13.66,
    "img": "assets/hd/mm2-pearlshine.png",
    "stock": 1
   },
@@ -1604,6 +1747,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 17.06,
+   "was": 20.07,
    "img": "assets/hd/mm2-harvester.png",
    "stock": 2
   },
@@ -1614,6 +1758,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 11.36,
+   "was": 13.36,
    "img": "assets/hd/mm2-pearl.png",
    "stock": 1
   },
@@ -1624,6 +1769,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 14.23,
+   "was": 16.74,
    "img": "assets/hd/mm2-icepiercer.png",
    "stock": 4
   },
@@ -1634,6 +1780,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 12.32,
+   "was": 14.5,
    "img": "assets/hd/mm2-bat.png",
    "stock": 6
   },
@@ -1644,6 +1791,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-sugar.png",
    "stock": 2
   },
@@ -1654,6 +1802,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 7.87,
+   "was": 9.26,
    "img": "assets/hd/mm2-swirly-axe.png",
    "stock": 1
   },
@@ -1664,6 +1813,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Chroma",
    "price": 9.71,
+   "was": 11.42,
    "img": "assets/hd/mm2-chroma-darkbringer.png",
    "stock": 2,
    "badge": "CHROMA"
@@ -1675,6 +1825,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 9.71,
+   "was": 11.42,
    "img": "assets/hd/mm2-icebreaker.png",
    "stock": 4
   },
@@ -1685,6 +1836,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-spectre.png",
    "stock": 2
   },
@@ -1695,6 +1847,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 10.57,
+   "was": 12.43,
    "img": "assets/hd/mm2-candy.png",
    "stock": 7
   },
@@ -1705,6 +1858,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 9.71,
+   "was": 11.42,
    "img": "assets/hd/mm2-heartblade.png",
    "stock": 2
   },
@@ -1715,6 +1869,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 7.22,
+   "was": 8.49,
    "img": "assets/hd/mm2-hallowscythe.png",
    "stock": 2
   },
@@ -1725,6 +1880,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Chroma",
    "price": 9.4,
+   "was": 11.06,
    "img": "assets/hd/mm2-chroma-lightbringer.png",
    "stock": 2,
    "badge": "CHROMA"
@@ -1736,6 +1892,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-phantom.png",
    "stock": 1
   },
@@ -1746,6 +1903,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Chroma",
    "price": 8.6,
+   "was": 10.12,
    "img": "assets/hd/mm2-chroma-luger.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -1757,6 +1915,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 8.18,
+   "was": 9.62,
    "img": "assets/hd/mm2-batwing.png",
    "stock": 1
   },
@@ -1767,6 +1926,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 8.02,
+   "was": 9.44,
    "img": "assets/hd/mm2-red-luger.png",
    "stock": 4
   },
@@ -1777,6 +1937,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 6.07,
+   "was": 7.14,
    "img": "assets/wiki/mm2-swirly-gun.png",
    "stock": 1
   },
@@ -1787,6 +1948,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 8.18,
+   "was": 9.62,
    "img": "assets/hd/mm2-luger.png",
    "stock": 4
   },
@@ -1797,6 +1959,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Chroma",
    "price": 7.79,
+   "was": 9.17,
    "img": "assets/wiki/mm2-chroma-swirly-gun.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -1808,6 +1971,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-makeshift.png",
    "stock": 1
   },
@@ -1818,6 +1982,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Chroma",
    "price": 7.04,
+   "was": 8.28,
    "img": "assets/hd/mm2-chroma-gemstone.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -1829,6 +1994,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Chroma",
    "price": 7.22,
+   "was": 8.49,
    "img": "assets/hd/mm2-chroma-deathshard.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -1840,6 +2006,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-iceblaster.png",
    "stock": 2
   },
@@ -1850,6 +2017,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-elderwood-revolver.png",
    "stock": 3
   },
@@ -1860,6 +2028,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 8.02,
+   "was": 9.44,
    "img": "assets/hd/mm2-elderwood-scythe.png",
    "stock": 1
   },
@@ -1870,6 +2039,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 7.22,
+   "was": 8.49,
    "img": "assets/hd/mm2-jd.png",
    "stock": 1
   },
@@ -1880,6 +2050,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 10.57,
+   "was": 12.43,
    "img": "assets/wiki/mm2-spectral.png",
    "stock": 1
   },
@@ -1890,6 +2061,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Chroma",
    "price": 7.46,
+   "was": 8.78,
    "img": "assets/hd/mm2-chroma-cookiecane.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -1901,6 +2073,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 6.07,
+   "was": 7.14,
    "img": "assets/hd/mm2-shark.png",
    "stock": 2
   },
@@ -1911,6 +2084,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Vintage",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-america.png",
    "stock": 2
   },
@@ -1921,6 +2095,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.84,
+   "was": 5.69,
    "img": "assets/hd/mm2-swirly-blade.png",
    "stock": 1
   },
@@ -1931,6 +2106,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-elderwood-blade.png",
    "stock": 1
   },
@@ -1941,6 +2117,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-darkbringer.png",
    "stock": 4
   },
@@ -1951,6 +2128,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.5,
+   "was": 6.47,
    "img": "assets/hd/mm2-plasmablade.png",
    "stock": 4
   },
@@ -1961,6 +2139,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-logchopper.png",
    "stock": 3
   },
@@ -1971,6 +2150,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.84,
+   "was": 5.69,
    "img": "assets/hd/mm2-battleaxe.png",
    "stock": 1
   },
@@ -1981,6 +2161,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.5,
+   "was": 6.47,
    "img": "assets/hd/mm2-battleaxe-ii.png",
    "stock": 1
   },
@@ -1991,6 +2172,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Vintage",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-ghost.png",
    "stock": 3
   },
@@ -2001,6 +2183,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Vintage",
    "price": 6.27,
+   "was": 7.38,
    "img": "assets/wiki/mm2-laser-legendary.png",
    "stock": 2
   },
@@ -2011,6 +2194,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Vintage",
    "price": 3.6,
+   "was": 4.24,
    "img": "assets/hd/mm2-phaser.png",
    "stock": 5
   },
@@ -2021,6 +2205,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.12,
+   "was": 6.02,
    "img": "assets/hd/mm2-vampires-edge.png",
    "stock": 1
   },
@@ -2031,6 +2216,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 6.58,
+   "was": 7.74,
    "img": "assets/hd/mm2-green-luger.png",
    "stock": 2
   },
@@ -2041,6 +2227,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 6.27,
+   "was": 7.38,
    "img": "assets/hd/mm2-hallowgun.png",
    "stock": 1
   },
@@ -2051,6 +2238,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 6.27,
+   "was": 7.38,
    "img": "assets/hd/mm2-amerilaser.png",
    "stock": 2
   },
@@ -2061,6 +2249,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 6.07,
+   "was": 7.14,
    "img": "assets/hd/mm2-nightblade.png",
    "stock": 3
   },
@@ -2071,6 +2260,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Chroma",
    "price": 6.58,
+   "was": 7.74,
    "img": "assets/hd/mm2-chroma-saw.png",
    "stock": 2,
    "badge": "CHROMA"
@@ -2082,6 +2272,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-ginger-luger.png",
    "stock": 1
   },
@@ -2092,6 +2283,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 6.07,
+   "was": 7.14,
    "img": "assets/hd/mm2-icebeam.png",
    "stock": 4
   },
@@ -2102,6 +2294,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 5.5,
+   "was": 6.47,
    "img": "assets/hd/mm2-lugercane.png",
    "stock": 2
   },
@@ -2112,6 +2305,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/hd/mm2-hallows-blade.png",
    "stock": 1
   },
@@ -2122,6 +2316,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 7.63,
+   "was": 8.98,
    "img": "assets/hd/mm2-glitch2.png",
    "stock": 1
   },
@@ -2132,6 +2327,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 6.77,
+   "was": 7.96,
    "img": "assets/wiki/mm2-sparkle9.png",
    "stock": 1
   },
@@ -2142,6 +2338,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-plasmabeam.png",
    "stock": 3
   },
@@ -2152,6 +2349,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-old-glory.png",
    "stock": 1
   },
@@ -2162,6 +2360,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-slasher.png",
    "stock": 1
   },
@@ -2172,6 +2371,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.37,
+   "was": 6.32,
    "img": "assets/hd/mm2-eternalcane.png",
    "stock": 1
   },
@@ -2182,6 +2382,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.12,
+   "was": 6.02,
    "img": "assets/hd/mm2-gemstone.png",
    "stock": 1
   },
@@ -2192,6 +2393,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-blaster.png",
    "stock": 4
   },
@@ -2202,6 +2404,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 6.27,
+   "was": 7.38,
    "img": "assets/hd/mm2-laser.png",
    "stock": 2
   },
@@ -2212,6 +2415,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Ancient",
    "price": 5.5,
+   "was": 6.47,
    "img": "assets/hd/mm2-icewing.png",
    "stock": 1
   },
@@ -2222,6 +2426,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.37,
+   "was": 6.32,
    "img": "assets/hd/mm2-cookiecane.png",
    "stock": 1
   },
@@ -2232,6 +2437,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/hd/mm2-frostbite.png",
    "stock": 3
   },
@@ -2242,6 +2448,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.74,
+   "was": 6.75,
    "img": "assets/hd/mm2-iceflake.png",
    "stock": 2
   },
@@ -2252,6 +2459,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.2,
+   "was": 4.94,
    "img": "assets/hd/mm2-hallows-edge.png",
    "stock": 2
   },
@@ -2262,6 +2470,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Vintage",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/hd/mm2-cowboy.png",
    "stock": 2
   },
@@ -2272,6 +2481,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Vintage",
    "price": 3.37,
+   "was": 3.96,
    "img": "assets/hd/mm2-golden.png",
    "stock": 3
   },
@@ -2282,6 +2492,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.5,
+   "was": 6.47,
    "img": "assets/hd/mm2-virtual.png",
    "stock": 4
   },
@@ -2292,6 +2503,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.37,
+   "was": 3.96,
    "img": "assets/hd/mm2-prismatic.png",
    "stock": 1
   },
@@ -2302,6 +2514,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/hd/mm2-winters-edge.png",
    "stock": 2
   },
@@ -2312,6 +2525,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-pumpking.png",
    "stock": 1
   },
@@ -2322,6 +2536,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-xmas.png",
    "stock": 1
   },
@@ -2332,6 +2547,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Vintage",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/hd/mm2-shadow.png",
    "stock": 3
   },
@@ -2342,6 +2558,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Vintage",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-splitter.png",
    "stock": 2
   },
@@ -2352,6 +2569,7 @@ const CATALOG = [
    "kind": "collectible",
    "rarity": "Uncommon",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-gifts-2015.png",
    "stock": 1
   },
@@ -2362,6 +2580,7 @@ const CATALOG = [
    "kind": "collectible",
    "rarity": "Uncommon",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/hd/mm2-snowflake-key-2018.png",
    "stock": 1
   },
@@ -2372,6 +2591,7 @@ const CATALOG = [
    "kind": "collectible",
    "rarity": "Uncommon",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-skulls-2019.png",
    "stock": 12
   },
@@ -2382,6 +2602,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-bioblade.png",
    "stock": 4
   },
@@ -2392,6 +2613,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-eternal-iii.png",
    "stock": 3
   },
@@ -2402,6 +2624,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-eternal-iv.png",
    "stock": 2
   },
@@ -2412,6 +2635,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.12,
+   "was": 6.02,
    "img": "assets/hd/mm2-deathshard.png",
    "stock": 3
   },
@@ -2422,6 +2646,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-eternal.png",
    "stock": 4
   },
@@ -2432,6 +2657,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-eternal-ii.png",
    "stock": 3
   },
@@ -2442,6 +2668,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.68,
+   "was": 5.51,
    "img": "assets/hd/mm2-fang.png",
    "stock": 1
   },
@@ -2452,6 +2679,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/hd/mm2-flames.png",
    "stock": 1
   },
@@ -2462,6 +2690,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/hd/mm2-cookieblade.png",
    "stock": 2
   },
@@ -2472,6 +2701,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.37,
+   "was": 5.14,
    "img": "assets/hd/mm2-frostsaber.png",
    "stock": 3
   },
@@ -2482,6 +2712,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.12,
+   "was": 6.02,
    "img": "assets/hd/mm2-gingerblade.png",
    "stock": 1
   },
@@ -2492,6 +2723,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/hd/mm2-ice-dragon.png",
    "stock": 3
   },
@@ -2502,6 +2734,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.2,
+   "was": 4.94,
    "img": "assets/hd/mm2-ice-shard.png",
    "stock": 2
   },
@@ -2512,6 +2745,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Godly",
    "price": 5.5,
+   "was": 6.47,
    "img": "assets/hd/mm2-jinglegun.png",
    "stock": 1
   },
@@ -2522,6 +2756,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-boneblade.png",
    "stock": 1
   },
@@ -2532,6 +2767,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-ghostblade.png",
    "stock": 1
   },
@@ -2542,6 +2778,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-orange-seer.png",
    "stock": 2
   },
@@ -2552,6 +2789,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-purple-seer.png",
    "stock": 1
   },
@@ -2562,6 +2800,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-red-seer.png",
    "stock": 2
   },
@@ -2572,6 +2811,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-yellow-seer.png",
    "stock": 2
   },
@@ -2582,6 +2822,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 3.37,
+   "was": 3.96,
    "img": "assets/hd/mm2-snowflake.png",
    "stock": 3
   },
@@ -2592,6 +2833,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Vintage",
    "price": 3.6,
+   "was": 4.24,
    "img": "assets/hd/mm2-prince.png",
    "stock": 2
   },
@@ -2602,6 +2844,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.12,
+   "was": 6.02,
    "img": "assets/hd/mm2-nebula.png",
    "stock": 1
   },
@@ -2612,6 +2855,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-blue-seer.png",
    "stock": 3
   },
@@ -2622,6 +2866,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Vintage",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-blood.png",
    "stock": 2
   },
@@ -2632,6 +2877,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/hd/mm2-saw.png",
    "stock": 3
   },
@@ -2642,6 +2888,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Rare",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-web.png",
    "stock": 1
   },
@@ -2652,6 +2899,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/hd/mm2-pet-sammy.png",
    "stock": 3
   },
@@ -2662,6 +2910,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/wiki/mm2-palms.png",
    "stock": 8
   },
@@ -2672,6 +2921,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-palms-gun.png",
    "stock": 3
   },
@@ -2682,6 +2932,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-rune.png",
    "stock": 2
   },
@@ -2692,6 +2943,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-splash-gun.png",
    "stock": 2
   },
@@ -2702,6 +2954,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/cleaned/mm2-splash.png",
    "stock": 2
   },
@@ -2712,6 +2965,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-elite.png",
    "stock": 1
   },
@@ -2722,6 +2976,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-midnight.png",
    "stock": 1
   },
@@ -2732,6 +2987,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/wiki/mm2-overseer.png",
    "stock": 2
   },
@@ -2742,6 +2998,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/wiki/mm2-predator.png",
    "stock": 3
   },
@@ -2752,6 +3009,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-shiny.png",
    "stock": 2
   },
@@ -2762,6 +3020,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Godly",
    "price": 5.37,
+   "was": 6.32,
    "img": "assets/hd/mm2-minty.png",
    "stock": 4
   },
@@ -2772,6 +3031,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-frozen.png",
    "stock": 2
   },
@@ -2782,6 +3042,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-frozen-gun.png",
    "stock": 1
   },
@@ -2792,6 +3053,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Legendary",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-nightsky.png",
    "stock": 1
   },
@@ -2802,6 +3064,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-nightstar.png",
    "stock": 1
   },
@@ -2812,6 +3075,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Uncommon",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-gingerbread.png",
    "stock": 1
   },
@@ -2822,6 +3086,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Uncommon",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/wiki/mm2-gingerbread-gun.png",
    "stock": 1
   },
@@ -2832,6 +3097,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Uncommon",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/cleaned/mm2-gingerbread-sword.png",
    "stock": 1
   },
@@ -2842,6 +3108,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-candied.png",
    "stock": 2
   },
@@ -2852,6 +3119,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/wiki/mm2-ripper.png",
    "stock": 2
   },
@@ -2862,6 +3130,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-ripper-gun.png",
    "stock": 2
   },
@@ -2872,6 +3141,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-vampire.png",
    "stock": 1
   },
@@ -2882,6 +3152,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Rare",
    "price": 3.82,
+   "was": 4.49,
    "img": "assets/cleaned/mm2-ghastly-gun.png",
    "stock": 1
   },
@@ -2892,6 +3163,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Rare",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-kraken.png",
    "stock": 1
   },
@@ -2902,6 +3174,7 @@ const CATALOG = [
    "kind": "gun",
    "rarity": "Rare",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-ritual.png",
    "stock": 1
   },
@@ -2912,6 +3185,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Rare",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-storm.png",
    "stock": 1
   },
@@ -2922,6 +3196,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Uncommon",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/wiki/mm2-wanwood.png",
    "stock": 1
   },
@@ -2932,6 +3207,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-reptile.png",
    "stock": 1
   },
@@ -2942,6 +3218,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 3.09,
+   "was": 3.64,
    "img": "assets/wiki/mm2-pet-skully.png",
    "stock": 1
   },
@@ -2952,6 +3229,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Rare",
    "price": 15.89,
+   "was": 18.7,
    "img": "assets/hd/mm2-pet-blue-pumpkin.png",
    "stock": 1
   },
@@ -2962,6 +3240,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Godly",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/hd/mm2-pet-phoenix.png",
    "stock": 1
   },
@@ -2972,6 +3251,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-pet-skelly.png",
    "stock": 1
   },
@@ -2982,6 +3262,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-stainless.png",
    "stock": 1
   },
@@ -2992,6 +3273,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-whiteout.png",
    "stock": 4
   },
@@ -3002,6 +3284,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/wiki/mm2-xbox.png",
    "stock": 3
   },
@@ -3012,6 +3295,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Godly",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/hd/mm2-pet-electro.png",
    "stock": 2
   },
@@ -3022,6 +3306,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-bear.png",
    "stock": 1
   },
@@ -3032,6 +3317,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Chroma",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-bear.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -3043,6 +3329,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-bunny.png",
    "stock": 1
   },
@@ -3053,6 +3340,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-cat.png",
    "stock": 2
   },
@@ -3063,6 +3351,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Chroma",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-dog.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -3074,6 +3363,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-dog.png",
    "stock": 1
   },
@@ -3084,6 +3374,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Chroma",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-fox.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -3095,6 +3386,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-pet-fire-pig.png",
    "stock": 2
   },
@@ -3105,6 +3397,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Chroma",
    "price": 2.77,
+   "was": 3.26,
    "img": "assets/hd/mm2-pet-chroma-fire-pig.png",
    "stock": 1,
    "badge": "CHROMA"
@@ -3116,6 +3409,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Legendary",
    "price": 2.36,
+   "was": 2.78,
    "img": "assets/hd/mm2-pet-icey.png",
    "stock": 1
   },
@@ -3126,6 +3420,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Rare",
    "price": 4.01,
+   "was": 4.72,
    "img": "assets/wiki/mm2-pet-vampire-bat.png",
    "stock": 1
   },
@@ -3136,6 +3431,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-ice.png",
    "stock": 1
   },
@@ -3146,6 +3442,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 3.37,
+   "was": 3.96,
    "img": "assets/wiki/mm2-love.png",
    "stock": 1
   },
@@ -3156,6 +3453,7 @@ const CATALOG = [
    "kind": "knife",
    "rarity": "Common",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/wiki/mm2-orange.png",
    "stock": 1
   },
@@ -3166,6 +3464,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Godly",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/hd/mm2-pet-deathspeaker.png",
    "stock": 1
   },
@@ -3176,6 +3475,7 @@ const CATALOG = [
    "kind": "pet",
    "rarity": "Godly",
    "price": 1.35,
+   "was": 1.59,
    "img": "assets/hd/mm2-pet-steambird.png",
    "stock": 1
   },
@@ -3187,6 +3487,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 55.86,
+   "was": 58.8,
    "img": "assets/nfl/nfl-grey-evil-monster-eyes-beanie.png",
    "stock": 2,
    "creator": "Glo Dont",
@@ -3200,6 +3501,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 54.66,
+   "was": 57.54,
    "img": "assets/nfl/nfl-bright-white-tactical-vest.png",
    "stock": 3,
    "creator": "Foxtrot Arms",
@@ -3213,6 +3515,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 54.45,
+   "was": 57.32,
    "img": "assets/nfl/nfl-penguin-dance.png",
    "stock": 1,
    "creator": "CloudburstOwner"
@@ -3225,6 +3528,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 51.72,
+   "was": 54.44,
    "img": "assets/nfl/nfl-forest-vest.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -3238,6 +3542,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 49.6,
+   "was": 52.21,
    "img": "assets/nfl/nfl-black-gas-mask.png",
    "stock": 1,
    "creator": "JohnDrinkin",
@@ -3251,6 +3556,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 48.43,
+   "was": 50.98,
    "img": "assets/nfl/nfl-f4-low-top-twisted-reality.png",
    "stock": 2,
    "creator": "FINLEY4K"
@@ -3263,6 +3569,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 45.42,
+   "was": 47.81,
    "img": "assets/nfl/nfl-goodnight.png",
    "stock": 2,
    "creator": "Steven_Spectacle",
@@ -3276,6 +3583,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 44.27,
+   "was": 46.6,
    "img": "assets/nfl/nfl-get-dunked-on.png",
    "stock": 1,
    "creator": "Roblox",
@@ -3289,6 +3597,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 27.3,
+   "was": 28.74,
    "img": "assets/nfl/nfl-sunshine.png",
    "stock": 1,
    "creator": "est510"
@@ -3301,6 +3610,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 26.2,
+   "was": 27.58,
    "img": "assets/nfl/nfl-dark-thunderbolt.png",
    "stock": 1,
    "creator": "itsjtech"
@@ -3313,6 +3623,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 26.12,
+   "was": 27.5,
    "img": "assets/nfl/nfl-laughing-gas.png",
    "stock": 1,
    "creator": "khankord"
@@ -3325,6 +3636,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 25.82,
+   "was": 27.18,
    "img": "assets/nfl/nfl-squabble.png",
    "stock": 2,
    "creator": "Steven_Spectacle",
@@ -3338,6 +3650,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 25.78,
+   "was": 27.14,
    "img": "assets/nfl/nfl-over-the-moon.png",
    "stock": 2,
    "creator": "KonnoSensei",
@@ -3351,6 +3664,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 25.65,
+   "was": 27,
    "img": "assets/nfl/nfl-smeeze.png",
    "stock": 1,
    "creator": "Steven_Spectacle",
@@ -3364,6 +3678,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 25.33,
+   "was": 26.66,
    "img": "assets/nfl/nfl-green-laser.png",
    "stock": 2,
    "creator": "est510"
@@ -3376,6 +3691,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 24.73,
+   "was": 26.03,
    "img": "assets/nfl/nfl-yellow-cute-y2k-zip-up-hoodie.png",
    "stock": 1,
    "creator": "SHOP ROCKSTAR",
@@ -3389,6 +3705,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 22.92,
+   "was": 24.13,
    "img": "assets/nfl/nfl-string-swing.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -3402,6 +3719,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 22.81,
+   "was": 24.01,
    "img": "assets/nfl/nfl-infinite-vapor-tee-lite.png",
    "stock": 1,
    "creator": "Cloudburst Interactive"
@@ -3414,6 +3732,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 21.5,
+   "was": 22.63,
    "img": "assets/nfl/nfl-white-goggles.png",
    "stock": 2,
    "creator": "Builder_Boy"
@@ -3426,6 +3745,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 21.05,
+   "was": 22.16,
    "img": "assets/nfl/nfl-punt-the-head.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -3439,6 +3759,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 20.67,
+   "was": 21.76,
    "img": "assets/nfl/nfl-pogo-stick.png",
    "stock": 1,
    "creator": "CloudburstOwner"
@@ -3451,6 +3772,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 20.54,
+   "was": 21.62,
    "img": "assets/nfl/nfl-snowboarder.png",
    "stock": 4,
    "creator": "itsjtech",
@@ -3464,6 +3786,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 20.18,
+   "was": 21.24,
    "img": "assets/nfl/nfl-white-messy-hair.png",
    "stock": 1,
    "creator": "Monkeybit29",
@@ -3477,6 +3800,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 19.92,
+   "was": 20.97,
    "img": "assets/nfl/nfl-well-worn-shirt.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -3490,6 +3814,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 19.9,
+   "was": 20.95,
    "img": "assets/nfl/nfl-zeus-mystic-thunderbolt.png",
    "stock": 8,
    "creator": "Efren_Freeze",
@@ -3503,6 +3828,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 19.65,
+   "was": 20.68,
    "img": "assets/nfl/nfl-zeus-rainbow-thunderbolt.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -3516,6 +3842,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 19.54,
+   "was": 20.57,
    "img": "assets/nfl/nfl-happier-jump.png",
    "stock": 2,
    "creator": "Roblox",
@@ -3529,6 +3856,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 19.51,
+   "was": 20.54,
    "img": "assets/nfl/nfl-celestial-crown.png",
    "stock": 1,
    "creator": "Crysthal_3D",
@@ -3542,6 +3870,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 19.64,
+   "was": 20.67,
    "img": "assets/nfl/nfl-uncovered-white-goggles.png",
    "stock": 1,
    "creator": "Builder_Boy",
@@ -3555,6 +3884,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 19.29,
+   "was": 20.3,
    "img": "assets/nfl/nfl-frozen-zeus-thunderbolt.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -3568,6 +3898,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 19.14,
+   "was": 20.15,
    "img": "assets/nfl/nfl-just-wanna-rock.png",
    "stock": 2,
    "creator": "Steven_Spectacle",
@@ -3581,6 +3912,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 19.29,
+   "was": 20.3,
    "img": "assets/nfl/nfl-green-galactic-thunderbolt.png",
    "stock": 4,
    "creator": "itsjtech",
@@ -3594,6 +3926,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 18.57,
+   "was": 19.55,
    "img": "assets/nfl/nfl-black-track-suit-shirt.png",
    "stock": 1,
    "creator": "Roblox",
@@ -3607,6 +3940,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 18.56,
+   "was": 19.54,
    "img": "assets/nfl/nfl-see-these-hips.png",
    "stock": 1,
    "creator": "Steven_Spectacle",
@@ -3620,6 +3954,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 18.54,
+   "was": 19.52,
    "img": "assets/nfl/nfl-stolen-demon-thunderbolt.png",
    "stock": 2,
    "creator": "Efren_Freeze",
@@ -3633,6 +3968,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 17.69,
+   "was": 18.62,
    "img": "assets/nfl/nfl-boom-box.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -3646,6 +3982,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 17.82,
+   "was": 18.76,
    "img": "assets/nfl/nfl-black-scene-hair.png",
    "stock": 1,
    "creator": "x6 studios FACES",
@@ -3659,6 +3996,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 17.61,
+   "was": 18.54,
    "img": "assets/nfl/nfl-entity-3-s-pitchd-black.png",
    "stock": 1,
    "creator": "BaggedEntity",
@@ -3672,6 +4010,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 17.41,
+   "was": 18.33,
    "img": "assets/nfl/nfl-mystic-crown.png",
    "stock": 2,
    "creator": "itsjtech",
@@ -3685,6 +4024,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 17.51,
+   "was": 18.43,
    "img": "assets/nfl/nfl-back-flips.png",
    "stock": 2,
    "creator": "CloudburstOwner",
@@ -3698,6 +4038,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 17.33,
+   "was": 18.24,
    "img": "assets/nfl/nfl-white-track-suit-top.png",
    "stock": 2,
    "creator": "Roblox",
@@ -3711,6 +4052,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 17.16,
+   "was": 18.06,
    "img": "assets/nfl/nfl-green-alien.png",
    "stock": 1,
    "creator": "Urbanize",
@@ -3724,6 +4066,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 16.95,
+   "was": 17.84,
    "img": "assets/nfl/nfl-villain-clockworks.png",
    "stock": 1,
    "creator": "laurengif",
@@ -3737,6 +4080,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 17.09,
+   "was": 17.99,
    "img": "assets/nfl/nfl-red-goggles.png",
    "stock": 1,
    "creator": "Builder_Boy",
@@ -3750,6 +4094,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 16.83,
+   "was": 17.72,
    "img": "assets/nfl/nfl-emerald-valkyrie.png",
    "stock": 3,
    "creator": "Roblox",
@@ -3763,6 +4108,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 16.91,
+   "was": 17.8,
    "img": "assets/nfl/nfl-premium-vest.png",
    "stock": 2,
    "creator": "JohnDrinkin",
@@ -3776,6 +4122,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 16.09,
+   "was": 16.94,
    "img": "assets/nfl/nfl-icy-blue-viking-helm.png",
    "stock": 1,
    "creator": "Roblox",
@@ -3789,6 +4136,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 16.52,
+   "was": 17.39,
    "img": "assets/nfl/nfl-dark-angel-halo.png",
    "stock": 1,
    "creator": "Crysthal_3D",
@@ -3802,6 +4150,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 16.02,
+   "was": 16.86,
    "img": "assets/nfl/nfl-ray-lewis.png",
    "stock": 3,
    "creator": "CloudburstOwner",
@@ -3815,6 +4164,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 16.47,
+   "was": 17.34,
    "img": "assets/nfl/nfl-basket-trick.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -3828,6 +4178,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 16.05,
+   "was": 16.9,
    "img": "assets/nfl/nfl-white-track-suit-bottoms.png",
    "stock": 2,
    "creator": "Roblox",
@@ -3841,6 +4192,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 16.01,
+   "was": 16.85,
    "img": "assets/nfl/nfl-last-forever.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -3854,6 +4206,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 16.25,
+   "was": 17.11,
    "img": "assets/nfl/nfl-magestic-unicorn-mask.png",
    "stock": 1,
    "creator": "Roblox",
@@ -3867,6 +4220,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 16.16,
+   "was": 17.01,
    "img": "assets/nfl/nfl-stuffed.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -3880,6 +4234,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 15.69,
+   "was": 16.52,
    "img": "assets/nfl/nfl-bed-hair.png",
    "stock": 1,
    "creator": "Roblox",
@@ -3893,6 +4248,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 15.84,
+   "was": 16.67,
    "img": "assets/nfl/nfl-cosmos.png",
    "stock": 1,
    "creator": "Khankord",
@@ -3906,6 +4262,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 15.71,
+   "was": 16.54,
    "img": "assets/nfl/nfl-black-track-suit-pants.png",
    "stock": 1,
    "creator": "Roblox",
@@ -3919,6 +4276,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 15.77,
+   "was": 16.6,
    "img": "assets/nfl/nfl-golden-valkyrie.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -3932,6 +4290,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 15.27,
+   "was": 16.07,
    "img": "assets/nfl/nfl-colored-memphis-dreads.png",
    "stock": 1,
    "creator": "Zartania",
@@ -3945,6 +4304,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 15.71,
+   "was": 16.54,
    "img": "assets/nfl/nfl-revolta-white-clockworks.png",
    "stock": 1,
    "creator": "TheBrun",
@@ -3958,6 +4318,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 14.87,
+   "was": 15.65,
    "img": "assets/nfl/nfl-banana-bodysuit.png",
    "stock": 1,
    "creator": "browlek",
@@ -3971,6 +4332,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 15.17,
+   "was": 15.97,
    "img": "assets/nfl/nfl-toddler-valkyrie.png",
    "stock": 1,
    "creator": "Crysthal_3D",
@@ -3984,6 +4346,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 15.15,
+   "was": 15.95,
    "img": "assets/nfl/nfl-summer-floatie.png",
    "stock": 2,
    "creator": "CloudburstOwner",
@@ -3997,6 +4360,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 15.68,
+   "was": 16.51,
    "img": "assets/nfl/nfl-sad-eyes-skateboard.png",
    "stock": 1,
    "creator": "Injanity",
@@ -4010,6 +4374,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 15.15,
+   "was": 15.95,
    "img": "assets/nfl/nfl-blue-alien.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4023,6 +4388,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 14.95,
+   "was": 15.74,
    "img": "assets/nfl/nfl-alien-top.png",
    "stock": 1,
    "creator": "BaggedEntity",
@@ -4036,6 +4402,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 14.22,
+   "was": 14.97,
    "img": "assets/nfl/nfl-purple-octopus-alien-head.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4049,6 +4416,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 15.37,
+   "was": 16.18,
    "img": "assets/nfl/nfl-blonde-messy-hair.png",
    "stock": 1,
    "creator": "Monkeybit29",
@@ -4062,6 +4430,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 14.76,
+   "was": 15.54,
    "img": "assets/nfl/nfl-clockwork-s-villian-shades.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4075,6 +4444,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 14.04,
+   "was": 14.78,
    "img": "assets/nfl/nfl-blue-alien-top.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4088,6 +4458,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 14.49,
+   "was": 15.25,
    "img": "assets/nfl/nfl-laughing-gas-graffiti-trail.png",
    "stock": 1,
    "creator": "KonnoSensei",
@@ -4101,6 +4472,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 14.21,
+   "was": 14.96,
    "img": "assets/nfl/nfl-clover-special-diamond-chain.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4114,6 +4486,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 14.32,
+   "was": 15.07,
    "img": "assets/nfl/nfl-alien-bottoms.png",
    "stock": 1,
    "creator": "BaggedEntity",
@@ -4127,6 +4500,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 13.75,
+   "was": 14.47,
    "img": "assets/nfl/nfl-purple-octopus-alien-top.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4140,6 +4514,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 13.82,
+   "was": 14.55,
    "img": "assets/nfl/nfl-crab-floatie.png",
    "stock": 1,
    "creator": "Crysthal_3D",
@@ -4153,6 +4528,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 13.66,
+   "was": 14.38,
    "img": "assets/nfl/nfl-the-boss-custom-hat.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4166,6 +4542,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 13.65,
+   "was": 14.37,
    "img": "assets/nfl/nfl-team-dance-goopie.png",
    "stock": 1,
    "creator": "itsjtech",
@@ -4179,6 +4556,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 13.6,
+   "was": 14.32,
    "img": "assets/nfl/nfl-night-lights-trail.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4192,6 +4570,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 13.6,
+   "was": 14.32,
    "img": "assets/nfl/nfl-outlaw-hat.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4205,6 +4584,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 13.42,
+   "was": 14.13,
    "img": "assets/nfl/nfl-snowman-bottoms.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4218,6 +4598,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 13.36,
+   "was": 14.06,
    "img": "assets/nfl/nfl-funfetti-swirl-trail.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4231,6 +4612,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 13.01,
+   "was": 13.69,
    "img": "assets/nfl/nfl-blue-blackhole.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4244,6 +4626,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 12.48,
+   "was": 13.14,
    "img": "assets/nfl/nfl-brown-scene-hair.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4257,6 +4640,7 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 12.8,
+   "was": 13.47,
    "img": "assets/nfl/nfl-triple-6-sakuras.png",
    "stock": 1,
    "creator": "wowtrid",
@@ -4270,6 +4654,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 12.82,
+   "was": 13.49,
    "img": "assets/nfl/nfl-snowflake-staff.png",
    "stock": 1,
    "creator": "TheBrunasty",
@@ -4283,6 +4668,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 12.43,
+   "was": 13.08,
    "img": "assets/nfl/nfl-down-breaker.png",
    "stock": 1,
    "creator": "CloudburstOwner",
@@ -4296,6 +4682,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 12.53,
+   "was": 13.19,
    "img": "assets/nfl/nfl-chief-dreads.png",
    "stock": 1,
    "creator": "HYPSAL",
@@ -4309,6 +4696,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 12.18,
+   "was": 12.82,
    "img": "assets/nfl/nfl-confidence.png",
    "stock": 1,
    "creator": "itsjtech",
@@ -4322,6 +4710,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 12.14,
+   "was": 12.78,
    "img": "assets/nfl/nfl-golden-pug-pants.png",
    "stock": 1,
    "creator": "TheBrun",
@@ -4335,6 +4724,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.99,
+   "was": 12.62,
    "img": "assets/nfl/nfl-golden-pug-shirt.png",
    "stock": 1,
    "creator": "TheBrun",
@@ -4348,6 +4738,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.89,
+   "was": 12.52,
    "img": "assets/nfl/nfl-dark-angel-cleats.png",
    "stock": 1,
    "creator": "laurengif",
@@ -4361,6 +4752,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.87,
+   "was": 12.49,
    "img": "assets/nfl/nfl-front-stand.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4374,6 +4766,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 11.83,
+   "was": 12.45,
    "img": "assets/nfl/nfl-galactic-commander-blue-pants.png",
    "stock": 1,
    "creator": "Lugarciacas",
@@ -4387,6 +4780,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 11.8,
+   "was": 12.42,
    "img": "assets/nfl/nfl-black-memphis-dreads.png",
    "stock": 2,
    "creator": "Zartania",
@@ -4400,6 +4794,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.15,
+   "was": 11.74,
    "img": "assets/nfl/nfl-northern-lights-trail.png",
    "stock": 1,
    "creator": "FlavioKonno",
@@ -4413,6 +4808,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.68,
+   "was": 12.29,
    "img": "assets/nfl/nfl-ice-football.png",
    "stock": 1,
    "creator": "BaggedEntity",
@@ -4426,6 +4822,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.43,
+   "was": 12.03,
    "img": "assets/nfl/nfl-snowman-top.png",
    "stock": 1,
    "creator": "Efren_Freeze",
@@ -4439,6 +4836,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 11.38,
+   "was": 11.98,
    "img": "assets/nfl/nfl-gold-brown-sunglasses.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4452,6 +4850,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 11.34,
+   "was": 11.94,
    "img": "assets/nfl/nfl-dark-angel-hair.png",
    "stock": 1,
    "creator": "Crysthal_3D",
@@ -4465,6 +4864,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 11.23,
+   "was": 11.82,
    "img": "assets/nfl/nfl-meta-visor-nightwing-green.png",
    "stock": 1,
    "creator": "Meta Visor",
@@ -4478,6 +4878,7 @@ const CATALOG = [
    "rarity": "Silver",
    "variant": "base",
    "price": 11.3,
+   "was": 11.9,
    "img": "assets/nfl/nfl-1st-down-clear-out.png",
    "stock": 1,
    "creator": "CloudburstOwner"
@@ -4490,6 +4891,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 10.96,
+   "was": 11.54,
    "img": "assets/nfl/nfl-you-are-boring.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4503,6 +4905,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 10.96,
+   "was": 11.54,
    "img": "assets/nfl/nfl-poop-emoji-hat.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4516,6 +4919,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 10.7,
+   "was": 11.26,
    "img": "assets/nfl/nfl-little-alien-shoulder.png",
    "stock": 1,
    "creator": "camitrujillogg",
@@ -4529,6 +4933,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 10.49,
+   "was": 11.04,
    "img": "assets/nfl/nfl-inflatable-shark-head.png",
    "stock": 5,
    "creator": "Crysthal_3D",
@@ -4542,6 +4947,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 10.46,
+   "was": 11.01,
    "img": "assets/nfl/nfl-nerd-teef-mouthpiece.png",
    "stock": 1,
    "creator": "laurengif",
@@ -4555,6 +4961,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 10.38,
+   "was": 10.93,
    "img": "assets/nfl/nfl-granny-hair.png",
    "stock": 1,
    "creator": "Roblox",
@@ -4568,6 +4975,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 10.3,
+   "was": 10.84,
    "img": "assets/nfl/nfl-take-the-l-emoji.png",
    "stock": 1,
    "creator": "itsjtech",
@@ -4581,6 +4989,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 9.21,
+   "was": 9.69,
    "img": "assets/nfl/nfl-camo-ski-mask.png",
    "stock": 1,
    "creator": "WhoseTrade",
@@ -4594,6 +5003,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 9.03,
+   "was": 9.5,
    "img": "assets/nfl/nfl-tan-puffer-vest.png",
    "stock": 1,
    "creator": "Valkenheim UGC",
@@ -4607,6 +5017,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 9.48,
+   "was": 9.98,
    "img": "assets/nfl/nfl-red-puffer-vest.png",
    "stock": 1,
    "creator": "Valkenheim UGC",
@@ -4620,6 +5031,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 9.17,
+   "was": 9.65,
    "img": "assets/nfl/nfl-waves-string-bucket-hat.png",
    "stock": 6,
    "creator": "camitrujillogg",
@@ -4633,6 +5045,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 8.8,
+   "was": 9.26,
    "img": "assets/nfl/nfl-vivid-nebula-backpack.png",
    "stock": 1,
    "creator": "XeniusPrime"
@@ -4645,6 +5058,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 8.7,
+   "was": 9.16,
    "img": "assets/nfl/nfl-meta-mouthpiece-pink-carbon-fiber.png",
    "stock": 1,
    "creator": "est510"
@@ -4657,6 +5071,7 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 8.65,
+   "was": 9.11,
    "img": "assets/nfl/nfl-inflatable-shark-body.png",
    "stock": 1,
    "creator": "Crysthal_3D",
@@ -4670,6 +5085,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 8.5,
+   "was": 8.95,
    "img": "assets/nfl/nfl-yellow-style-ski-shades.png",
    "stock": 3,
    "creator": "Lugarciacas",
@@ -4683,6 +5099,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 7.99,
+   "was": 8.41,
    "img": "assets/nfl/nfl-entity-evo-1-gold-digital-camo.png",
    "stock": 1,
    "creator": "BaggedEntity"
@@ -4695,6 +5112,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 7.47,
+   "was": 7.86,
    "img": "assets/nfl/nfl-super-shades.png",
    "stock": 1,
    "creator": "Builder_Boy"
@@ -4707,6 +5125,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 7.46,
+   "was": 7.85,
    "img": "assets/nfl/nfl-entity-entispoonz-lavender.png",
    "stock": 1,
    "creator": "BaggedEntity",
@@ -4720,6 +5139,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 7.58,
+   "was": 7.98,
    "img": "assets/nfl/nfl-meta-football-white-n-gold.png",
    "stock": 1,
    "creator": "est510",
@@ -4733,6 +5153,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 7.39,
+   "was": 7.78,
    "img": "assets/nfl/nfl-iced-out-plug-chain.png",
    "stock": 1,
    "creator": "KILLA.",
@@ -4746,6 +5167,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 7.34,
+   "was": 7.73,
    "img": "assets/nfl/nfl-dad-hero-brown-beard.png",
    "stock": 12,
    "creator": "Efren_Freeze",
@@ -4759,6 +5181,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 7.29,
+   "was": 7.67,
    "img": "assets/nfl/nfl-entity-green-glowing-skull-gloves.png",
    "stock": 1,
    "creator": "BaggedEntity"
@@ -4771,6 +5194,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 7.23,
+   "was": 7.61,
    "img": "assets/nfl/nfl-spiky-face-paint.png",
    "stock": 1,
    "creator": "WhoseTrade"
@@ -4783,6 +5207,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 7.2,
+   "was": 7.58,
    "img": "assets/nfl/nfl-beware-of-dog-backplate-v2.png",
    "stock": 9,
    "creator": "laurengif",
@@ -4796,6 +5221,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 7.08,
+   "was": 7.45,
    "img": "assets/nfl/nfl-meta-football-longview-blue.png",
    "stock": 1,
    "creator": "est510"
@@ -4808,6 +5234,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 6.94,
+   "was": 7.31,
    "img": "assets/nfl/nfl-spiral-silver-chain.png",
    "stock": 1,
    "creator": "Builder_Boy"
@@ -4820,6 +5247,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 6.78,
+   "was": 7.14,
    "img": "assets/nfl/nfl-tropicool-soda-belt.png",
    "stock": 12,
    "creator": "Efren_Freeze",
@@ -4833,6 +5261,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 6.71,
+   "was": 7.06,
    "img": "assets/nfl/nfl-tropical-splatter-blue-shirt.png",
    "stock": 6,
    "creator": "Lugarciacas",
@@ -4846,6 +5275,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 6.52,
+   "was": 6.86,
    "img": "assets/nfl/nfl-vaporwave-cyber-trail.png",
    "stock": 16,
    "creator": "KonnoSensei",
@@ -4859,6 +5289,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 6.5,
+   "was": 6.84,
    "img": "assets/nfl/nfl-blue-viper.png",
    "stock": 1,
    "creator": "WhoseTrade",
@@ -4872,6 +5303,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 6.29,
+   "was": 6.62,
    "img": "assets/nfl/nfl-blue-diamond-earrings.png",
    "stock": 1,
    "creator": "Builder_Boy"
@@ -4884,6 +5316,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 6.25,
+   "was": 6.58,
    "img": "assets/nfl/nfl-sunburnt-skin-shirt.png",
    "stock": 5,
    "creator": "Lugarciacas",
@@ -4897,6 +5330,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 6.07,
+   "was": 6.39,
    "img": "assets/nfl/nfl-delicacies-mid-cut-bamboo-stripe.png",
    "stock": 1,
    "creator": "ironkinkajou"
@@ -4909,6 +5343,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 6.0,
+   "was": 6.32,
    "img": "assets/nfl/nfl-meta-mouthpiece-green-dented.png",
    "stock": 1,
    "creator": "est510"
@@ -4921,6 +5356,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 5.76,
+   "was": 6.06,
    "img": "assets/nfl/nfl-team-dance-bollywood.png",
    "stock": 1,
    "creator": "KonnoSensei"
@@ -4933,6 +5369,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 5.31,
+   "was": 5.59,
    "img": "assets/nfl/nfl-blond-dreads.png",
    "stock": 18,
    "creator": "Camitrujillogg",
@@ -4946,6 +5383,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 5.23,
+   "was": 5.51,
    "img": "assets/nfl/nfl-flower-lei.png",
    "stock": 20,
    "creator": "camitrujillogg",
@@ -4959,6 +5397,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 5.16,
+   "was": 5.43,
    "img": "assets/nfl/nfl-w-brown-cap.png",
    "stock": 1,
    "creator": "WhoseTrade"
@@ -4971,6 +5410,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 4.84,
+   "was": 5.1,
    "img": "assets/nfl/nfl-leg-band-white.png",
    "stock": 1,
    "creator": "wowtrid",
@@ -4984,6 +5424,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 4.81,
+   "was": 5.06,
    "img": "assets/nfl/nfl-vaporwave-visor.png",
    "stock": 6,
    "creator": "laurengif",
@@ -4997,6 +5438,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 4.0,
+   "was": 4.21,
    "img": "assets/nfl/nfl-vaporwave-summer-backplate.png",
    "stock": 8,
    "creator": "laurengif",
@@ -5010,6 +5452,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-meta-mouthpiece-black-carbon-fiber.png",
    "stock": 1,
    "creator": "est510"
@@ -5022,6 +5465,7 @@ const CATALOG = [
    "rarity": "Ruby",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-ocean-waters-visor.png",
    "stock": 5,
    "creator": "laurengif",
@@ -5035,6 +5479,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-leg-band-teal.png",
    "stock": 1,
    "creator": "wowtrid"
@@ -5047,6 +5492,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-thick-uf-glasses.png",
    "stock": 2,
    "creator": "Lugarciacas",
@@ -5060,6 +5506,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-leg-band-smoky-grey.png",
    "stock": 1,
    "creator": "wowtrid"
@@ -5072,6 +5519,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-golden-gothic-necklace.png",
    "stock": 1,
    "creator": "Builder_Boy"
@@ -5084,6 +5532,7 @@ const CATALOG = [
    "rarity": "Silver",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-f4-cleat-mummy.png",
    "stock": 1,
    "creator": "FINLEY4K",
@@ -5097,6 +5546,7 @@ const CATALOG = [
    "rarity": "Gold",
    "variant": "base",
    "price": 3.8,
+   "was": 4,
    "img": "assets/nfl/nfl-entity-speeddemons-ruby-red.png",
    "stock": 1,
    "creator": "BaggedEntity"
@@ -5157,6 +5607,7 @@ const CATALOG = [
    "rarity": "Legend",
    "variant": "base",
    "price": 30,
+   "was": 32,
    "img": "assets/baddies/bd-loveboard.png",
    "stock": 6,
    "badge": ""
