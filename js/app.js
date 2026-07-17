@@ -895,6 +895,47 @@ function maybeRingTurn(silent) {
 }
 maybeRingTurn(true);   // seed current queue positions without chiming
 
+/* ---------- account delivery: the login shows up the moment Stripe confirms ----------
+   The credentials never ship in this bundle — the server hands them over only
+   for a session it has checked with Stripe, and only once. If a pool has run
+   dry the server says so and we leave the buyer with the chat instead. */
+function acctDeliverHTML(d) {
+  const rows = (d.accounts || []).map((a, n) => `
+    <div class="ad-row">
+      <span class="ad-name">${esc(a.name)}</span>
+      <div class="ad-field"><span class="ad-k">Username</span><b class="ad-v" data-copy="${esc(a.u)}">${esc(a.u)}</b></div>
+      <div class="ad-field"><span class="ad-k">Password</span><b class="ad-v" data-copy="${esc(a.p)}">${esc(a.p)}</b></div>
+    </div>`).join("");
+  const waiting = (d.queued || []).length
+    ? `<p class="ad-queued">${(d.queued || []).length} of your accounts ${(d.queued || []).length === 1 ? "is" : "are"} being prepared by hand — we'll send ${(d.queued || []).length === 1 ? "it" : "them"} in the live chat shortly.</p>`
+    : "";
+  return `
+    <div class="ad-box">
+      <p class="ad-head"><span class="ad-dot" aria-hidden="true"></span>Your account${(d.accounts || []).length === 1 ? "" : "s"} — ready now</p>
+      ${rows}
+      <p class="ad-fine">Log in and change the password straight away so it's yours alone. Tap a value to copy it.</p>
+      ${waiting}
+    </div>`;
+}
+async function deliverAccounts(sid, tries = 0) {
+  const mount = $("#acctDeliver");
+  if (!mount || !sid) return;
+  try {
+    const r = await fetch(`/api/account?session_id=${encodeURIComponent(sid)}`);
+    if (!r.ok) return;                                   // not paid / not connected -> chat fallback
+    const d = await r.json();
+    if (d.pending && tries < 8) return void setTimeout(() => deliverAccounts(sid, tries + 1), 1200);
+    if (!d.accounts || !d.accounts.length) return;       // pool dry -> the chat handles it
+    mount.innerHTML = acctDeliverHTML(d);
+    $$(".ad-v", mount).forEach(el => el.addEventListener("click", () => {
+      navigator.clipboard?.writeText(el.dataset.copy);
+      el.classList.add("is-copied");
+      setTimeout(() => el.classList.remove("is-copied"), 900);
+    }));
+    ringBell();                                          // their account just landed
+  } catch { /* offline — the chat is still there */ }
+}
+
 function queueHTML(order, orders) {
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
   const vipGames = games.filter(g => VIP_LINKS[g]);
@@ -928,17 +969,18 @@ function queueHTML(order, orders) {
       </div>`;
   }
 
-  /* account-only orders: no queue, no wait — just the live chat, one click away */
+  /* account-only orders: no queue. The login drops into #acctDeliver as soon as
+     the server hands it over; if the pool is empty it falls back to the chat. */
   if (accountsOnly) {
     return `
       <div class="q-slim">
         <div class="q-order">
           <span class="qo-label">Your order number</span>
           <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-plain">No queue</span>
-          <p class="qo-wait">Delivered to you in the live chat.</p>
+          <p class="qo-wait">Your login is on its way.</p>
         </div>
+        <div class="acct-deliver" id="acctDeliver"></div>
         ${chatFold("Open live chat")}
-        <p class="qo-fine">The owner sends the account email and password in the chat as soon as they're online.</p>
       </div>`;
   }
 
@@ -965,6 +1007,7 @@ function queueHTML(order, orders) {
         <b class="qo-code">${esc(order.no)}</b><span class="qo-pos">${q.ahead === 0 ? "You're next" : q.ahead + " ahead of you"}</span>
         <p class="qo-wait">Estimated wait: ${waitTxt}</p>
       </div>
+      ${hasAccounts ? `<div class="acct-deliver" id="acctDeliver"></div>` : ""}
       <div class="coq-links">${vipTiles}</div>
       <details class="coq-fold">
         <summary><span class="fold-ic">${IC.bell}</span><span class="fold-tx">When it's your turn</span><span class="fold-chev">${IC.chev}</span></summary>
@@ -1154,14 +1197,15 @@ function stepDone(username) {
 
 /* Shown when Stripe sends the buyer back after a real payment. `d` comes from
    /api/order, which asks Stripe directly — so this can't be faked from the URL. */
-function showPaidOrder(d) {
+function showPaidOrder(d, sid) {
   const orders = load("rbx-orders", []);
   if (!orders.some(o => o.no === d.orderNo)) {
     orders.push({ no: d.orderNo, when: new Date().toISOString(), user: d.user,
-      total: d.total, items: d.items, paid: true });
+      total: d.total, items: d.items, paid: true, sid: sid || null });
     save("rbx-orders", orders);
   }
   const order = orders.find(o => o.no === d.orderNo);
+  if (sid && !order.sid) { order.sid = sid; save("rbx-orders", orders); }   // so "My order" can re-fetch
   const es = (d.items || []).map(x => [x.id, x.q]);
   const games = [...new Set(es.map(([id]) => byId[id]?.game).filter(Boolean))];
   const acctOnly = games.length > 0 && games.every(g => g === "accounts");
@@ -1180,6 +1224,7 @@ function showPaidOrder(d) {
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
   $("#coDone").addEventListener("click", closeCheckout);
   bindQueueChat(coBody);
+  deliverAccounts(order.sid);          // hands over the login if this order has one
 
   state.cart = {};
   save("rbx-cart", state.cart);
@@ -1205,7 +1250,7 @@ function showPaidOrder(d) {
     .then(d => {
       clean();
       localStorage.removeItem("rbx-pending");        // handled — nothing to recover
-      if (d && d.paid) showPaidOrder(d);
+      if (d && d.paid) showPaidOrder(d, paid);
       else coBody.innerHTML = `<h2 class="co-title">Payment wasn't completed</h2>
         <p class="co-note">Nothing was charged. If you think this is wrong, open the live chat and we'll check it.</p>`;
     })
@@ -1239,7 +1284,7 @@ async function resumePending() {
     const d = await r.json().catch(() => null);
     if (d && d.paid) {
       localStorage.removeItem("rbx-pending");
-      showPaidOrder(d);                                 // drops them straight on the queue
+      showPaidOrder(d, pend.id);                        // drops them straight on the queue
     }
   } catch { /* offline — try again next time they come back */ }
   finally { resuming = false; }
@@ -1288,6 +1333,7 @@ function openMyOrder(selectedNo, openChat) {
   $$("#checkoutBody .order-row-support").forEach(b =>
     b.addEventListener("click", () => openMyOrder(b.dataset.supportNo, true)));
   bindQueueChat(coBody);
+  deliverAccounts(sel.sid);            // re-shows the login on a past account order
 
   if (openChat) {
     const fold = $("#checkoutBody .coq-chatfold");
@@ -1467,6 +1513,69 @@ function setOrderDone(no, done) {
   }).catch(() => {});
 }
 
+/* ---------- owner: load the account pools ----------
+   Credentials go straight from this box to the store and are never written to
+   the repo or the client bundle. Paste is "username -- password" per line. */
+function acctPoolRowHTML() {
+  return `
+    <button class="own-row" data-own="__accounts">
+      <span class="own-av own-av-web">${IC.user}</span>
+      <span class="own-main"><b>Account stock</b><i>Load logins &middot; auto-delivered on purchase</i></span>
+      <span class="own-go">${IC.chev}</span>
+    </button>`;
+}
+async function renderAcctPools() {
+  ownerView = "chat";                                  // pause the list auto-refresh
+  const SKUS = CATALOG.filter(i => i.game === "accounts");
+  ownerBody.innerHTML = `
+    <button class="own-back" id="ownBack">${IC.chev}<span>All chats</span></button>
+    <h2 class="co-title">Account stock</h2>
+    <p class="co-note">Buyers get one of these instantly when they pay. When a pool hits 0
+    that item goes back to the queue and you deliver it in the chat. Logins are stored on the
+    server only — never in the website's code.</p>
+    <div id="poolCounts" class="pool-counts">Loading…</div>
+    <label class="co-field" style="display:block;margin-top:14px">
+      <span class="ad-k">Add logins</span>
+      <select id="poolSku" class="pool-sku">${SKUS.map(i => `<option value="${esc(i.id)}">${esc(i.name)}</option>`).join("")}</select>
+    </label>
+    <textarea id="poolPaste" class="pool-paste" rows="5" placeholder="One per line:&#10;username -- password&#10;username -- password"></textarea>
+    <button class="primary-btn" id="poolSave">Add to pool</button>
+    <p class="pay-err" id="poolErr" hidden></p>`;
+  $("#ownBack").addEventListener("click", () => renderOwnerList());
+
+  const counts = async () => {
+    try {
+      const r = await fetch("/api/account?counts=1", { headers: { "x-owner-key": ownerKey() } });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Couldn't read the pools.");
+      $("#poolCounts").innerHTML = SKUS.map(i =>
+        `<div class="pool-row"><span>${esc(i.name)}</span><b class="${(d.counts[i.id] || 0) ? "" : "pool-zero"}">${d.counts[i.id] || 0} left</b></div>`).join("");
+    } catch (e) { $("#poolCounts").textContent = e.message; }
+  };
+  counts();
+
+  $("#poolSave").addEventListener("click", async () => {
+    const err = $("#poolErr"); err.hidden = true;
+    const id = $("#poolSku").value;
+    const rows = $("#poolPaste").value.split("\n").map(l => {
+      const m = l.split(/\s*--\s*|\s{2,}|\t/).map(x => x.trim()).filter(Boolean);
+      return m.length >= 2 ? { u: m[0], p: m[1] } : null;
+    }).filter(Boolean);
+    if (!rows.length) { err.textContent = "Use: username -- password, one per line."; err.hidden = false; return; }
+    try {
+      const r = await fetch("/api/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() },
+        body: JSON.stringify({ pools: { [id]: rows } }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Couldn't save.");
+      $("#poolPaste").value = "";
+      counts();
+    } catch (e) { err.textContent = e.message; err.hidden = false; }
+  });
+}
+
 function generalRowHTML() {
   const gUnread = unreadFor("general");
   const gCount = load("rbx-chat-general", []).length;
@@ -1530,6 +1639,8 @@ async function renderOwnerList(quiet) {
       `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"} from Stripe, newest first. Every buyer, any device.`}</p>
     ${err ? `<p class="pay-err">${esc(err)}</p>` : ""}
     <div class="own-list">
+      <p class="own-group">Stock <span>· auto-delivered logins</span></p>
+      ${acctPoolRowHTML()}
       <p class="own-group">Live chats <span>· questions only, not the queue</span></p>
       ${webRows || generalRowHTML()}
       ${ownerOrders.length ? `<p class="own-group">Paid orders <span>· these form the delivery queue</span></p>` : ""}
@@ -1557,6 +1668,7 @@ async function renderOwnerList(quiet) {
 }
 
 function renderOwnerChat(no) {
+  if (no === "__accounts") return renderAcctPools();   // stock panel, not a chat
   ownerView = "chat";                              // pause background list refreshes
   // "general" and any "web:<id>" thread are chat-only (no order attached)
   const isGeneral = no === "general" || String(no).indexOf("web:") === 0;

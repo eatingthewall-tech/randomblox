@@ -1605,6 +1605,32 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 
 /* owner console */
 .own-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+/* ---------- account delivery (buyer) ---------- */
+.ad-box { border: 1px solid rgb(52 199 123 / .34); background: rgb(52 199 123 / .07); border-radius: 14px; padding: 14px 15px; margin: 12px 0; }
+.ad-head { display: flex; align-items: center; gap: 8px; font: 700 .9rem var(--font); color: var(--ink); margin-bottom: 10px; }
+.ad-dot { width: 8px; height: 8px; border-radius: 999px; background: #34c77b; box-shadow: 0 0 0 4px rgb(52 199 123 / .18); }
+.ad-row { border-top: 1px solid rgb(0 0 0 / .07); padding-top: 10px; margin-top: 10px; }
+.ad-row:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+.ad-name { font: 600 .84rem var(--font); color: var(--ink-2); display: block; margin-bottom: 6px; }
+.ad-field { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.ad-k { font: 600 .72rem var(--font); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); min-width: 72px; }
+.ad-v { font: 700 .92rem/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); cursor: pointer;
+  background: rgb(0 0 0 / .05); border: 1px solid rgb(0 0 0 / .08); border-radius: 8px; padding: 5px 9px; word-break: break-all; transition: background .15s; }
+.ad-v:hover { background: rgb(0 0 0 / .09); }
+.ad-v.is-copied { background: rgb(52 199 123 / .22); border-color: rgb(52 199 123 / .5); }
+.ad-fine { font-size: .78rem; color: var(--ink-2); margin-top: 10px; }
+.ad-queued { font-size: .8rem; color: var(--ink-2); margin-top: 8px; }
+
+/* ---------- account stock (owner) ---------- */
+.pool-counts { display: flex; flex-direction: column; gap: 6px; }
+.pool-row { display: flex; justify-content: space-between; gap: 12px; font-size: .86rem; color: var(--ink-2);
+  border: 1px solid rgb(0 0 0 / .08); border-radius: 10px; padding: 8px 12px; }
+.pool-row b { color: var(--ink); }
+.pool-row b.pool-zero { color: #e5354f; }
+.pool-sku, .pool-paste { width: 100%; font: 500 .9rem var(--font); color: var(--ink);
+  background: rgb(0 0 0 / .03); border: 1px solid rgb(0 0 0 / .12); border-radius: 10px; padding: 9px 11px; margin-top: 6px; }
+.pool-paste { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 10px; resize: vertical; }
+
 .own-group { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--ink); margin: 14px 2px 2px; }
 .own-group:first-child { margin-top: 2px; }
 .own-group span { font-weight: 500; letter-spacing: .02em; text-transform: none; color: var(--ink-2); }
