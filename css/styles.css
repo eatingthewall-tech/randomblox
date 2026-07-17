@@ -210,6 +210,10 @@ button { font-family: inherit; }
 /* ---------- account panel ---------- */
 .auth-tabs { margin: 4px 0 20px; }
 .au-opt { color: var(--ink-3); font-weight: 400; }
+.google-wrap { display: flex; justify-content: center; margin: 2px 0 6px; min-height: 44px; color-scheme: light; }
+.google-wrap > div { max-width: 100%; }
+.auth-or { display: flex; align-items: center; gap: 12px; margin: 14px 0 18px; color: var(--ink-3); font-size: .8rem; }
+.auth-or::before, .auth-or::after { content: ""; height: 1px; flex: 1; background: var(--line); }
 .auth-note { margin: 14px 0 0; }
 .pf-head { display: flex; align-items: center; gap: 13px; margin-bottom: 8px; }
 .pf-av { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 999px;

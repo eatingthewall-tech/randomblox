@@ -1913,8 +1913,9 @@ document.addEventListener("keydown", e => {
    never handles a token. */
 const acctModal = $("#account"), acctBody = $("#accountBody");
 const profileBtn = $("#profileBtn"), profileIni = $("#profileIni");
-let ME = null;                     // {email, name, theme} when signed in
+let ME = null;                     // {email, name, theme, role} when signed in
 let AUTH_API = true;
+let GOOGLE_CID = null;             // set from the server if Google sign-in is configured
 
 async function authGet() {
   if (!AUTH_API) return null;
@@ -1923,8 +1924,43 @@ async function authGet() {
     if (r.status === 501 || r.status === 404) { AUTH_API = false; return null; }
     if (!r.ok) return null;
     const d = await r.json();
+    GOOGLE_CID = d.google || null;
     return d.user || null;
   } catch { return null; }
+}
+
+/* load Google Identity Services once, on demand */
+let _gisReady = null;
+function ensureGIS() {
+  if (_gisReady) return _gisReady;
+  _gisReady = new Promise((resolve, reject) => {
+    if (window.google && google.accounts && google.accounts.id) return resolve();
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.async = true; s.defer = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("Couldn't load Google."));
+    document.head.appendChild(s);
+  });
+  return _gisReady;
+}
+async function onGoogleCredential(resp) {
+  const err = $("#authErr");
+  try {
+    setMe(await authPost({ action: "google", credential: resp.credential }));
+    renderProfile();
+  } catch (ex) { if (err) { err.textContent = ex.message; err.hidden = false; } }
+}
+function mountGoogleButton() {
+  const holder = $("#googleBtn");
+  if (!holder || !GOOGLE_CID) return;
+  ensureGIS().then(() => {
+    google.accounts.id.initialize({ client_id: GOOGLE_CID, callback: onGoogleCredential });
+    google.accounts.id.renderButton(holder, {
+      theme: (document.documentElement.dataset.theme === "light") ? "outline" : "filled_black",
+      size: "large", shape: "pill", text: "continue_with", width: 320,
+    });
+  }).catch(() => { holder.hidden = true; });
 }
 async function authPost(payload) {
   const r = await fetch("/api/auth", {
@@ -1967,6 +2003,8 @@ function renderAuth(tab) {
       <button role="tab" data-atab="login" aria-selected="${tab !== "signup"}">Log in</button>
       <button role="tab" data-atab="signup" aria-selected="${tab === "signup"}">Sign up</button>
     </div>
+    ${GOOGLE_CID ? `<div class="google-wrap"><div id="googleBtn"></div></div>
+    <div class="auth-or"><span>or</span></div>` : ""}
     <form id="authForm" novalidate>
       ${tab === "signup" ? `<div class="co-field"><label for="au-name">Name <span class="au-opt">(optional)</span></label>
         <input id="au-name" name="name" autocomplete="nickname" maxlength="40"></div>` : ""}
@@ -1999,6 +2037,7 @@ function renderAuth(tab) {
       btn.disabled = false; btn.textContent = tab === "signup" ? "Create account" : "Log in";
     }
   });
+  mountGoogleButton();
   setTimeout(() => $("#au-email")?.focus(), 60);
 }
 
