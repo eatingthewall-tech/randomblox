@@ -7290,7 +7290,7 @@ const CATALOG = [
    "kind": "bundle",
    "rarity": "Grail Bag",
    "variant": "base",
-   "price": 7.49,
+   "price": 9.99,
    "img": "",
    "stock": 999,
    "badge": "",
