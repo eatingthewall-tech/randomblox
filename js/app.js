@@ -56,7 +56,9 @@ applyTheme(load("rbx-theme", "dark"));
    normal visitor. Belt and braces: /api/checkout also refuses them unless the
    request carries the owner key, so reading catalog.js isn't enough to buy one. */
 let IS_OWNER = false;
-const shopItems = () => IS_OWNER ? CATALOG : CATALOG.filter(i => !i.ownerOnly);
+/* bundles are pinned as their own top card per section, never listed among the
+   individual items, so they're filtered out of the grid/search/counts here */
+const shopItems = () => (IS_OWNER ? CATALOG : CATALOG.filter(i => !i.ownerOnly)).filter(i => !i.bundle);
 
 /* one-time reset: wipe every order / chat / read-marker so the queue starts
    empty and at #1 for everyone. Bump RESET_TAG to reset again later. */
@@ -110,11 +112,11 @@ function hasNewOwnerMsg(prevN, msgs) {
 /* ---------- featured shelf: priciest MM2/AM grails + one NFL + one Baddies ----------
    9 cards = one 2x2 grail + 8 singles, filling the 6-column bento exactly */
 function renderFeatured() {
-  const topOf = g => [...CATALOG].filter(i => i.game === g && i.img).sort((a, b) => b.price - a.price)[0];
+  const topOf = g => [...CATALOG].filter(i => i.game === g && i.img && !i.bundle).sort((a, b) => b.price - a.price)[0];
   const nflPick = topOf("nfl"), baddiesPick = topOf("baddies");
   // the 9 priciest MM2/Adopt Me grails, then drop the two cheapest Adopt Me picks
   // to make room for one NFL Universe and one Baddies headliner
-  const base = [...CATALOG].filter(i => (i.game === "mm2" || i.game === "am") && i.img)
+  const base = [...CATALOG].filter(i => (i.game === "mm2" || i.game === "am") && i.img && !i.bundle)
     .sort((a, b) => b.price - a.price).slice(0, 9);
   const drop = new Set(base.filter(i => i.game === "am").slice(-2));
   const top = [...base.filter(i => !drop.has(i)), nflPick, baddiesPick]
@@ -130,7 +132,7 @@ renderFeatured();
   if (!box) return;
   // 4 best-looking items per game, interleaved so every column mixes games
   const perGame = ["mm2", "am", "nfl", "baddies"].map(g =>
-    [...CATALOG].filter(i => i.game === g && i.img).sort((a, b) => b.price - a.price).slice(0, 4));
+    [...CATALOG].filter(i => i.game === g && i.img && !i.bundle).sort((a, b) => b.price - a.price).slice(0, 4));
   const rows = innerWidth < 920 ? 2 : 4;   // mobile backdrop needs half the weight
   const tiles = [];
   for (let r = 0; r < rows; r++) for (let g = 0; g < 4; g++) tiles.push(perGame[(g + r) % 4][r]);
@@ -411,6 +413,7 @@ function setGame(g) {
   syncInStockUI();
   buildCatTabs();
   buildRarityChips();
+  renderBagSlot(g);
   render();
 }
 // jump straight to the shop (instant): a smooth scroll across the 25k-px grid
@@ -2177,6 +2180,141 @@ async function syncStock() {
   buildRarityChips();
   render();
 }
+/* ---------- Grail Bag: one banner pinned atop each game section ---------- */
+function renderBagSlot(game) {
+  const slot = $("#bagSlot");
+  if (!slot) return;
+  const bag = byId[`bag-${game}`];
+  if (!bag || game === "accounts") { slot.innerHTML = ""; return; }
+  slot.innerHTML = `
+    <div class="bag-card" style="--acc:var(--g-${game})">
+      <span class="bag-ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7S10.5 3 8 3a2.5 2.5 0 0 0 0 5h4Z"/><path d="M12 7s1.5-4 4-4a2.5 2.5 0 0 1 0 5h-4Z"/></svg>
+      </span>
+      <div class="bag-main">
+        <p class="bag-tag">Grail Bag</p>
+        <h3 class="bag-name">${esc(bag.name)}</h3>
+        <p class="bag-sub">3 random ${esc(GAME_LABEL[game])} items — <b>always worth more than you pay</b>. Small chance of a grail.</p>
+      </div>
+      <div class="bag-buy">
+        <span class="bag-price">${money(bag.price)}</span>
+        <button class="bag-open" data-add="bag-${game}">Open bag</button>
+      </div>
+    </div>`;
+  slot.querySelector(".bag-open").addEventListener("click", e => {
+    addToCart(`bag-${game}`, e.currentTarget);
+    openDrawer();
+  });
+}
+
+/* ---------- daily free spin ---------- */
+const spinModal = $("#spinModal"), spinBody = $("#spinBody");
+let SPIN = null, spinning = false, wheelAngle = 0;
+
+async function spinGet() {
+  try {
+    const r = await fetch("/api/spin", { headers: { Accept: "application/json" } });
+    if (!r.ok && r.status !== 401 && r.status !== 429) return null;
+    return await r.json();
+  } catch { return null; }
+}
+function paintSpinDot() {
+  const dot = $("#spinDot");
+  if (dot) dot.hidden = !(SPIN && SPIN.loggedIn && SPIN.canSpin);
+}
+async function refreshSpin() { SPIN = await spinGet(); paintSpinDot(); }
+
+function wheelSVG(wedges) {
+  const n = wedges.length, seg = 360 / n, R = 100;
+  const pt = (r, deg) => {
+    const a = (deg - 90) * Math.PI / 180;
+    return [100 + r * Math.cos(a), 100 + r * Math.sin(a)];
+  };
+  let paths = "", labels = "";
+  wedges.forEach((amt, i) => {
+    const [x0, y0] = pt(R, i * seg), [x1, y1] = pt(R, (i + 1) * seg);
+    const fill = amt >= 5 ? "#ffce54" : amt >= 1 ? "#8b5cf6" : (i % 2 ? "#322769" : "#3c3079");
+    paths += `<path d="M100 100 L${x0.toFixed(2)} ${y0.toFixed(2)} A100 100 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${fill}" stroke="#241a44" stroke-width="1.5"/>`;
+    const ink = amt >= 5 ? "#3a2a00" : "#f4f1ff";
+    labels += `<text transform="rotate(${(i * seg + seg / 2).toFixed(2)} 100 100)" x="100" y="34" fill="${ink}" font-size="12" font-weight="800" text-anchor="middle" font-family="inherit">$${amt.toFixed(amt < 1 ? 2 : 0)}</text>`;
+  });
+  return `<svg class="wheel" viewBox="0 0 200 200" style="transform:rotate(${wheelAngle}deg)">${paths}${labels}</svg>`;
+}
+function spinTo(index) {
+  const seg = 360 / SPIN.wedges.length;
+  const desired = (360 - (index * seg + seg / 2)) % 360;   // brings wedge to the top pointer
+  let target = wheelAngle - (wheelAngle % 360) + desired;
+  while (target <= wheelAngle + 360 * 5) target += 360;     // at least 5 full turns
+  wheelAngle = target;
+  const w = $(".wheel");
+  if (w) w.style.transform = `rotate(${wheelAngle}deg)`;
+}
+
+function renderSpinBody() {
+  if (!SPIN) { spinBody.innerHTML = `<h2 class="spin-head">Daily spin</h2><p class="spin-note">Spin isn't available right now — try again in a bit.</p>`; return; }
+  if (!SPIN.loggedIn) {
+    spinBody.innerHTML = `<h2 class="spin-head">Daily free spin</h2>
+      <div class="spin-lock"><p>Log in to spin the wheel once a day and win store credit toward any order.</p>
+      <button class="spin-go" id="spinLogin">Log in / sign up</button></div>`;
+    $("#spinLogin").onclick = () => { closeSpin(); openAccount(); };
+    return;
+  }
+  spinBody.innerHTML = `
+    <h2 class="spin-head">Daily free spin</h2>
+    <p class="spin-note">${SPIN.canSpin ? "One free spin a day — win store credit toward any order." : "You've spun today. Come back tomorrow!"}</p>
+    <div class="wheel-wrap">
+      <span class="wheel-pointer"></span>
+      ${wheelSVG(SPIN.wedges)}
+      <span class="wheel-hub">SPIN</span>
+    </div>
+    <button class="spin-go" id="spinGo" ${SPIN.canSpin ? "" : "disabled"}>${SPIN.canSpin ? "Spin the wheel" : "Come back tomorrow"}</button>
+    <p class="spin-result" id="spinResult"></p>
+    <p class="spin-credit">Your store credit: <b id="spinCredit">${money(SPIN.credit || 0)}</b><br>applied automatically at checkout</p>`;
+  if (SPIN.canSpin) $("#spinGo").onclick = doSpin;
+}
+async function doSpin() {
+  if (spinning || !SPIN || !SPIN.canSpin) return;
+  spinning = true;
+  const btn = $("#spinGo"); btn.disabled = true; btn.textContent = "Spinning…";
+  let res;
+  try {
+    const r = await fetch("/api/spin", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "spin" }),
+    });
+    res = await r.json();
+    if (!r.ok) throw new Error(res.error || "Couldn't spin.");
+  } catch (e) {
+    spinning = false; btn.disabled = false; btn.textContent = "Spin the wheel";
+    const el = $("#spinResult"); if (el) el.textContent = e.message;
+    return;
+  }
+  spinTo(res.index);
+  setTimeout(() => {
+    spinning = false;
+    const rl = $("#spinResult"); if (rl) rl.textContent = `🎉 You won ${money(res.amount)} off!`;
+    const cr = $("#spinCredit"); if (cr) cr.textContent = money(res.credit);
+    btn.textContent = "Come back tomorrow";
+    SPIN.canSpin = false; SPIN.credit = res.credit;
+    if (ME) ME.credit = res.credit;
+    paintSpinDot();
+  }, 4700);
+}
+async function openSpin() {
+  spinModal.hidden = false;
+  spinBody.innerHTML = `<h2 class="spin-head">Daily spin</h2><p class="spin-note">Loading…</p>`;
+  SPIN = await spinGet();
+  paintSpinDot();
+  renderSpinBody();
+}
+function closeSpin() { spinModal.hidden = true; }
+$("#spinBtn")?.addEventListener("click", openSpin);
+$("#closeSpin")?.addEventListener("click", closeSpin);
+spinModal?.addEventListener("click", e => { if (e.target === spinModal) closeSpin(); });
+
+renderBagSlot(state.game);
+refreshSpin();
+
 syncStock();
 document.addEventListener("visibilitychange", () => { if (!document.hidden) syncStock(); });
 })();

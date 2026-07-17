@@ -2,6 +2,25 @@
    success page can build it. Stripe is the source of truth — the browser can't
    fake a paid order by editing the URL. */
 const Stripe = require("stripe");
+const U = require("../lib/users.js");
+
+/* Deduct any spin credit that was applied to this session — but only now that
+   it's confirmed paid, and only once. Deleting the pending key makes repeat
+   confirmations (the browser polls this endpoint) idempotent. */
+async function settleCredit(sessionId) {
+  if (!U.haveStore()) return;
+  try {
+    const r = await U.kv(["GET", `spin:pending:${sessionId}`]);
+    if (!r || !r.result) return;
+    const { email, amount } = JSON.parse(r.result);
+    const del = await U.kv(["DEL", `spin:pending:${sessionId}`]);   // claim it first
+    if (!del || del.result !== 1) return;                           // someone else settled it
+    const u = await U.getUser(email);
+    if (!u) return;
+    u.credit = Math.max(0, Math.round((Number(u.credit || 0) - Number(amount || 0)) * 100) / 100);
+    await U.saveUser(u);
+  } catch (e) { console.error("credit settle failed:", e); }
+}
 
 module.exports = async (req, res) => {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -14,6 +33,8 @@ module.exports = async (req, res) => {
   try {
     const s = await stripe.checkout.sessions.retrieve(String(id));
     if (s.payment_status !== "paid") return res.status(200).json({ paid: false });
+
+    await settleCredit(String(id));
 
     const m = s.metadata || {};
     const items = String(m.cart || "")

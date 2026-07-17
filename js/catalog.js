@@ -7256,6 +7256,58 @@ const CATALOG = [
    "img": "assets/accounts/r02.png",
    "stock": 10,
    "badge": ""
+  },
+  {
+   "id": "bag-mm2",
+   "game": "mm2",
+   "name": "MM2 Grail Bag",
+   "kind": "bundle",
+   "rarity": "Grail Bag",
+   "variant": "base",
+   "price": 9.99,
+   "img": "",
+   "stock": 999,
+   "badge": "",
+   "bundle": true
+  },
+  {
+   "id": "bag-am",
+   "game": "am",
+   "name": "Adopt Me Grail Bag",
+   "kind": "bundle",
+   "rarity": "Grail Bag",
+   "variant": "base",
+   "price": 9.99,
+   "img": "",
+   "stock": 999,
+   "badge": "",
+   "bundle": true
+  },
+  {
+   "id": "bag-nfl",
+   "game": "nfl",
+   "name": "NFL Universe Grail Bag",
+   "kind": "bundle",
+   "rarity": "Grail Bag",
+   "variant": "base",
+   "price": 9.99,
+   "img": "",
+   "stock": 999,
+   "badge": "",
+   "bundle": true
+  },
+  {
+   "id": "bag-baddies",
+   "game": "baddies",
+   "name": "Baddies Grail Bag",
+   "kind": "bundle",
+   "rarity": "Grail Bag",
+   "variant": "base",
+   "price": 9.99,
+   "img": "",
+   "stock": 999,
+   "badge": "",
+   "bundle": true
   }
 ];
 
