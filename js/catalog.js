@@ -5156,7 +5156,7 @@ const CATALOG = [
    "kind": "weapon",
    "rarity": "Legend",
    "variant": "base",
-   "price": 32,
+   "price": 30,
    "img": "assets/baddies/bd-loveboard.png",
    "stock": 6,
    "badge": ""
