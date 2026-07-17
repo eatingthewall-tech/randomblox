@@ -28,10 +28,11 @@ const CATS = {
 const GAME_LABEL = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies", accounts: "Roblox Accounts" };
 const GAME_GHOST = { mm2: "MM2", am: "ADOPT ME", nfl: "NFL UF", baddies: "BADDIES", accounts: "ACCOUNTS" };
 const MOTION_OK = matchMedia("(prefers-reduced-motion: no-preference)").matches;
-/* Only items above this show a compare-at badge. Must live up here: renderFeatured()
-   runs during load and reaches saleInfo(), so a const declared further down would
-   still be in its temporal dead zone and take the whole page with it. */
-const SALE_FLOOR = 18;
+/* Only items above this show a compare-at badge — back to the original premium-only
+   cutoff. Must live up here: renderFeatured() runs during load and reaches
+   saleInfo(), so a const declared further down would still be in its temporal
+   dead zone and take the whole page with it. */
+const SALE_FLOOR = 45;
 const BADDIE_GLYPH = { knuckles: "🥊", taser: "⚡", pan: "🍳", purse: "👛", board: "🛹", mace: "🔨", rpg: "🚀", toilet: "🚽", style: "🥋", weapon: "⚔️", more: "✨" };
 
 const state = {
