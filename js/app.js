@@ -330,19 +330,50 @@ function setStickyVars() {
 }
 window.addEventListener("resize", setStickyVars);
 
-/* scroll helper: smooth when it works, but ALWAYS arrives — some
-   embedded/mobile browsers silently drop smooth scrolls */
-function goTo(y, instant = false) {
-  /* "instant" must be explicit: a plain scrollTo still obeys the page's
-     CSS scroll-behavior, which is exactly what breaks on some browsers */
-  if (instant || !MOTION_OK) { window.scrollTo({ top: y, behavior: "instant" }); return; }
-  window.scrollTo({ top: y, behavior: "smooth" });
-  setTimeout(() => {
-    if (Math.abs(window.scrollY - y) > 500) window.scrollTo({ top: y, behavior: "instant" });
-  }, 500);
+/* scroll helper: smooth when it works, but ALWAYS arrives.
+   Two real-world failure modes handled here:
+   - smooth scrolls silently abort mid-flight when lazy images above the
+     target load and reflow the page (the old >500px fallback missed those,
+     so "Shop now" could strand you halfway up the hero);
+   - target positions move during that same reflow, so the destination is
+     re-measured on every correction (pass a getter for live targets).
+   "auto" replaces the "instant" behavior enum — same jump, but older
+   engines throw on "instant", which killed the whole click handler. */
+let goToSeq = 0;
+function goTo(target, instant = false) {
+  const seq = ++goToSeq;                      // newer navigations invalidate
+  const live = () => seq === goToSeq;         // this one's deferred callbacks
+  const y = () => Math.max(0, Math.round(typeof target === "function" ? target() : target));
+  /* hard jump that nothing can soften: with the page's scroll-behavior:smooth,
+     Chromium animates even scrollTo(0,y) and scrollTop writes, and an animated
+     jump dies whenever frames stall (image decode on the 21k-px grid) — that
+     was the "clicked a game and nothing happened" bug. Suspend the CSS for
+     the write, then restore it. */
+  const jump = top => {
+    const root = document.documentElement;
+    const prev = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, top);
+    root.style.scrollBehavior = prev;
+  };
+  if (instant || !MOTION_OK) {
+    jump(y());
+    requestAnimationFrame(() => { if (live()) jump(y()); });  // re-measure once layout settles
+    return;
+  }
+  let userTookOver = false;
+  const handOver = () => { userTookOver = true; };
+  ["wheel", "touchstart", "keydown"].forEach(ev =>
+    addEventListener(ev, handOver, { once: true, passive: true }));
+  try { window.scrollTo({ top: y(), behavior: "smooth" }); } catch { jump(y()); }
+  [600, 1200].forEach(ms => setTimeout(() => {
+    if (!live() || userTookOver) return;
+    const top = y();
+    if (Math.abs(window.scrollY - top) > 40) jump(top);
+  }, ms));
 }
 function scrollToShop(instant = false) {
-  goTo($("#shop").offsetTop - ($(".topbar")?.offsetHeight || 56) - 8, instant);
+  goTo(() => $("#shop").offsetTop - ($(".topbar")?.offsetHeight || 56) - 8, instant);
 }
 
 /* ---------- game switch ---------- */
@@ -374,7 +405,7 @@ $$(".game-tab[data-nav]").forEach(b => b.addEventListener("click", () => { setGa
 $$("[data-jump]").forEach(b => b.addEventListener("click", () => { setGame(b.dataset.jump); scrollToShop(true); }));
 $("#heroBrowse")?.addEventListener("click", () => {
   const games = $("#games");
-  if (games) goTo(games.offsetTop - ($(".topbar")?.offsetHeight || 56) - 8);
+  if (games) goTo(() => games.offsetTop - ($(".topbar")?.offsetHeight || 56) - 8);
   else scrollToShop();
 });
 $("#logoHome")?.addEventListener("click", e => { e.preventDefault(); goTo(0, true); });
@@ -1339,7 +1370,7 @@ function openMyOrder(selectedNo, openChat) {
     const fold = $("#checkoutBody .coq-chatfold");
     if (fold) {
       fold.open = true;
-      fold.scrollIntoView({ block: "nearest", behavior: MOTION_OK ? "smooth" : "instant" });
+      fold.scrollIntoView({ block: "nearest", behavior: MOTION_OK ? "smooth" : "auto" });
       setTimeout(() => $(".chat-input", fold)?.focus(), 80);
     }
   }
