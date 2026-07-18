@@ -2142,6 +2142,16 @@ setStickyVars();
 $("#searchInput").value = "";
 setSort(state.sort);   // sync sort control + first render (grouped by rarity)
 
+/* deep link: /?game=nfl (from the SEO landing pages) opens that shop and scrolls to it */
+(function gameDeepLink() {
+  const g = new URLSearchParams(location.search).get("game");
+  if (g && ["mm2", "am", "nfl", "baddies", "accounts"].includes(g)) {
+    setGame(g);
+    history.replaceState(null, "", location.pathname + location.hash);
+    requestAnimationFrame(() => scrollToShop(true));
+  }
+})();
+
 /* ---------- real stock: catalog numbers minus what's already sold ----------
    /api/stock tallies every paid Stripe order, so a 6x that sold once shows 5x
    and the last one flips to Out of stock — for every visitor, on every device.

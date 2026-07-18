@@ -1,7 +1,9 @@
 {
   "rewrites": [
     { "source": "/thank-you", "destination": "/index.html" },
-    { "source": "/policy", "destination": "/policy.html" }
+    { "source": "/policy", "destination": "/policy.html" },
+    { "source": "/nfl-universe", "destination": "/nfl-universe.html" },
+    { "source": "/baddies", "destination": "/baddies.html" }
   ],
   "headers": [
     {
