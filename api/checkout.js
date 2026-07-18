@@ -109,7 +109,32 @@ module.exports = async (req, res) => {
 
     const isOwner = ownerOK(req);
     const bought = [];                       // the quantities we actually charge for
+    const listingIds = [];                   // seller-marketplace listings in this order
     for (const row of items) {
+      /* Seller listing: price comes from the KV listing (seller-set, server-read),
+         one of each, only while it's still active. The listing id rides in the
+         metadata so api/seller.js can credit the seller once this is paid. */
+      if (row && row.listing) {
+        const lid = String(row.listing).slice(0, 20);
+        const lr = await U.kv(["GET", `sl:${lid}`]);
+        if (!lr || !lr.result) return res.status(400).json({ error: "That listing is gone." });
+        let l; try { l = JSON.parse(lr.result); } catch { l = null; }
+        if (!l || l.status !== "active") return res.status(400).json({ error: `${(l && l.name) || "That item"} was just sold.` });
+        listingIds.push(l.id);
+        line_items.push({
+          quantity: 1,
+          price_data: {
+            currency: "usd",
+            unit_amount: Math.round(Number(l.price) * 100),
+            product_data: {
+              name: l.name,
+              description: `${GAME_LABEL[l.game] || l.game} · sold by a community seller`,
+            },
+          },
+        });
+        continue;
+      }
+
       const item = byId[row && row.id];
       if (!item) return res.status(400).json({ error: `That item is no longer available (${row && row.id}).` });
       if (item.ownerOnly && !isOwner) return res.status(400).json({ error: `That item is no longer available (${row.id}).` });
@@ -213,6 +238,7 @@ module.exports = async (req, res) => {
         roblox_user: String(user).trim().slice(0, 60),
         buyer_name: String(name || "").slice(0, 80),
         cart,
+        ...(listingIds.length ? { listings: listingIds.join(",").slice(0, 200) } : {}),
       },
       // a dedicated path so ad platforms can count a purchase without firing on
       // every homepage visit (the app renders the confirmation there via rewrite)

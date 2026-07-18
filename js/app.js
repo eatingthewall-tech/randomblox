@@ -2070,6 +2070,16 @@ function renderProfile() {
       <p class="pay-err" id="pfErr" hidden></p>
     </div>
 
+    ${ownerBtn && !ownerBtn.hidden ? `
+    <div class="pf-block">
+      <p class="pf-label">Selling <span class="sl-testpill">owner test</span></p>
+      <button class="own-row sl-entry" id="pfSeller">
+        <span class="own-av own-av-web">${IC.gift}</span>
+        <span class="own-main"><b>Seller hub</b><i>Verify, list items, balance &amp; withdrawals</i></span>
+        <span class="own-go">${IC.chev}</span>
+      </button>
+    </div>` : ""}
+
     <div class="pf-block">
       <p class="pf-label">Previous orders</p>
       <div id="pfOrders" class="pf-orders"><p class="co-note">Loading…</p></div>
@@ -2090,6 +2100,7 @@ function renderProfile() {
     try { await authPost({ action: "logout" }); } catch {}
     setMe(null); renderAuth("login");
   });
+  $("#pfSeller")?.addEventListener("click", renderSeller);
 
   loadMyOrders();
 }
@@ -2130,6 +2141,269 @@ profileBtn?.addEventListener("click", openAccount);
 $("#closeAccount")?.addEventListener("click", closeAccount);
 acctModal?.addEventListener("click", e => { if (e.target === acctModal) closeAccount(); });
 (async function bootAuth() { setMe(await authGet()); })();
+
+/* ---------- seller hub (starpets-style) — OWNER TEST MODE ----------
+   Only rendered for the verified owner, and the server refuses every seller
+   call without the owner key until SELLER_PUBLIC=true. Flow: 3-stage
+   verification (terms -> test -> phone), then list items, watch the balance
+   (3-day hold), and request withdrawals. */
+async function sellerApi(action, body) {
+  const opts = body
+    ? { method: "POST", headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() }, body: JSON.stringify({ action, ...body }) }
+    : { headers: { "x-owner-key": ownerKey() } };
+  const r = await fetch(body ? "/api/seller" : `/api/seller?action=${encodeURIComponent(action)}`, opts);
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || "Something went wrong.");
+  return d;
+}
+const slBack = `<button class="own-back" id="slBack">${IC.chev}<span>Account</span></button>`;
+const slFail = (ex) => { acctBody.innerHTML = `${slBack}<h2 class="co-title">Seller hub</h2><p class="pay-err">${esc(ex.message)}</p>`; $("#slBack").addEventListener("click", renderProfile); };
+
+async function renderSeller() {
+  acctBody.innerHTML = `${slBack}<h2 class="co-title" id="accountTitle">Seller hub</h2><p class="co-note">Loading…</p>`;
+  $("#slBack").addEventListener("click", renderProfile);
+  let st;
+  try { st = await sellerApi("status"); } catch (ex) { return slFail(ex); }
+  if (!st.verified) return renderSellerWizard(st);
+  renderSellerDash(st);
+}
+
+/* ----- the 3-stage wizard ----- */
+function stageCard(n, title, sub, state) {   // state: done | now | locked
+  const ic = state === "done" ? "✓" : n;
+  return `<div class="sl-stage is-${state}"><span class="sl-stage-n">${ic}</span>
+    <span class="sl-stage-tx"><b>${title}</b><i>${sub}</i></span></div>`;
+}
+function renderSellerWizard(st) {
+  const s = st.stages;
+  const current = !s.terms ? 1 : !s.quiz ? 2 : 3;
+  acctBody.innerHTML = `
+    ${slBack}
+    <h2 class="co-title" id="accountTitle">Become a seller</h2>
+    ${st.testMode ? `<p class="sl-test">OWNER TEST MODE — invisible to the public</p>` : ""}
+    <p class="co-note">Three quick steps, exactly once. After that you can list items and get paid.</p>
+    <div class="sl-stages">
+      ${stageCard(1, "Selling terms", "Read and accept the rules", s.terms ? "done" : "now")}
+      ${stageCard(2, "Verification test", "5 questions, ~10 minutes", s.quiz ? "done" : s.terms ? "now" : "locked")}
+      ${stageCard(3, "Phone number", "Confirm via SMS code", s.phone ? "done" : s.quiz ? "now" : "locked")}
+    </div>
+    <div id="slStageBody"></div>`;
+  $("#slBack").addEventListener("click", renderProfile);
+  if (current === 1) renderTermsStage();
+  else if (current === 2) renderQuizStage();
+  else renderPhoneStage(st);
+}
+
+function renderTermsStage() {
+  $("#slStageBody").innerHTML = `
+    <div class="sl-terms">
+      <p class="pf-label">Selling terms</p>
+      <ul>
+        <li><b>Deliver within 24 hours.</b> When your item sells, you trade it to the buyer in-game within 24h or the sale is refunded.</li>
+        <li><b>10% marketplace fee.</b> The fee comes out of your sale price — you always see your exact payout before listing.</li>
+        <li><b>3-day hold.</b> Sale money sits in your pending balance for 3 days in case the buyer disputes; then it becomes withdrawable.</li>
+        <li><b>No off-site deals.</b> Taking a buyer off the site to pay you directly = permanent seller ban.</li>
+        <li><b>Real items only.</b> List only items you own and can deliver. Fake or undeliverable listings are removed and repeated offences are banned.</li>
+        <li><b>Disputes freeze the money.</b> If a buyer complains during the hold, that sale's funds stay frozen until it's resolved.</li>
+      </ul>
+    </div>
+    <button class="primary-btn" id="slAccept">I've read the terms — accept &amp; continue</button>
+    <p class="pay-err" id="slErr" hidden></p>`;
+  $("#slAccept").addEventListener("click", async () => {
+    try { await sellerApi("accept-terms", {}); renderSeller(); }
+    catch (ex) { const e = $("#slErr"); e.textContent = ex.message; e.hidden = false; }
+  });
+}
+
+async function renderQuizStage() {
+  const box = $("#slStageBody");
+  box.innerHTML = `<p class="co-note">Loading the test…</p>`;
+  let qz;
+  try { qz = await sellerApi("quiz", {}); } catch (ex) { box.innerHTML = `<p class="pay-err">${esc(ex.message)}</p>`; return; }
+  box.innerHTML = `
+    <p class="pf-label">Verification test — all ${qz.questions.length} answers must be right</p>
+    <form id="slQuiz">${qz.questions.map((q, i) => `
+      <fieldset class="sl-q"><legend>${i + 1}. ${esc(q.q)}</legend>
+        ${q.a.map((a, j) => `<label class="sl-opt"><input type="radio" name="q${i}" value="${j}" required><span>${esc(a)}</span></label>`).join("")}
+      </fieldset>`).join("")}
+      <button class="primary-btn" type="submit">Submit answers</button>
+      <p class="pay-err" id="slErr" hidden></p>
+    </form>`;
+  $("#slQuiz").addEventListener("submit", async e => {
+    e.preventDefault();
+    const answers = qz.questions.map((_, i) => Number(new FormData(e.target).get("q" + i)));
+    try {
+      const r = await sellerApi("quiz-submit", { answers });
+      if (r.passed) renderSeller();
+      else { const el = $("#slErr"); el.textContent = `${r.score}/${r.total} — all ${r.total} must be correct. Check the terms and try again.`; el.hidden = false; }
+    } catch (ex) { const el = $("#slErr"); el.textContent = ex.message; el.hidden = false; }
+  });
+}
+
+function renderPhoneStage(st) {
+  const box = $("#slStageBody");
+  box.innerHTML = `
+    <p class="pf-label">Confirm your phone</p>
+    <p class="co-note">We text a 6-digit code to this number. It's only used for seller verification.</p>
+    <form id="slPhone" class="pf-name-row">
+      <input id="sl-phone" type="tel" maxlength="24" placeholder="+1 555 123 4567" value="${esc(st.phone || "")}" required>
+      <button class="btn-light" type="submit">Send code</button>
+    </form>
+    <div id="slCodeWrap" hidden>
+      <p class="sl-test" id="slTestCode" hidden></p>
+      <form id="slCode" class="pf-name-row" style="margin-top:10px">
+        <input id="sl-code" inputmode="numeric" maxlength="6" placeholder="6-digit code" required>
+        <button class="primary-btn" type="submit">Verify</button>
+      </form>
+    </div>
+    <p class="pay-err" id="slErr" hidden></p>`;
+  $("#slPhone").addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+      const r = await sellerApi("phone-start", { phone: $("#sl-phone").value });
+      $("#slCodeWrap").hidden = false;
+      if (r.testCode) { const t = $("#slTestCode"); t.textContent = `TEST MODE — your code is ${r.testCode}`; t.hidden = false; }
+      $("#sl-code").focus();
+    } catch (ex) { const el = $("#slErr"); el.textContent = ex.message; el.hidden = false; }
+  });
+  $("#slCode").addEventListener("submit", async e => {
+    e.preventDefault();
+    try { await sellerApi("phone-verify", { code: $("#sl-code").value.trim() }); renderSeller(); }
+    catch (ex) { const el = $("#slErr"); el.textContent = ex.message; el.hidden = false; }
+  });
+}
+
+/* ----- verified: the dashboard ----- */
+const WD_HINT = {
+  robux: "Your Roblox username", credit: "Goes straight to your site balance",
+  cashapp: "$yourcashtag", paypal: "PayPal email", crypto: "BTC / ETH / LTC address",
+};
+async function renderSellerDash(st) {
+  let data;
+  try { data = await sellerApi("credit-scan", {}); } catch (ex) { return slFail(ex); }
+  const b = data.balance;
+  let listings = [];
+  try { listings = (await sellerApi("my-listings", {})).listings || []; } catch {}
+  const feePct = Math.round((st.fee || 0.1) * 100);
+  acctBody.innerHTML = `
+    ${slBack}
+    <h2 class="co-title" id="accountTitle">Seller hub</h2>
+    ${st.testMode ? `<p class="sl-test">OWNER TEST MODE — invisible to the public</p>` : ""}
+
+    <div class="sl-bal">
+      <div><i>Available</i><b>${money(b.available)}</b></div>
+      <div><i>Pending (${data.holdDays}-day hold)</i><b>${money(b.pending)}</b></div>
+      <div><i>Lifetime</i><b>${money(b.lifetime)}</b></div>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">List an item</p>
+      <form id="slList">
+        <div class="pay-2col">
+          <div class="co-field"><label for="sl-game">Game</label>
+            <select id="sl-game" class="pool-sku">
+              <option value="mm2">Murder Mystery 2</option><option value="am">Adopt Me</option>
+              <option value="nfl">NFL Universe</option><option value="baddies">Baddies</option>
+            </select></div>
+          <div class="co-field"><label for="sl-price">Your price (USD)</label>
+            <input id="sl-price" type="number" min="1" max="500" step="0.01" required placeholder="9.99"></div>
+        </div>
+        <div class="co-field"><label for="sl-name">Item</label>
+          <input id="sl-name" maxlength="80" required placeholder="Exact item name" list="slNames"><datalist id="slNames"></datalist></div>
+        <p class="co-note" id="slNet">After the ${feePct}% fee you receive: —</p>
+        <button class="primary-btn" type="submit">List it for sale</button>
+        <p class="pay-err" id="slListErr" hidden></p>
+      </form>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">My listings</p>
+      <div id="slMine" class="pf-orders">${listings.length ? "" : `<p class="co-note">Nothing listed yet.</p>`}</div>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">Withdraw</p>
+      <div class="seg sl-methods" role="radiogroup">
+        ${["robux", "credit", "cashapp", "paypal", "crypto"].map((m, i) =>
+          `<button role="radio" data-wd="${m}" aria-checked="${i === 0}">${{ robux: "Robux", credit: "Site credit", cashapp: "CashApp", paypal: "PayPal", crypto: "Crypto" }[m]}</button>`).join("")}
+      </div>
+      <form id="slWd" style="margin-top:10px">
+        <div class="co-field"><label for="sl-dest" id="slDestLabel">${WD_HINT.robux}</label>
+          <input id="sl-dest" maxlength="120" placeholder="${WD_HINT.robux}"></div>
+        <div class="co-field"><label for="sl-amt">Amount (min $5)</label>
+          <input id="sl-amt" type="number" min="5" step="0.01" max="${b.available}" placeholder="${b.available >= 5 ? b.available.toFixed(2) : "5.00"}"></div>
+        <button class="primary-btn" type="submit" ${b.available < 5 ? "disabled" : ""}>${b.available < 5 ? "Nothing withdrawable yet" : "Request withdrawal"}</button>
+        <p class="pay-err" id="slWdErr" hidden></p>
+      </form>
+      <div id="slWds" class="pf-orders" style="margin-top:12px"></div>
+    </div>
+
+    <div class="pf-block">
+      <p class="pf-label">Recent sales</p>
+      <div class="pf-orders">${(data.credits || []).length ? data.credits.map(c =>
+        `<div class="pf-order"><div class="pf-order-top"><b>${esc(c.name || c.listing)}</b><span class="pf-status ${Date.now() - c.at >= 3 * 864e5 ? "is-done" : ""}">${Date.now() - c.at >= 3 * 864e5 ? "Cleared" : "On hold"}</span></div>
+          <p class="pf-order-meta">${new Date(c.at).toLocaleDateString()} · you earned ${money(c.amt)}</p></div>`).join("")
+      : `<p class="co-note">No sales yet. When someone buys your listing, it lands here (held ${data.holdDays} days, then withdrawable).</p>`}</div>
+    </div>`;
+  $("#slBack").addEventListener("click", renderProfile);
+
+  /* my listings rows */
+  const mine = $("#slMine");
+  if (listings.length) {
+    mine.innerHTML = listings.map(l => `
+      <div class="pf-order"><div class="pf-order-top"><b>${esc(l.name)}</b><span class="pf-status">${money(l.price)}</span></div>
+        <p class="pf-order-meta">${esc(GAME_LABEL[l.game] || l.game)} · you receive ${money(l.price * (1 - (st.fee || .1)))} <button class="sl-rm" data-rm="${esc(l.id)}">Remove</button></p></div>`).join("");
+    $$("[data-rm]", mine).forEach(btn => btn.addEventListener("click", async () => {
+      try { await sellerApi("list-remove", { id: btn.dataset.rm }); renderSellerDash(st); } catch {}
+    }));
+  }
+
+  /* datalist of real item names for the picked game */
+  const fillNames = () => {
+    const g = $("#sl-game").value;
+    $("#slNames").innerHTML = CATALOG.filter(i => i.game === g && !i.bundle).map(i => `<option value="${esc(i.name)}">`).join("");
+  };
+  fillNames();
+  $("#sl-game").addEventListener("change", fillNames);
+
+  /* live payout preview */
+  $("#sl-price").addEventListener("input", () => {
+    const p = Number($("#sl-price").value);
+    $("#slNet").textContent = p >= 1 ? `After the ${feePct}% fee you receive: ${money(p * (1 - (st.fee || .1)))}` : `After the ${feePct}% fee you receive: —`;
+  });
+
+  /* create listing */
+  $("#slList").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#slListErr"); err.hidden = true;
+    try {
+      await sellerApi("list-create", { game: $("#sl-game").value, name: $("#sl-name").value, price: Number($("#sl-price").value) });
+      renderSellerDash(st);
+    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+  });
+
+  /* withdraw method picker + submit */
+  let wdMethod = "robux";
+  $$(".sl-methods [data-wd]").forEach(btn => btn.addEventListener("click", () => {
+    wdMethod = btn.dataset.wd;
+    $$(".sl-methods [data-wd]").forEach(x => x.setAttribute("aria-checked", x === btn));
+    $("#slDestLabel").textContent = WD_HINT[wdMethod];
+    $("#sl-dest").placeholder = WD_HINT[wdMethod];
+  }));
+  $("#slWd").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#slWdErr"); err.hidden = true;
+    try {
+      await sellerApi("withdraw", { method: wdMethod, details: $("#sl-dest").value, amount: Number($("#sl-amt").value) });
+      renderSellerDash(st);
+    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+  });
+
+  /* withdrawal history */
+  $("#slWds").innerHTML = (data.withdrawals || []).map(w =>
+    `<div class="pf-order"><div class="pf-order-top"><b>${money(w.amt)} · ${esc(w.method)}</b><span class="pf-status ${w.status === "paid" ? "is-done" : ""}">${esc(w.status)}</span></div>
+      <p class="pf-order-meta">${new Date(w.at).toLocaleDateString()}${w.details ? " · " + esc(w.details) : ""}</p></div>`).join("");
+}
 
 /* ---------- boot ---------- */
 document.body.dataset.game = state.game;
