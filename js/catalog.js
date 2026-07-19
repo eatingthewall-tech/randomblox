@@ -3737,20 +3737,7 @@ const CATALOG = [
    "stock": 2,
    "creator": "Builder_Boy"
   },
-  {
-   "id": "nfl-punt-the-head",
-   "game": "nfl",
-   "name": "Punt The Head",
-   "kind": "emote",
-   "rarity": "Amethyst",
-   "variant": "base",
-   "price": 15.79,
-   "was": 22.16,
-   "img": "assets/nfl/nfl-punt-the-head.png",
-   "stock": 1,
-   "creator": "CloudburstOwner",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-pogo-stick",
    "game": "nfl",
@@ -4338,20 +4325,7 @@ const CATALOG = [
    "creator": "Crysthal_3D",
    "badge": "Limited"
   },
-  {
-   "id": "nfl-summer-floatie",
-   "game": "nfl",
-   "name": "Summer Floatie",
-   "kind": "gear",
-   "rarity": "Amethyst",
-   "variant": "base",
-   "price": 11.36,
-   "was": 15.95,
-   "img": "assets/nfl/nfl-summer-floatie.png",
-   "stock": 2,
-   "creator": "CloudburstOwner",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-sad-eyes-skateboard",
    "game": "nfl",
@@ -4506,20 +4480,7 @@ const CATALOG = [
    "creator": "Efren_Freeze",
    "badge": "Limited"
   },
-  {
-   "id": "nfl-crab-floatie",
-   "game": "nfl",
-   "name": "Crab Floatie",
-   "kind": "gear",
-   "rarity": "Amethyst",
-   "variant": "base",
-   "price": 10.37,
-   "was": 14.55,
-   "img": "assets/nfl/nfl-crab-floatie.png",
-   "stock": 1,
-   "creator": "Crysthal_3D",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-the-boss-custom-hat",
    "game": "nfl",
@@ -4925,20 +4886,7 @@ const CATALOG = [
    "creator": "camitrujillogg",
    "badge": "Limited"
   },
-  {
-   "id": "nfl-inflatable-shark-head",
-   "game": "nfl",
-   "name": "Inflatable Shark Head",
-   "kind": "headwear",
-   "rarity": "Amethyst",
-   "variant": "base",
-   "price": 7.87,
-   "was": 11.04,
-   "img": "assets/nfl/nfl-inflatable-shark-head.png",
-   "stock": 5,
-   "creator": "Crysthal_3D",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-nerd-teef-mouthpiece",
    "game": "nfl",
@@ -5023,20 +4971,7 @@ const CATALOG = [
    "creator": "Valkenheim UGC",
    "badge": "Limited"
   },
-  {
-   "id": "nfl-waves-string-bucket-hat",
-   "game": "nfl",
-   "name": "Waves String Bucket Hat",
-   "kind": "headwear",
-   "rarity": "Gold",
-   "variant": "base",
-   "price": 6.88,
-   "was": 9.65,
-   "img": "assets/nfl/nfl-waves-string-bucket-hat.png",
-   "stock": 6,
-   "creator": "camitrujillogg",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-vivid-nebula-backpack",
    "game": "nfl",
@@ -5063,34 +4998,8 @@ const CATALOG = [
    "stock": 1,
    "creator": "est510"
   },
-  {
-   "id": "nfl-inflatable-shark-body",
-   "game": "nfl",
-   "name": "Inflatable Shark Body",
-   "kind": "apparel",
-   "rarity": "Amethyst",
-   "variant": "base",
-   "price": 6.49,
-   "was": 9.11,
-   "img": "assets/nfl/nfl-inflatable-shark-body.png",
-   "stock": 1,
-   "creator": "Crysthal_3D",
-   "badge": "Limited"
-  },
-  {
-   "id": "nfl-yellow-style-ski-shades",
-   "game": "nfl",
-   "name": "Yellow Style Ski Shades",
-   "kind": "headwear",
-   "rarity": "Gold",
-   "variant": "base",
-   "price": 6.38,
-   "was": 8.95,
-   "img": "assets/nfl/nfl-yellow-style-ski-shades.png",
-   "stock": 3,
-   "creator": "Lugarciacas",
-   "badge": "Limited"
-  },
+  
+  
   {
    "id": "nfl-entity-evo-1-gold-digital-camo",
    "game": "nfl",
@@ -5159,20 +5068,7 @@ const CATALOG = [
    "creator": "KILLA.",
    "badge": "Limited"
   },
-  {
-   "id": "nfl-dad-hero-brown-beard",
-   "game": "nfl",
-   "name": "Dad Hero Brown Beard",
-   "kind": "headwear",
-   "rarity": "Ruby",
-   "variant": "base",
-   "price": 5.51,
-   "was": 7.73,
-   "img": "assets/nfl/nfl-dad-hero-brown-beard.png",
-   "stock": 12,
-   "creator": "Efren_Freeze",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-entity-green-glowing-skull-gloves",
    "game": "nfl",
@@ -5199,20 +5095,7 @@ const CATALOG = [
    "stock": 1,
    "creator": "WhoseTrade"
   },
-  {
-   "id": "nfl-beware-of-dog-backplate-v2",
-   "game": "nfl",
-   "name": "Beware Of Dog Backplate V2",
-   "kind": "gear",
-   "rarity": "Ruby",
-   "variant": "base",
-   "price": 5.4,
-   "was": 7.58,
-   "img": "assets/nfl/nfl-beware-of-dog-backplate-v2.png",
-   "stock": 9,
-   "creator": "laurengif",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-meta-football-longview-blue",
    "game": "nfl",
@@ -5239,20 +5122,7 @@ const CATALOG = [
    "stock": 1,
    "creator": "Builder_Boy"
   },
-  {
-   "id": "nfl-tropicool-soda-belt",
-   "game": "nfl",
-   "name": "Tropicool Soda Belt",
-   "kind": "gear",
-   "rarity": "Ruby",
-   "variant": "base",
-   "price": 5.09,
-   "was": 7.14,
-   "img": "assets/nfl/nfl-tropicool-soda-belt.png",
-   "stock": 12,
-   "creator": "Efren_Freeze",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-tropical-splatter-blue-shirt",
    "game": "nfl",
@@ -5308,20 +5178,7 @@ const CATALOG = [
    "stock": 1,
    "creator": "Builder_Boy"
   },
-  {
-   "id": "nfl-sunburnt-skin-shirt",
-   "game": "nfl",
-   "name": "Sunburnt Skin Shirt",
-   "kind": "apparel",
-   "rarity": "Ruby",
-   "variant": "base",
-   "price": 4.69,
-   "was": 6.58,
-   "img": "assets/nfl/nfl-sunburnt-skin-shirt.png",
-   "stock": 5,
-   "creator": "Lugarciacas",
-   "badge": "Limited"
-  },
+  
   {
    "id": "nfl-delicacies-mid-cut-bamboo-stripe",
    "game": "nfl",
