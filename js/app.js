@@ -78,30 +78,40 @@ let _bellCtx = null;
 function _ensureAudio() {
   try {
     _bellCtx = _bellCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (_bellCtx.state === "suspended") _bellCtx.resume();
+    if (_bellCtx.state === "suspended") _bellCtx.resume().catch(() => {});
   } catch (e) { /* audio unsupported — silently skip */ }
   return _bellCtx;
 }
+/* Re-arm on EVERY gesture, not just the first: browsers re-suspend the audio
+   context whenever the tab is backgrounded, the device sleeps, or other audio
+   interrupts it. A one-shot listener meant the chime went silent after that. */
 ["pointerdown", "keydown", "touchstart"].forEach(ev =>
-  window.addEventListener(ev, _ensureAudio, { once: true }));
+  window.addEventListener(ev, _ensureAudio, { passive: true }));
+document.addEventListener("visibilitychange", () => { if (!document.hidden) _ensureAudio(); });
 
 function ringBell() {
   const ctx = _ensureAudio();
   if (!ctx) return;
-  const now = ctx.currentTime;
-  // two soft strikes (B5 -> E6); each note has an inharmonic partial for a bell timbre
-  [{ f: 987.77, at: 0 }, { f: 1318.51, at: 0.14 }].forEach(({ f, at }) => {
-    const t0 = now + at;
-    [[f, 0.34, 0.9], [f * 2.02, 0.12, 0.5]].forEach(([freq, peak, dur]) => {
-      const osc = ctx.createOscillator(), g = ctx.createGain();
-      osc.type = "sine"; osc.frequency.value = freq;
-      osc.connect(g); g.connect(ctx.destination);
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      osc.start(t0); osc.stop(t0 + dur + 0.02);
+  const strike = () => {
+    // currentTime is read AFTER the resume settles — scheduling against a stale
+    // (frozen) clock was silently dropping the chime
+    const now = ctx.currentTime;
+    // two soft strikes (B5 -> E6); each note has an inharmonic partial for a bell timbre
+    [{ f: 987.77, at: 0 }, { f: 1318.51, at: 0.14 }].forEach(({ f, at }) => {
+      const t0 = now + at;
+      [[f, 0.34, 0.9], [f * 2.02, 0.12, 0.5]].forEach(([freq, peak, dur]) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.type = "sine"; osc.frequency.value = freq;
+        osc.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.start(t0); osc.stop(t0 + dur + 0.02);
+      });
     });
-  });
+  };
+  if (ctx.state === "suspended") ctx.resume().then(strike).catch(() => {});
+  else strike();
 }
 /* true if any message after `prevN` (a finite prior count) came from the owner */
 function hasNewOwnerMsg(prevN, msgs) {
@@ -1521,6 +1531,14 @@ function ownerToast(kind, name, thread) {
     setInterval(syncOwnerOrders, 7000);    // then chime + live-refresh on every new purchase
     syncOwnerChats(true);                  // same for live chat: seed silently...
     setInterval(syncOwnerChats, 7000);     // ...then chime on every new buyer message
+    /* Background tabs get their timers throttled to ~1/min (or frozen), so an
+       order could land with no chime at all. Re-check the instant the tab is
+       looked at again, so anything missed while away rings and toasts now. */
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) return;
+      syncOwnerOrders();
+      syncOwnerChats();
+    });
   } else if (ownerBtn) {
     ownerBtn.hidden = true;
   }
