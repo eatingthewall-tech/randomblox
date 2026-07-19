@@ -2692,6 +2692,56 @@ $("#spinBtn")?.addEventListener("click", openSpin);
 $("#closeSpin")?.addEventListener("click", closeSpin);
 spinModal?.addEventListener("click", e => { if (e.target === spinModal) closeSpin(); });
 
+/* ---------- product structured data ----------
+   Google's Merchant listings / Product snippets reports want explicit product
+   data; without it Google has to guess what this shop sells. We emit the top
+   in-stock items with their REAL name, image, price and availability straight
+   from CATALOG, so the markup can never drift from the shelf price.
+
+   aggregateRating and review are deliberately LEFT OUT. Google requires those to
+   come from genuine user reviews ("Ratings must be sourced directly from users",
+   and a business that controls reviews about itself is ineligible) — inventing
+   them risks a manual action against the whole domain. They stay out until there
+   are real buyer reviews to publish. */
+(function productSchema() {
+  const origin = location.origin;
+  // game items only — account sales stay out of shopping markup on purpose
+  const top = CATALOG
+    .filter(i => !i.bundle && !i.ownerOnly && i.img && i.stock > 0 && i.game !== "accounts")
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 40);
+  if (!top.length) return;
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Chanceblox stock",
+    itemListElement: top.map((i, n) => ({
+      "@type": "ListItem",
+      position: n + 1,
+      item: {
+        "@type": "Product",
+        name: i.name,
+        image: `${origin}/${i.img}`,
+        description: `${i.rarity} ${GAME_LABEL[i.game] || i.game} item, delivered by in-game trade.`,
+        category: GAME_LABEL[i.game] || i.game,
+        offers: {
+          "@type": "Offer",
+          url: `${origin}/`,
+          price: Number(i.price).toFixed(2),
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@type": "Organization", name: "Chanceblox" },
+        },
+      },
+    })),
+  };
+  const s = document.createElement("script");
+  s.type = "application/ld+json";
+  s.textContent = JSON.stringify(ld);
+  document.head.appendChild(s);
+})();
+
 renderBagSlot(state.game);
 refreshSpin();
 
