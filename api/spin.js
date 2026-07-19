@@ -31,7 +31,6 @@ const WEDGES = [
   { amount: 0.25, weight: 1200 },
 ];
 const TOTAL = WEDGES.reduce((s, w) => s + w.weight, 0);   // 10000
-const CREDIT_CAP = 50;                                    // don't let credit pile up forever
 
 const today = () => new Date().toISOString().slice(0, 10);   // UTC YYYY-MM-DD
 
@@ -79,7 +78,7 @@ module.exports = async (req, res) => {
   const index = roll();
   const amount = WEDGES[index].amount;
   user.spinDay = today();
-  user.credit = Math.min(CREDIT_CAP, Math.round((Number(user.credit || 0) + amount) * 100) / 100);
+  user.credit = amount;   // each day's spin REPLACES the last — winnings don't stack
   await U.saveUser(user);
 
   return send(res, 200, { index, amount, credit: user.credit, canSpin: false });
