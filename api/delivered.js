@@ -38,11 +38,8 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const no = clip(req.query && req.query.no, 60);
       if (!no) return res.status(400).json({ error: "no required" });
-      const [d, rm] = await Promise.all([
-        kv(["SISMEMBER", "orders:done", no]),
-        kv(["SISMEMBER", "orders:removed", no]),
-      ]);
-      return res.status(200).json({ done: (d && d.result) === 1, removed: (rm && rm.result) === 1 });
+      const r = await kv(["SISMEMBER", "orders:done", no]);
+      return res.status(200).json({ done: (r && r.result) === 1 });
     }
 
     if (req.method === "POST") {
@@ -50,13 +47,20 @@ module.exports = async (req, res) => {
       let body = req.body;
       if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
       body = body || {};
+
+      // reorder the queue: persist the owner's manual sort keys (order no -> number)
+      if (body.setSort && typeof body.setSort === "object") {
+        const args = ["HSET", "orders:sort"];
+        for (const [k, v] of Object.entries(body.setSort)) {
+          const key = clip(k, 60), val = Number(v);
+          if (key && Number.isFinite(val)) args.push(key, String(val));
+        }
+        if (args.length > 2) await kv(args);
+        return res.status(200).json({ ok: true });
+      }
+
       const no = clip(body.no, 60);
       if (!no) return res.status(400).json({ error: "no required" });
-      // "removed" pulls an order out of the queue WITHOUT marking it delivered
-      if ("removed" in body) {
-        await kv([body.removed ? "SADD" : "SREM", "orders:removed", no]);
-        return res.status(200).json({ ok: true, no, removed: !!body.removed });
-      }
       await kv([body.done ? "SADD" : "SREM", "orders:done", no]);
       return res.status(200).json({ ok: true, no, done: !!body.done });
     }

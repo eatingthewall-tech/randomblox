@@ -1569,19 +1569,27 @@ function setOrderDone(no, done) {
   }).catch(() => {});
 }
 
-/* Remove-from-queue: takes an order out of the delivery queue WITHOUT recording
-   it as delivered (no-shows, refunds, handled-in-chat, etc.). Mirrors the shared
-   store so the queue advances on every device, and stays distinct from done. */
-function isRemoved(no) { return !!load("rbx-removed", {})[no]; }
-function setOrderRemoved(no, removed) {
-  const m = load("rbx-removed", {});
-  if (removed) m[no] = true; else delete m[no];
-  save("rbx-removed", m);
+/* Reorder the queue: nudge an order up or down one spot without delivering
+   anyone. Swaps this order's sort key with its neighbour's and saves it to the
+   shared store, so the new order holds on every device and survives a refresh. */
+function setQueueSort(map) {
   fetch("/api/delivered", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() },
-    body: JSON.stringify({ no, removed: !!removed }),
+    body: JSON.stringify({ setSort: map }),
   }).catch(() => {});
+}
+function moveInQueue(no, dir) {
+  const X = ownerOrders.find(o => o.no === no);
+  if (!X || X.queuePos == null) return;
+  const Y = ownerOrders.find(o => o.queuePos === X.queuePos + (dir === "down" ? 1 : -1));
+  if (!Y) return;                                   // already at the top or bottom
+  const kx = X.sortKey != null ? X.sortKey : +new Date(X.when);
+  const ky = Y.sortKey != null ? Y.sortKey : +new Date(Y.when);
+  X.sortKey = ky; Y.sortKey = kx;                   // swap keys...
+  const px = X.queuePos; X.queuePos = Y.queuePos; Y.queuePos = px;   // ...and positions, for an instant re-render
+  setQueueSort({ [X.no]: X.sortKey, [Y.no]: Y.sortKey });
+  renderOwnerChat(no);
 }
 
 /* ---------- owner: load the account pools ----------
@@ -1722,14 +1730,13 @@ async function renderOwnerList(quiet) {
         const n = (o.items || []).reduce((a, x) => a + x.q, 0);
         const unread = unreadFor(o.no);
         const done = o.done || isDone(o.no);
-        const removed = !done && (o.removed || isRemoved(o.no));
-        const pos = done || removed ? null : o.queuePos;
+        const pos = done ? null : o.queuePos;
         return `
-        <button class="own-row${done || removed ? " own-row-done" : ""}" data-own="${esc(o.no)}">
+        <button class="own-row${done ? " own-row-done" : ""}" data-own="${esc(o.no)}">
           <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
           <span class="own-main">
             <b>${esc(o.user || "Buyer")}${pos ? `<span class="own-pos">#${pos} in queue</span>` : ""}</b>
-            <i>${esc(o.no)} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : removed ? "Removed from queue" : esc(tag || "order")}</i>
+            <i>${esc(o.no)} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : esc(tag || "order")}</i>
           </span>
           ${unread ? `<span class="own-badge">${unread}</span>` : ""}
           <span class="own-go">${IC.chev}</span>
@@ -1750,8 +1757,8 @@ function renderOwnerChat(no) {
   if (!o) return renderOwnerList();
   const key = "rbx-chat-" + no;
   const done = isGeneral ? false : (o.done || isDone(no));
-  const removed = isGeneral ? false : (o.removed || isRemoved(no));
-  const pos = isGeneral || done || removed ? null : o.queuePos;   // real position across every buyer
+  const pos = isGeneral || done ? null : o.queuePos;   // real position across every buyer
+  const activeCount = ownerOrders.filter(x => x.queuePos != null).length;
   const lines = isGeneral
     ? "Pre-sale / general question — no order attached yet."
     : (o.items || []).map(x => `${byId[x.id]?.name || x.id}${x.q > 1 ? " ×" + x.q : ""}`).join(", ");
@@ -1765,7 +1772,6 @@ function renderOwnerChat(no) {
     ${isGeneral ? "" : `
     <div class="own-deliver">
       <p><span>Queue</span><b>${done ? "Delivered — out of the queue"
-        : removed ? "Removed from the queue"
         : pos ? `#${pos} in line${pos === 1 ? " — they're next" : ""}` : "—"}</b></p>
       <p><span>Trade to</span><b>${esc(o.user || "—")}</b></p>
       <p><span>Items</span><b>${esc(lines || "—")}</b></p>
@@ -1773,8 +1779,13 @@ function renderOwnerChat(no) {
     </div>`}
     ${isGeneral ? `<p class="own-items">${esc(lines)}</p>` : ""}
     ${isGeneral ? `<button class="own-del-btn" id="ownDel">Delete this chat</button>` : ""}
+    ${isGeneral || done || !pos || activeCount < 2 ? "" : `
+    <div class="own-move">
+      <span class="own-move-lbl">Move in queue</span>
+      <button class="own-move-btn" id="ownUp"${pos <= 1 ? " disabled" : ""}>↑ Move up</button>
+      <button class="own-move-btn" id="ownDown"${pos >= activeCount ? " disabled" : ""}>↓ Move down</button>
+    </div>`}
     ${isGeneral ? "" : `<button class="own-done-btn${done ? " is-done" : ""}" id="ownDone">${done ? "Delivered — tap to reopen" : "Mark delivered &amp; remove from queue"}</button>`}
-    ${isGeneral || done ? "" : `<button class="own-remove-btn${removed ? " is-removed" : ""}" id="ownRemove">${removed ? "Removed — tap to put back in queue" : "Remove from queue (not delivered)"}</button>`}
     <div class="coq-chat own-chat" data-order="${esc(no)}" data-persp="owner">
       <div class="chat-log" aria-live="polite"></div>
       <form class="chat-form" autocomplete="off">
@@ -1801,14 +1812,8 @@ function renderOwnerChat(no) {
     if (cached) { cached.done = nowDone; if (nowDone) cached.queuePos = null; }
     renderOwnerChat(no);
   });
-  $("#ownRemove")?.addEventListener("click", () => {
-    const nowRemoved = !(o.removed || isRemoved(no));
-    setOrderRemoved(no, nowRemoved);
-    const cached = ownerOrders.find(x => x.no === no);
-    if (cached) { cached.removed = nowRemoved; cached.queuePos = null; }   // real pos refreshes on next /api/orders
-    o.removed = nowRemoved;
-    renderOwnerChat(no);
-  });
+  $("#ownUp")?.addEventListener("click", () => moveInQueue(no, "up"));
+  $("#ownDown")?.addEventListener("click", () => moveInQueue(no, "down"));
   const box = $(".own-chat", ownerBody);
   const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
   const repaint = () => paintChat(log, key, "owner", "");

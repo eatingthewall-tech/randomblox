@@ -63,29 +63,35 @@ module.exports = async (req, res) => {
 
     // which orders are already delivered (shared KV, so it's the same answer on
     // every device the owner uses — not just whichever browser ticked the box)
-    let doneSet = new Set(), removedSet = new Set();
+    let doneSet = new Set(), sortMap = {};
     if (KV_URL && KV_TOKEN) {
       try {
-        const [d, rm] = await Promise.all([
+        const [d, s] = await Promise.all([
           kv(["SMEMBERS", "orders:done"]),
-          kv(["SMEMBERS", "orders:removed"]),   // pulled from the queue, but NOT delivered
+          kv(["HGETALL", "orders:sort"]),   // owner's manual queue order (order no -> sort key)
         ]);
         doneSet = new Set((d && d.result) || []);
-        removedSet = new Set((rm && rm.result) || []);
-      } catch { /* store down: fall back to nothing delivered/removed */ }
+        const raw = (s && s.result) || [];   // Upstash returns a hash as a flat [field, val, ...] array
+        if (Array.isArray(raw)) for (let i = 0; i < raw.length; i += 2) sortMap[raw[i]] = Number(raw[i + 1]);
+        else if (raw && typeof raw === "object") for (const k in raw) sortMap[k] = Number(raw[k]);
+      } catch { /* store down: fall back to creation order */ }
     }
-    orders.forEach(o => { o.done = doneSet.has(o.no); o.removed = removedSet.has(o.no); });
+    orders.forEach(o => {
+      o.done = doneSet.has(o.no);
+      // default sort key = creation time; the owner can override it to reorder
+      o.sortKey = Number.isFinite(sortMap[o.no]) ? sortMap[o.no] : +new Date(o.when);
+    });
 
-    /* Real queue position, across every buyer: oldest active order is #1.
-       Delivered AND owner-removed orders both drop out of the line. */
+    /* Real queue position across every buyer: sorted by the owner's manual order
+       (which defaults to oldest-first). Delivered orders drop out of the line. */
     orders
-      .filter(o => !o.done && !o.removed)
-      .sort((a, b) => new Date(a.when) - new Date(b.when))
+      .filter(o => !o.done)
+      .sort((a, b) => a.sortKey - b.sortKey)
       .forEach((o, i) => { o.queuePos = i + 1; });
-    orders.forEach(o => { if (o.done || o.removed) o.queuePos = null; });
+    orders.forEach(o => { if (o.done) o.queuePos = null; });
 
     orders.sort((a, b) => new Date(b.when) - new Date(a.when));   // newest first for the list
-    return res.status(200).json({ orders, pending: orders.filter(o => !o.done && !o.removed).length });
+    return res.status(200).json({ orders, pending: orders.filter(o => !o.done).length });
   } catch (e) {
     console.error("orders error:", e);
     return res.status(500).json({ error: e.message || "Could not load orders." });
