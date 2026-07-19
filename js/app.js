@@ -1459,6 +1459,43 @@ function refreshOwnerBadge() {
   badge.hidden = n === 0;
 }
 
+/* Which chat a notification is about — turns a thread id into a readable name. */
+function chatDisplayName(thread) {
+  if (thread === "general") return "Website chat";
+  const o = ownerOrders.find(x => x.no === thread);
+  if (o) return `${o.user || "Buyer"} · ${thread}`;
+  const t = ownerChatThreads.find(x => x.thread === thread);
+  return (t && t.name) || "Website visitor";
+}
+
+/* Owner notification toast — names the exact chat and opens it on tap, so a
+   chime always tells you WHERE it came from. Also fires a real browser
+   notification when the tab is backgrounded and permission was granted. */
+function ownerToast(kind, name, thread) {
+  let box = document.getElementById("ownerToasts");
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "ownerToasts"; box.className = "owner-toasts";
+    document.body.appendChild(box);
+  }
+  const el = document.createElement("button");
+  el.className = "owner-toast";
+  el.innerHTML = `<span class="ot-ic">${kind === "order" ? "🛒" : "💬"}</span>
+    <span class="ot-tx"><b>${kind === "order" ? "New order" : "New message"}</b><i></i></span>
+    <span class="ot-x" aria-hidden="true">✕</span>`;
+  el.querySelector(".ot-tx i").textContent = name;         // textContent → no escaping needed
+  const close = () => el.remove();
+  el.addEventListener("click", e => {
+    if (e.target.classList.contains("ot-x")) return close();
+    close(); openOwner(); renderOwnerChat(thread);
+  });
+  box.appendChild(el);
+  setTimeout(close, 9000);
+  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+    try { new Notification(`${kind === "order" ? "New order" : "New message"} · Chanceblox`, { body: name }); } catch {}
+  }
+}
+
 (async function ownerUnlock() {
   const p = new URLSearchParams(location.search);
   const given = p.get("owner");
@@ -1473,6 +1510,10 @@ function refreshOwnerBadge() {
     IS_OWNER = true;
     render();                              // reveal the owner-only Testing item
     ownerBtn.hidden = false;
+    // ask once so background notifications can name the chat even when the tab's hidden
+    if ("Notification" in window && Notification.permission === "default") {
+      try { Notification.requestPermission(); } catch {}
+    }
     refreshOwnerBadge();
     window.addEventListener("storage", refreshOwnerBadge);
     setInterval(refreshOwnerBadge, 20000);
@@ -1505,6 +1546,10 @@ async function syncOwnerOrders(silent) {
   ownerOrders = list;                                       // keep the global copy fresh
   if (!silent && fresh.length) {
     ringBell();                                             // new order came in
+    fresh.slice(-3).forEach(no => {                         // name the buyer + open the order on tap
+      const o = list.find(x => x.no === no);
+      ownerToast("order", (o && o.user) || no, no);
+    });
     if (!ownerPanel.hidden && ownerView === "list") renderOwnerList(true);
   }
 }
@@ -1519,16 +1564,17 @@ async function syncOwnerChats(silent) {
   ownerChatThreads = threads;
   const seen = load("rbx-own-chat-seen", null);          // null until first seeded
   const map = {};
-  let fresh = 0;
+  const fresh = [];                                      // thread ids with a new buyer message
   for (const t of threads) {
     map[t.thread] = t.last || 0;
     // only a buyer's message counts, never the owner's own reply
-    if (seen && t.who !== "owner" && (t.last || 0) > (seen[t.thread] || 0)) fresh++;
+    if (seen && t.who !== "owner" && (t.last || 0) > (seen[t.thread] || 0)) fresh.push(t.thread);
   }
   save("rbx-own-chat-seen", map);
   refreshOwnerBadge();
-  if (!silent && fresh) {
+  if (!silent && fresh.length) {
     ringBell();                                          // a buyer just messaged
+    fresh.slice(-3).forEach(th => ownerToast("msg", chatDisplayName(th), th));   // say WHICH chat
     if (!ownerPanel.hidden && ownerView === "list") renderOwnerList(true);
   }
 }

@@ -38,10 +38,19 @@ module.exports = async (req, res) => {
   const stripe = new Stripe(key);
 
   try {
-    const list = await stripe.checkout.sessions.list({ limit: 100 });
-    const orders = list.data
-      .filter(s => s.payment_status === "paid")
-      .map(s => {
+    /* Every paid order stays in the console — never hidden. We page through
+       COMPLETED sessions only (status:"complete"), so abandoned checkouts can't
+       eat the window and push old orders out of view, and we keep paging until
+       Stripe has no more (capped so a huge history can't hang the request). */
+    const orders = [];
+    let starting_after;
+    for (let page = 0; page < 20; page++) {          // up to 2000 orders
+      const list = await stripe.checkout.sessions.list({
+        limit: 100, status: "complete",
+        ...(starting_after ? { starting_after } : {}),
+      });
+      for (const s of list.data) {
+        if (s.payment_status !== "paid") continue;
         const m = s.metadata || {};
         const items = String(m.cart || "")
           .split(",").map(p => p.trim()).filter(Boolean)
@@ -50,7 +59,7 @@ module.exports = async (req, res) => {
             return { id: p.slice(0, i), q: parseInt(p.slice(i + 1), 10) || 1 };
           })
           .filter(x => x.id);
-        return {
+        orders.push({
           no: s.client_reference_id || m.order || String(s.id).slice(-8).toUpperCase(),
           when: new Date((s.created || 0) * 1000).toISOString(),
           user: m.roblox_user || "",
@@ -58,8 +67,11 @@ module.exports = async (req, res) => {
           email: (s.customer_details && s.customer_details.email) || "",
           total: (s.amount_total || 0) / 100,
           items,
-        };
-      });
+        });
+      }
+      if (!list.has_more || !list.data.length) break;
+      starting_after = list.data[list.data.length - 1].id;
+    }
 
     // which orders are already delivered (shared KV, so it's the same answer on
     // every device the owner uses — not just whichever browser ticked the box)
