@@ -63,26 +63,29 @@ module.exports = async (req, res) => {
 
     // which orders are already delivered (shared KV, so it's the same answer on
     // every device the owner uses — not just whichever browser ticked the box)
-    let doneSet = new Set();
+    let doneSet = new Set(), removedSet = new Set();
     if (KV_URL && KV_TOKEN) {
       try {
-        const r = await kv(["SMEMBERS", "orders:done"]);
-        doneSet = new Set((r && r.result) || []);
-      } catch { /* store down: fall back to nothing delivered */ }
+        const [d, rm] = await Promise.all([
+          kv(["SMEMBERS", "orders:done"]),
+          kv(["SMEMBERS", "orders:removed"]),   // pulled from the queue, but NOT delivered
+        ]);
+        doneSet = new Set((d && d.result) || []);
+        removedSet = new Set((rm && rm.result) || []);
+      } catch { /* store down: fall back to nothing delivered/removed */ }
     }
-    orders.forEach(o => { o.done = doneSet.has(o.no); });
+    orders.forEach(o => { o.done = doneSet.has(o.no); o.removed = removedSet.has(o.no); });
 
-    /* Real queue position, across every buyer: oldest undelivered order is #1.
-       (The buyer's own page can only see its own order, so it always says
-       "You're next" — this is the true backlog.) */
+    /* Real queue position, across every buyer: oldest active order is #1.
+       Delivered AND owner-removed orders both drop out of the line. */
     orders
-      .filter(o => !o.done)
+      .filter(o => !o.done && !o.removed)
       .sort((a, b) => new Date(a.when) - new Date(b.when))
       .forEach((o, i) => { o.queuePos = i + 1; });
-    orders.forEach(o => { if (o.done) o.queuePos = null; });
+    orders.forEach(o => { if (o.done || o.removed) o.queuePos = null; });
 
     orders.sort((a, b) => new Date(b.when) - new Date(a.when));   // newest first for the list
-    return res.status(200).json({ orders, pending: orders.filter(o => !o.done).length });
+    return res.status(200).json({ orders, pending: orders.filter(o => !o.done && !o.removed).length });
   } catch (e) {
     console.error("orders error:", e);
     return res.status(500).json({ error: e.message || "Could not load orders." });

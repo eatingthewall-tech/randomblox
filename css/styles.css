@@ -1918,6 +1918,16 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
   background: none; color: var(--go);
   border: 1px solid color-mix(in oklab, var(--go) 45%, transparent);
 }
+/* remove-from-queue: secondary, cautionary — clearly not the deliver button */
+.own-remove-btn {
+  display: block; width: 100%; margin: -6px 0 12px;
+  background: none; color: var(--ink-2);
+  border: 1px solid var(--line-2); border-radius: 12px; padding: 11px; cursor: pointer;
+  font: 650 .86rem var(--font);
+  transition: color .16s, border-color .16s, background .16s;
+}
+.own-remove-btn:hover { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 50%, transparent); background: color-mix(in oklab, var(--danger) 8%, transparent); }
+.own-remove-btn.is-removed { color: var(--gold); border-color: color-mix(in oklab, var(--gold) 45%, transparent); }
 .own-row-done { opacity: .55; }
 .own-row-done .own-av { filter: grayscale(.5); }
 

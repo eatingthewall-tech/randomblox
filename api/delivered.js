@@ -38,8 +38,11 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const no = clip(req.query && req.query.no, 60);
       if (!no) return res.status(400).json({ error: "no required" });
-      const r = await kv(["SISMEMBER", "orders:done", no]);
-      return res.status(200).json({ done: (r && r.result) === 1 });
+      const [d, rm] = await Promise.all([
+        kv(["SISMEMBER", "orders:done", no]),
+        kv(["SISMEMBER", "orders:removed", no]),
+      ]);
+      return res.status(200).json({ done: (d && d.result) === 1, removed: (rm && rm.result) === 1 });
     }
 
     if (req.method === "POST") {
@@ -49,6 +52,11 @@ module.exports = async (req, res) => {
       body = body || {};
       const no = clip(body.no, 60);
       if (!no) return res.status(400).json({ error: "no required" });
+      // "removed" pulls an order out of the queue WITHOUT marking it delivered
+      if ("removed" in body) {
+        await kv([body.removed ? "SADD" : "SREM", "orders:removed", no]);
+        return res.status(200).json({ ok: true, no, removed: !!body.removed });
+      }
       await kv([body.done ? "SADD" : "SREM", "orders:done", no]);
       return res.status(200).json({ ok: true, no, done: !!body.done });
     }
