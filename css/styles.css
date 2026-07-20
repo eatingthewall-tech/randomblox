@@ -2183,3 +2183,16 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
   transition: background .15s, border-color .15s;
 }
 .own-notify-btn:hover { background: var(--brand-soft-2); border-color: var(--brand-up); }
+
+/* owner console: make the chat with a new message unmistakable */
+.own-row-unread {
+  background: color-mix(in oklab, var(--brand) 12%, transparent);
+  border-color: color-mix(in oklab, var(--brand) 42%, transparent) !important;
+}
+.own-row-unread .own-main b { color: var(--ink); }
+.own-row-unread .own-main i { color: var(--ink); font-weight: 600; }
+.own-when {
+  margin-left: 8px; font: 600 .7rem var(--font); color: var(--ink-3);
+  letter-spacing: .01em; white-space: nowrap;
+}
+.own-row-unread .own-when { color: var(--brand-up); }

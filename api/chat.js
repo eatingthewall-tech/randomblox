@@ -77,7 +77,13 @@ module.exports = async (req, res) => {
       await kv(["LTRIM", "chat:m:" + thread, "-300", "-1"]);
       // `who` lets the owner console tell a buyer's message from its own reply,
       // so the new-message chime never fires at the owner for their own text
-      const meta = { name, last: msg.when, who, kind: thread.indexOf("web:") === 0 ? "web" : "order" };
+      // `preview` lets the owner console show what the message said, so the right
+      // chat is obvious at a glance instead of just "someone messaged"
+      const meta = {
+        name, last: msg.when, who,
+        kind: thread.indexOf("web:") === 0 ? "web" : "order",
+        preview: clip(text, 80),
+      };
       await kv(["HSET", "chat:threads", thread, JSON.stringify(meta)]);
       return res.status(200).json({ ok: true });
     }

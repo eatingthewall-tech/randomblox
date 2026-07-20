@@ -1623,6 +1623,20 @@ async function syncOwnerChats(silent) {
     if (!ownerPanel.hidden && ownerView === "list") renderOwnerList(true);
   }
 }
+/* Does THIS thread have a buyer message newer than the last time it was opened?
+   Reads the shared store (same basis as the console badge), so it's right across
+   devices — the old per-row check only saw chats saved on this one device, which
+   is why a live chat never showed which one was new. */
+function threadIsUnread(threadId) {
+  const t = ownerChatThreads.find(x => x.thread === threadId);
+  if (!t || t.who === "owner") return false;
+  return (t.last || 0) > (load("rbx-own-chat-read", {})[threadId] || 0);
+}
+/* the newest message in a thread, for the row preview */
+function threadMeta(threadId) {
+  return ownerChatThreads.find(x => x.thread === threadId) || null;
+}
+
 /* unread = threads with a buyer message newer than the last time it was opened */
 function ownerChatUnread() {
   const read = load("rbx-own-chat-read", {});
@@ -1786,15 +1800,19 @@ function generalRowHTML() {
    then every paid order (from Stripe). Both are cross-device. */
 function webRowHTML(t) {
   const name = t.name || "Website visitor";
-  const unread = 0;   // per-thread unread needs a seen marker per visitor; kept simple
+  const unread = threadIsUnread(t.thread);
+  const when = t.last ? msgTime(t.last) : "";
+  const sub = t.preview
+    ? `${t.who === "owner" ? "You: " : ""}${t.preview}`
+    : (t.last ? "Website chat" : "Website chat · no messages yet");
   return `
-    <button class="own-row" data-own="${esc(t.thread)}">
+    <button class="own-row${unread ? " own-row-unread" : ""}" data-own="${esc(t.thread)}">
       <span class="own-av own-av-web">${IC.chat}</span>
       <span class="own-main">
-        <b>${esc(name)}</b>
-        <i>Website chat · ${t.last ? new Date(t.last).toLocaleDateString() : "no messages yet"}</i>
+        <b>${esc(name)}${when ? `<span class="own-when">${esc(when)}</span>` : ""}</b>
+        <i>${esc(sub)}</i>
       </span>
-      ${unread ? `<span class="own-badge">${unread}</span>` : ""}
+      ${unread ? `<span class="own-badge">New</span>` : ""}
       <span class="own-go">${IC.chev}</span>
     </button>`;
 }
@@ -1836,22 +1854,32 @@ async function renderOwnerList(quiet) {
       <p class="own-group">Live chats <span>· questions only, not the queue</span></p>
       ${webRows || generalRowHTML()}
       ${ownerOrders.length ? `<p class="own-group">Paid orders <span>· these form the delivery queue</span></p>` : ""}
-      ${ownerOrders.map(o => {
+      ${[...ownerOrders]
+        // anything with an unread buyer message floats to the top, so a new
+        // message on an older order can't hide down the list
+        .sort((a, b) => (threadIsUnread(b.no) ? 1 : 0) - (threadIsUnread(a.no) ? 1 : 0))
+        .map(o => {
         const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
         const tag = games.length === 1 && games[0] === "accounts"
           ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
         const n = (o.items || []).reduce((a, x) => a + x.q, 0);
-        const unread = unreadFor(o.no);
+        const unread = threadIsUnread(o.no) || unreadFor(o.no) > 0;
         const done = o.done || isDone(o.no);
         const pos = done ? null : o.queuePos;
+        const meta = threadMeta(o.no);
+        const when = meta && meta.last ? msgTime(meta.last) : "";
+        const line = unread && meta && meta.preview
+          ? `${meta.who === "owner" ? "You: " : ""}${meta.preview}`
+          : `${o.no} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : (tag || "order")}`;
         return `
-        <button class="own-row${done ? " own-row-done" : ""}" data-own="${esc(o.no)}">
+        <button class="own-row${done ? " own-row-done" : ""}${unread ? " own-row-unread" : ""}" data-own="${esc(o.no)}">
           <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
           <span class="own-main">
-            <b>${esc(o.user || "Buyer")}${pos ? `<span class="own-pos">#${pos} in queue</span>` : ""}</b>
-            <i>${esc(o.no)} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : esc(tag || "order")}</i>
+            <b>${esc(o.user || "Buyer")}${pos ? `<span class="own-pos">#${pos} in queue</span>` : ""}${
+              unread && when ? `<span class="own-when">${esc(when)}</span>` : ""}</b>
+            <i>${esc(line)}</i>
           </span>
-          ${unread ? `<span class="own-badge">${unread}</span>` : ""}
+          ${unread ? `<span class="own-badge">New</span>` : ""}
           <span class="own-go">${IC.chev}</span>
         </button>`;
       }).join("")}
