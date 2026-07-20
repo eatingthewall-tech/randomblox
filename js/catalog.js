@@ -1535,7 +1535,7 @@ const CATALOG = [
    "name": "Raygun",
    "kind": "gun",
    "rarity": "Godly",
-   "price": 79.99,
+   "price": 50,
    "was": 45.04,
    "img": "assets/hd/mm2-raygun.png",
    "stock": 1
@@ -1546,7 +1546,7 @@ const CATALOG = [
    "name": "Darksword",
    "kind": "knife",
    "rarity": "Godly",
-   "price": 88.99,
+   "price": 55,
    "was": 48,
    "img": "assets/hd/mm2-darksword.png",
    "stock": 1

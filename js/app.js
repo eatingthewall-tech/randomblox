@@ -825,10 +825,27 @@ const CHAT_SEED = {
 
 /* one chat log per order, keyed by order number. Each message carries who:
    "buyer" | "owner"; perspective decides which side is "me" (right) vs "them". */
+/* "3:42 PM" for a message sent today, "Jul 18, 3:42 PM" for anything older —
+   rendered in the reader's own locale and timezone. */
+function msgTime(when) {
+  if (!when) return "";
+  const d = new Date(when);
+  if (isNaN(d.getTime())) return "";
+  const t = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return d.toDateString() === new Date().toDateString()
+    ? t
+    : `${d.toLocaleDateString([], { month: "short", day: "numeric" })}, ${t}`;
+}
 function renderMsgs(logEl, msgs, perspective, seed) {
   logEl.innerHTML =
     (seed ? `<div class="chat-msg chat-sys">${seed}</div>` : "") +
-    msgs.map(m => `<div class="chat-msg ${(m.who || "buyer") === perspective ? "chat-me" : "chat-them"}">${esc(m.t)}</div>`).join("");
+    msgs.map(m => {
+      const stamp = msgTime(m.when);
+      const side = (m.who || "buyer") === perspective ? "chat-me" : "chat-them";
+      return `<div class="chat-msg ${side}">${esc(m.t)}${
+        stamp ? `<time class="chat-when" datetime="${new Date(m.when).toISOString()}">${esc(stamp)}</time>` : ""
+      }</div>`;
+    }).join("");
   logEl.scrollTop = logEl.scrollHeight;
 }
 function paintChat(logEl, key, perspective, seed) {
@@ -1501,8 +1518,22 @@ function ownerToast(kind, name, thread) {
   });
   box.appendChild(el);
   setTimeout(close, 9000);
-  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-    try { new Notification(`${kind === "order" ? "New order" : "New message"} · Chanceblox`, { body: name }); } catch {}
+  /* Real desktop (macOS) notification whenever the window isn't in front.
+     document.hidden alone wasn't enough: on a Mac the tab still counts as
+     "visible" while Chrome sits behind another app, which is exactly when the
+     owner needs telling. hasFocus() covers that case. Owner console only —
+     guests never reach this function. */
+  const away = document.hidden || !document.hasFocus();
+  if (away && "Notification" in window && Notification.permission === "granted") {
+    try {
+      const n = new Notification(`${kind === "order" ? "New order" : "New message"} · Chanceblox`, {
+        body: name,
+        icon: "/assets/icon-48.png",
+        tag: "cb-" + thread,        // one notification per chat, replaced not stacked
+        renotify: true,
+      });
+      n.onclick = () => { window.focus(); n.close(); openOwner(); renderOwnerChat(thread); };
+    } catch { /* notifications unsupported — the in-page toast still shows */ }
   }
 }
 
@@ -1520,10 +1551,6 @@ function ownerToast(kind, name, thread) {
     IS_OWNER = true;
     render();                              // reveal the owner-only Testing item
     ownerBtn.hidden = false;
-    // ask once so background notifications can name the chat even when the tab's hidden
-    if ("Notification" in window && Notification.permission === "default") {
-      try { Notification.requestPermission(); } catch {}
-    }
     refreshOwnerBadge();
     window.addEventListener("storage", refreshOwnerBadge);
     setInterval(refreshOwnerBadge, 20000);
@@ -1609,8 +1636,19 @@ function markThreadRead(thread) {
   save("rbx-own-chat-read", read);
 }
 
+/* Asked here rather than on page load: Safari refuses outright without a user
+   gesture and Chrome can silently drop it, so we hang it off the owner opening
+   the console — a real click. Never runs for guests. */
+function askNotifyPermission(then) {
+  if (!("Notification" in window) || Notification.permission !== "default") return;
+  try {
+    const p = Notification.requestPermission(then);        // older Safari: callback form
+    if (p && p.then) p.then(() => then && then()).catch(() => {});
+  } catch { /* unsupported */ }
+}
 async function openOwner() {
   if (!(await verifyOwner())) { if (ownerBtn) ownerBtn.hidden = true; return; }
+  askNotifyPermission();
   renderOwnerList(); ownerPanel.hidden = false;
 }
 function closeOwner() { ownerPanel.hidden = true; ownerView = null; refreshOwnerBadge(); }
@@ -1719,6 +1757,16 @@ async function renderAcctPools() {
   });
 }
 
+/* Shows whether this Mac will actually pop notifications, and lets the owner
+   switch them on — otherwise a blocked permission just looks like "it's broken". */
+function notifyRowHTML() {
+  if (!("Notification" in window)) return "";
+  const p = Notification.permission;
+  if (p === "granted") return `<p class="own-notify is-on">Desktop notifications are on for this device.</p>`;
+  if (p === "denied") return `<p class="own-notify">Desktop notifications are blocked. Allow them for chanceblox.com in your browser's site settings (and check macOS System Settings → Notifications) to get alerts.</p>`;
+  return `<p class="own-notify"><button class="own-notify-btn" id="ownNotify">Turn on desktop notifications</button></p>`;
+}
+
 function generalRowHTML() {
   const gUnread = unreadFor("general");
   const gCount = load("rbx-chat-general", []).length;
@@ -1781,6 +1829,7 @@ async function renderOwnerList(quiet) {
     <p class="co-note">${err ? "Live chat still works below." :
       `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"} from Stripe, newest first. Every buyer, any device.`}</p>
     ${err ? `<p class="pay-err">${esc(err)}</p>` : ""}
+    ${notifyRowHTML()}
     <div class="own-list">
       <p class="own-group">Stock <span>· auto-delivered logins</span></p>
       ${acctPoolRowHTML()}
@@ -1808,6 +1857,7 @@ async function renderOwnerList(quiet) {
       }).join("")}
     </div>`;
   $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
+  $("#ownNotify")?.addEventListener("click", () => askNotifyPermission(() => renderOwnerList(true)));
 }
 
 function renderOwnerChat(no) {
