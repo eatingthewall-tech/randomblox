@@ -1711,29 +1711,56 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .chat-them { align-self: flex-start; background: rgb(0 0 0 / .1); color: var(--ink); border-bottom-left-radius: 4px; }
 
 /* clickable past orders */
-.order-list { margin-top: 6px; }
-.ol-label { font: 700 .74rem var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin: 6px 0 8px; }
-/* a past order: the row pulls it up, the button jumps into its live chat */
-.order-row { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
-.order-row-main {
-  flex: 1; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 10px;
-  text-align: left; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
-  background: rgb(0 0 0 / .02); color: var(--ink-2); font: 500 .88rem var(--font);
-  cursor: pointer; transition: border-color .16s, background .16s;
+.order-list { margin-top: 18px; }
+.ol-label { font: 700 .74rem var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin: 6px 0 10px; }
+.ol-label span { font-weight: 500; text-transform: none; letter-spacing: .01em; }
+/* ---------- past orders: full cards — what you bought, status, and its chat ---------- */
+.ol-card {
+  display: flex; align-items: stretch; gap: 8px; margin-bottom: 10px;
 }
-.order-row-main:hover { border-color: var(--brand-up); background: var(--brand-soft); }
-.order-row-main b { color: var(--ink); }
-.order-row-main .co-price { color: var(--gold); font-weight: 700; }
-.order-row-support {
-  flex: none; padding: 0 14px; border-radius: 12px;
-  border: 1px solid var(--line); background: none;
-  color: var(--ink-3); font: 600 .8rem var(--font); white-space: nowrap; cursor: pointer;
-  transition: color .16s, border-color .16s, background .16s;
+.ol-card-main {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px;
+  text-align: left; padding: 14px 15px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: linear-gradient(180deg, rgb(255 255 255 / .025), rgb(0 0 0 / .04));
+  color: var(--ink-2); font: 500 .88rem var(--font);
+  transition: border-color .16s var(--ease), background .16s var(--ease), transform .16s var(--ease);
 }
-.order-row-support:hover { color: #fff; border-color: var(--brand); background: var(--brand); }
+.ol-card-main:hover { border-color: var(--brand-up); background: var(--brand-soft); transform: translateY(-1px); }
+.ol-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ol-no { font: 700 .95rem var(--font); letter-spacing: .03em; color: var(--ink); }
+.ol-chip {
+  font: 700 .66rem var(--font); text-transform: uppercase; letter-spacing: .06em;
+  color: var(--gold); border: 1px solid rgb(255 206 84 / .4); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+}
+.ol-chip.is-done { color: var(--go); border-color: rgb(95 212 139 / .4); }
+.ol-thumbs { display: flex; gap: 6px; }
+.ol-thumb {
+  width: 46px; height: 46px; border-radius: 10px; overflow: hidden; flex: none;
+  display: grid; place-items: center; background: var(--tile); border: 1px solid rgb(0 0 0 / .1);
+}
+.ol-thumb img { width: 84%; height: 84%; object-fit: contain; }
+.ol-thumb.is-crop img { width: 100%; height: 100%; object-fit: cover; }
+.ol-more { font: 800 .8rem var(--font); color: var(--ink-2); }
+.ol-items { color: var(--ink); font-size: .9rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ol-meta { color: var(--ink-2); font-size: .82rem; }
+.ol-meta b { color: var(--gold); }
+.ol-chat {
+  flex: none; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 66px; border: 1px solid var(--line); border-radius: 16px; background: none;
+  color: var(--ink-2); font: 600 .74rem var(--font); cursor: pointer;
+  transition: color .16s var(--ease), border-color .16s var(--ease), background .16s var(--ease);
+}
+.ol-chat:hover { color: #fff; border-color: var(--brand); background: var(--brand); }
+.ol-chat-badge {
+  position: absolute; top: 8px; right: 10px; min-width: 18px; height: 18px; padding: 0 5px;
+  display: grid; place-items: center; border-radius: 999px;
+  background: var(--danger); color: #fff; font: 800 .68rem var(--font);
+}
 @media (max-width: 560px) {
-  .order-row { flex-direction: column; gap: 6px; }
-  .order-row-support { padding: 10px 14px; }
+  .ol-card { flex-direction: column; gap: 6px; }
+  .ol-chat { flex-direction: row; width: 100%; padding: 11px; gap: 8px; }
+  .ol-chat-badge { position: static; }
 }
 
 /* owner floating button (only shown on the unlocked device) */

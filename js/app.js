@@ -1220,6 +1220,8 @@ function bindQueueChat(root = document) {
     const seed = CHAT_SEED[box.dataset.mode] || CHAT_SEED.account;
     const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
     const repaint = () => paintChat(log, key, "buyer", seed);
+    // opening the fold counts as reading — clears this order's unread badge
+    box.closest("details")?.addEventListener("toggle", e => { if (e.target.open) markBuyerSeen(thread); });
     form.addEventListener("submit", async e => {
       e.preventDefault();
       const t = input.value.trim();
@@ -1508,23 +1510,47 @@ function openMyOrder(selectedNo, openChat) {
   const others = orders.filter(o => o.no !== sel.no).reverse();
   viewingOrder = sel.no;
   save("rbx-open-order", sel.no);            // survive a reload until they close it
+  /* past orders as full cards: what you bought (thumbs + names), when, how
+     much, its status — and one-tap access to that order's own chat, which is
+     kept forever and stays usable. */
+  const prettyId = id => String(id).replace(/^(mm2|am|nfl|bd|baddies|acc|bag)-/, "").replace(/-/g, " ");
+  const orderCard = o => {
+    const items = o.items || [];
+    const names = items.map(x => `${byId[x.id]?.name || prettyId(x.id)}${x.q > 1 ? " ×" + x.q : ""}`);
+    const thumbs = items.map(x => byId[x.id]).filter(i => i && i.img).slice(0, 4);
+    const extra = items.reduce((n, x) => n + x.q, 0) - thumbs.length;
+    const done = o.done || isDone(o.no);
+    const acctOnly = items.length > 0 && items.every(x => byId[x.id]?.game === "accounts");
+    const unread = buyerUnreadFor(o.no);
+    return `
+    <article class="ol-card">
+      <button class="ol-card-main" data-order-no="${esc(o.no)}" aria-label="Open order ${esc(o.no)}">
+        <span class="ol-card-top">
+          <b class="ol-no">${esc(o.no)}</b>
+          <span class="ol-chip ${done ? "is-done" : ""}">${done ? "Delivered" : acctOnly ? "Instant" : "In progress"}</span>
+        </span>
+        <span class="ol-thumbs">
+          ${thumbs.map(i => `<span class="ol-thumb ${coCrop(i.img) ? "is-crop" : ""}"><img loading="lazy" src="${imgSrc(i.img)}" alt=""></span>`).join("")}
+          ${extra > 0 ? `<span class="ol-thumb ol-more">+${extra}</span>` : ""}
+        </span>
+        <span class="ol-items">${names.length ? esc(names.join(", ")) : "Order"}</span>
+        <span class="ol-meta">${new Date(o.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · <b>${money(o.total)}</b></span>
+      </button>
+      <button class="ol-chat" data-chat-no="${esc(o.no)}" aria-label="Open this order's chat">
+        ${IC.chat}<span>Chat</span>${unread ? `<b class="ol-chat-badge">${unread}</b>` : ""}
+      </button>
+    </article>`;
+  };
   coBody.innerHTML = `
     <h2 class="co-title" id="checkoutTitle">My order${orders.length > 1 ? "s" : ""}</h2>
     ${queueHTML(sel, orders)}
     ${others.length ? `<div class="order-list">
-      <p class="ol-label">Past orders</p>` +
-      others.map(o => `
-      <div class="order-row">
-        <button class="order-row-main" data-order-no="${esc(o.no)}">
-          <span><b>${esc(o.no)}</b> · ${new Date(o.when).toLocaleDateString()} · ${o.items.reduce((n, x) => n + x.q, 0)} items</span>
-          <span class="co-price">${money(o.total)}</span>
-        </button>
-        <button class="order-row-support" data-support-no="${esc(o.no)}">Contact support</button>
-      </div>`).join("") + `</div>` : ""}`;
-  $$("#checkoutBody .order-row-main").forEach(b =>
+      <p class="ol-label">Past orders <span>· tap one to see it — every order keeps its chat</span></p>
+      ${others.map(orderCard).join("")}</div>` : ""}`;
+  $$("#checkoutBody [data-order-no]").forEach(b =>
     b.addEventListener("click", () => openMyOrder(b.dataset.orderNo)));
-  $$("#checkoutBody .order-row-support").forEach(b =>
-    b.addEventListener("click", () => openMyOrder(b.dataset.supportNo, true)));
+  $$("#checkoutBody [data-chat-no]").forEach(b =>
+    b.addEventListener("click", () => openMyOrder(b.dataset.chatNo, true)));
   bindQueueChat(coBody);
   deliverAccounts(sel.sid);            // re-shows the login on a past account order
 
@@ -1583,6 +1609,12 @@ function unreadFor(no) {
   const seen = load("rbx-seen-" + no, 0);
   return load("rbx-chat-" + no, []).slice(seen).filter(m => (m.who || "buyer") === "buyer").length;
 }
+/* buyer's side of the same coin: owner replies they haven't opened yet */
+function buyerUnreadFor(no) {
+  const seen = load("rbx-bseen-" + no, 0);
+  return load("rbx-chat-" + no, []).slice(seen).filter(m => (m.who || "buyer") === "owner").length;
+}
+function markBuyerSeen(no) { save("rbx-bseen-" + no, load("rbx-chat-" + no, []).length); }
 function ownerUnread() {
   return ownerChatUnread()                                   // shared-store chat threads
     + unreadFor("general")                                   // on-device fallback chat
