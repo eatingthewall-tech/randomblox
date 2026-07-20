@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260719b">
+<link rel="stylesheet" href="css/styles.css?v=20260719c">
 <!-- Structured data: helps Google understand what the site is and show rich results.
      Everything here is factual — no fake ratings or invented review counts. -->
 <script type="application/ld+json">
@@ -503,12 +503,17 @@
   </div>
   <div class="chat-log" id="cwLog" aria-live="polite"></div>
   <form class="chat-form" id="cwForm" autocomplete="off">
+    <label class="chat-attach" title="Attach a photo">
+      <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+      <span aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05 12.25 20.2a5.5 5.5 0 0 1-7.78-7.78l9.2-9.2a3.67 3.67 0 0 1 5.18 5.18l-9.2 9.2a1.83 1.83 0 0 1-2.6-2.6l8.5-8.48"/></svg></span>
+      <span class="sr-only">Attach a photo</span>
+    </label>
     <input class="chat-input" id="cwInput" type="text" maxlength="280" placeholder="Ask us anything, no order needed" aria-label="Your message">
     <button class="chat-send" type="submit" aria-label="Send message"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
   </form>
 </div>
 
 <script src="js/catalog.js?v=20260719a"></script>
-<script src="js/app.js?v=20260719b"></script>
+<script src="js/app.js?v=20260719c"></script>
 </body>
 </html>

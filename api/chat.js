@@ -51,6 +51,25 @@ module.exports = async (req, res) => {
         threads.sort((a, b) => (b.last || 0) - (a.last || 0));
         return res.status(200).json({ threads });
       }
+      /* serve an attached image by id. Stored separately from the message list
+         so the 5-second chat poll never re-downloads photos — the browser caches
+         these by URL. Strict type allowlist + nosniff: user-supplied files are
+         served from our own origin, so an HTML/SVG payload here would be XSS. */
+      if (req.query && req.query.img) {
+        const id = clip(req.query.img, 40);
+        if (!/^[a-f0-9]{12,40}$/.test(id)) return res.status(400).json({ error: "bad id" });
+        const r = await kv(["GET", "chat:img:" + id]);
+        const dataUrl = r && r.result;
+        if (!dataUrl) return res.status(404).json({ error: "not found" });
+        const m = /^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
+        if (!m) return res.status(415).json({ error: "unsupported" });
+        const buf = Buffer.from(m[2], "base64");
+        res.setHeader("Content-Type", m[1]);
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("Content-Disposition", "inline");
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        return res.status(200).end(buf);
+      }
       // anyone: read one thread's messages
       const thread = clip(req.query && req.query.thread, 80);
       if (!thread) return res.status(400).json({ error: "thread required" });
@@ -69,10 +88,34 @@ module.exports = async (req, res) => {
       const text = clip(body.text, 500).trim();
       const name = clip(body.name, 40);
       const who = body.who === "owner" ? "owner" : "buyer";
-      if (!thread || !text) return res.status(400).json({ error: "thread and text required" });
+      const image = typeof body.image === "string" ? body.image : "";
+      if (!thread || (!text && !image)) return res.status(400).json({ error: "thread and text or image required" });
       if (who === "owner" && !ownerOK(req)) return res.status(401).json({ error: "Owner only." });
 
-      const msg = { t: text, who, when: Date.now(), ...(name ? { name } : {}) };
+      /* An attached photo. The client already downscales and re-encodes to JPEG,
+         so anything oversized here is either a bug or someone poking the API.
+         SVG is deliberately NOT allowed — it can carry script. */
+      let imgId = "";
+      if (image) {
+        const m = /^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=]+)$/.exec(image);
+        if (!m) return res.status(415).json({ error: "Only JPEG, PNG, WebP or GIF images." });
+        if (image.length > 700000) return res.status(413).json({ error: "That image is too big — try a smaller one." });
+        // cheap per-thread throttle so nobody can fill the store with uploads
+        const rlKey = "chat:imgrl:" + thread;
+        const c = await kv(["INCR", rlKey]);
+        if (c && c.result === 1) await kv(["EXPIRE", rlKey, 3600]);
+        if (c && c.result > 20 && who !== "owner") {
+          return res.status(429).json({ error: "Too many images for now — try again later." });
+        }
+        imgId = crypto.randomBytes(9).toString("hex");
+        await kv(["SET", "chat:img:" + imgId, image, "EX", 60 * 60 * 24 * 365]);
+      }
+
+      const msg = {
+        t: text, who, when: Date.now(),
+        ...(imgId ? { img: imgId } : {}),
+        ...(name ? { name } : {}),
+      };
       await kv(["RPUSH", "chat:m:" + thread, JSON.stringify(msg)]);
       await kv(["LTRIM", "chat:m:" + thread, "-300", "-1"]);
       // `who` lets the owner console tell a buyer's message from its own reply,
@@ -82,7 +125,7 @@ module.exports = async (req, res) => {
       const meta = {
         name, last: msg.when, who,
         kind: thread.indexOf("web:") === 0 ? "web" : "order",
-        preview: clip(text, 80),
+        preview: clip(text || (imgId ? "📷 Photo" : ""), 80),
       };
       await kv(["HSET", "chat:threads", thread, JSON.stringify(meta)]);
       return res.status(200).json({ ok: true });

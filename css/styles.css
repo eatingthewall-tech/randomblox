@@ -2196,3 +2196,28 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
   letter-spacing: .01em; white-space: nowrap;
 }
 .own-row-unread .own-when { color: var(--brand-up); }
+
+/* ---------- chat photo attachments ---------- */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.chat-attach {
+  flex: none; display: inline-grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 11px; cursor: pointer;
+  color: var(--ink-2); border: 1px solid var(--line-2); background: var(--tile);
+  transition: color .15s, border-color .15s, background .15s, opacity .15s;
+}
+.chat-attach:hover { color: var(--ink); border-color: var(--brand-up); background: var(--brand-soft); }
+.chat-attach.is-busy { opacity: .5; pointer-events: none; }
+.chat-attach:focus-within { border-color: var(--brand-up); box-shadow: 0 0 0 3px var(--brand-soft-2); }
+
+/* a bubble that's just a photo shouldn't look like a text bubble */
+.chat-msg.has-img { padding: 5px; max-width: 78%; }
+.chat-img { display: block; border-radius: 10px; overflow: hidden; }
+.chat-img img {
+  display: block; width: 100%; max-width: 260px; height: auto;
+  max-height: 320px; object-fit: cover; border-radius: 10px;
+}
+.chat-msg.has-img .chat-text { display: block; padding: 6px 7px 2px; }
+.chat-msg.has-img .chat-when { padding: 0 7px 3px; }

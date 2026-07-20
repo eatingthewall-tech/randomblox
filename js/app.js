@@ -842,10 +842,23 @@ function renderMsgs(logEl, msgs, perspective, seed) {
     msgs.map(m => {
       const stamp = msgTime(m.when);
       const side = (m.who || "buyer") === perspective ? "chat-me" : "chat-them";
-      return `<div class="chat-msg ${side}">${esc(m.t)}${
+      const src = m.img ? `/api/chat?img=${encodeURIComponent(m.img)}` : "";
+      const photo = src
+        ? `<a class="chat-img" href="${src}" target="_blank" rel="noopener">
+             <img src="${src}" alt="Attached photo" loading="lazy" decoding="async">
+           </a>`
+        : "";
+      return `<div class="chat-msg ${side}${m.img ? " has-img" : ""}">${photo}${
+        m.t ? `<span class="chat-text">${esc(m.t)}</span>` : ""
+      }${
         stamp ? `<time class="chat-when" datetime="${new Date(m.when).toISOString()}">${esc(stamp)}</time>` : ""
       }</div>`;
     }).join("");
+  // no inline handlers: the site's CSP is script-src 'self'
+  $$(".chat-img img", logEl).forEach(im => im.addEventListener("error", () => {
+    const a = im.closest(".chat-img");
+    if (a) { a.replaceWith(document.createTextNode("📷 photo unavailable")); }
+  }, { once: true }));
   logEl.scrollTop = logEl.scrollHeight;
 }
 function paintChat(logEl, key, perspective, seed) {
@@ -878,17 +891,83 @@ async function chatApiGet(thread) {
     return Array.isArray(d.messages) ? d.messages : null;
   } catch { return null; }
 }
-async function chatApiPost(thread, name, who, text) {
+async function chatApiPost(thread, name, who, text, image) {
   if (!CHAT_API) return false;
   try {
     const r = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(who === "owner" ? { "x-owner-key": ownerKey() } : {}) },
-      body: JSON.stringify({ thread, name, who, text }),
+      body: JSON.stringify({ thread, name, who, text, ...(image ? { image } : {}) }),
     });
     if (r.status === 501 || r.status === 404) { CHAT_API = false; return false; }
-    return r.ok;
-  } catch { return false; }
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || "Couldn't send that.");
+    }
+    return true;
+  } catch (e) {
+    if (e && e.message && !/fetch/i.test(e.message)) throw e;   // surface real API errors
+    return false;
+  }
+}
+
+/* ---------- photo attachments ----------
+   Resized and re-encoded to JPEG in the browser before it's sent: a 12MP phone
+   photo would otherwise be far too big for the store, and re-encoding drops
+   whatever the original file really was (SVG can carry script, so it's refused
+   outright). The upload itself is stored server-side and referenced by id, so
+   the chat's polling never re-downloads photos. */
+const IMG_MAX_PX = 1280, IMG_MAX_BYTES = 700000;
+const IC_CLIP = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05 12.25 20.2a5.5 5.5 0 0 1-7.78-7.78l9.2-9.2a3.67 3.67 0 0 1 5.18 5.18l-9.2 9.2a1.83 1.83 0 0 1-2.6-2.6l8.5-8.48"/></svg>`;
+const ATTACH_HTML = `<label class="chat-attach" title="Attach a photo">
+  <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+  <span aria-hidden="true">${IC_CLIP}</span><span class="sr-only">Attach a photo</span>
+</label>`;
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type) || /svg/i.test(file.type)) {
+      return reject(new Error("Images only — JPEG, PNG, WebP or GIF."));
+    }
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error("Couldn't read that file."));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("That file isn't a valid image."));
+      img.onload = () => {
+        const scale = Math.min(1, IMG_MAX_PX / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);      // flatten transparency for JPEG
+        ctx.drawImage(img, 0, 0, w, h);
+        let out = c.toDataURL("image/jpeg", 0.72);
+        if (out.length > IMG_MAX_BYTES) out = c.toDataURL("image/jpeg", 0.5);
+        if (out.length > IMG_MAX_BYTES) return reject(new Error("That image is too big — try a smaller one."));
+        resolve(out);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* wires the paperclip in any chat form: pick -> compress -> send(dataUrl) */
+function bindChatAttach(form, send) {
+  const label = $(".chat-attach", form), input = label && $('input[type="file"]', label);
+  if (!label || !input) return;
+  if (!CHAT_API) { label.hidden = true; return; }    // photos need the shared store
+  input.addEventListener("change", async () => {
+    const file = input.files && input.files[0];
+    input.value = "";                                 // let the same file be picked again
+    if (!file) return;
+    label.classList.add("is-busy");
+    try { await send(await compressImage(file)); }
+    catch (e) { alert(e.message || "Couldn't attach that image."); }
+    finally { label.classList.remove("is-busy"); }
+  });
 }
 async function chatApiThreads() {
   if (!CHAT_API) return null;
@@ -1033,6 +1112,7 @@ function queueHTML(order, orders) {
       <div class="coq-chat" data-order="${esc(order.no)}" data-mode="${chatMode}" data-persp="buyer" data-buyer="${esc(order.user || "")}">
         <div class="chat-log" aria-live="polite"></div>
         <form class="chat-form" autocomplete="off">
+          ${ATTACH_HTML}
           <input class="chat-input" type="text" maxlength="240" placeholder="Message the owner" aria-label="Message the owner">
           <button class="chat-send" type="submit" aria-label="Send message">${IC.send}</button>
         </form>
@@ -1122,6 +1202,10 @@ function bindQueueChat(root = document) {
       input.value = "";
       repaint();
       await chatApiPost(thread, box.dataset.buyer || "", "buyer", t);   // shared store
+      syncChats();
+    });
+    bindChatAttach(form, async dataUrl => {
+      await chatApiPost(thread, box.dataset.buyer || "", "buyer", "", dataUrl);
       syncChats();
     });
     repaint();
@@ -1931,6 +2015,7 @@ function renderOwnerChat(no) {
     <div class="coq-chat own-chat" data-order="${esc(no)}" data-persp="owner">
       <div class="chat-log" aria-live="polite"></div>
       <form class="chat-form" autocomplete="off">
+        ${ATTACH_HTML}
         <input class="chat-input" type="text" maxlength="240" placeholder="Reply to ${esc(o.user || "the buyer")}" aria-label="Reply to buyer">
         <button class="chat-send" type="submit" aria-label="Send reply">${IC.send}</button>
       </form>
@@ -1968,6 +2053,11 @@ function renderOwnerChat(no) {
     repaint();
     await chatApiPost(no, o.user || "", "owner", t);   // shared store (owner-gated)
     syncChats();
+  });
+  bindChatAttach(form, async dataUrl => {
+    await chatApiPost(no, o.user || "", "owner", "", dataUrl);
+    await syncChats();
+    repaint();
   });
   save("rbx-seen-" + no, load(key, []).length);   // mark this thread read (on-device chat)
   markThreadRead(no);                             // ...and in the shared store, so the badge clears
@@ -2022,6 +2112,11 @@ $("#closeOwner")?.addEventListener("click", closeOwner);
     await chatApiPost(thread, visitorName(), "buyer", t);   // shared store
     await repaint();
     if (typeof refreshOwnerBadge === "function") refreshOwnerBadge();
+  });
+  bindChatAttach(form, async dataUrl => {
+    await chatApiPost(thread, visitorName(), "buyer", "", dataUrl);
+    await repaint();
+    save(SEEN, load(KEY, []).length); refreshBadge();
   });
   window.addEventListener("storage", refreshBadge);
   refreshBadge();
