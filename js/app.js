@@ -844,9 +844,9 @@ function renderMsgs(logEl, msgs, perspective, seed) {
       const side = (m.who || "buyer") === perspective ? "chat-me" : "chat-them";
       const src = m.img ? `/api/chat?img=${encodeURIComponent(m.img)}` : "";
       const photo = src
-        ? `<a class="chat-img" href="${src}" target="_blank" rel="noopener">
+        ? `<button type="button" class="chat-img" data-full="${src}" aria-label="Open photo">
              <img src="${src}" alt="Attached photo" loading="lazy" decoding="async">
-           </a>`
+           </button>`
         : "";
       return `<div class="chat-msg ${side}${m.img ? " has-img" : ""}">${photo}${
         m.t ? `<span class="chat-text">${esc(m.t)}</span>` : ""
@@ -859,7 +859,33 @@ function renderMsgs(logEl, msgs, perspective, seed) {
     const a = im.closest(".chat-img");
     if (a) { a.replaceWith(document.createTextNode("📷 photo unavailable")); }
   }, { once: true }));
+  $$(".chat-img", logEl).forEach(btn =>
+    btn.addEventListener("click", () => openImageLightbox(btn.dataset.full)));
   logEl.scrollTop = logEl.scrollHeight;
+}
+
+/* Tap a chat photo to zoom it right here — no new tab. Click the backdrop,
+   the ✕, or press Escape to close. */
+function openImageLightbox(src) {
+  if (!src) return;
+  let lb = document.getElementById("imgLightbox");
+  if (!lb) {
+    lb = document.createElement("div");
+    lb.id = "imgLightbox";
+    lb.className = "imglb";
+    lb.hidden = true;
+    lb.innerHTML = `<button type="button" class="imglb-x" aria-label="Close photo">✕</button><img alt="Attached photo">`;
+    document.body.appendChild(lb);
+    const close = () => { lb.hidden = true; document.body.classList.remove("imglb-open"); };
+    lb.addEventListener("click", e => {
+      if (e.target === lb || e.target.classList.contains("imglb-x")) close();
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !lb.hidden) close(); });
+  }
+  lb.querySelector("img").src = src;
+  lb.hidden = false;
+  document.body.classList.add("imglb-open");
+  lb.querySelector(".imglb-x").focus();
 }
 function paintChat(logEl, key, perspective, seed) {
   renderMsgs(logEl, load(key, []), perspective, seed);
