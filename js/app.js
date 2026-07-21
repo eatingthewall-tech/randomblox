@@ -1059,7 +1059,8 @@ async function syncDelivered() {
   if (!changed) return;
   save("rbx-orders", orders);
   maybeRingTurn();                                       // did a later order reach the front?
-  if (!co.hidden && $("#checkoutBody .q-slim")) openMyOrder(viewingOrder);   // same order, refreshed
+  // repaint the order view in place, keeping whatever the buyer had open (or collapsed)
+  if (!co.hidden && $("#checkoutBody .mo-list, #checkoutBody .q-slim")) openMyOrder(viewingOrder);
 }
 setInterval(syncDelivered, 6000);
 syncDelivered();
@@ -1124,7 +1125,28 @@ async function deliverAccounts(sid, tries = 0) {
   } catch { /* offline — the chat is still there */ }
 }
 
-function queueHTML(order, orders) {
+/* what's inside an order — thumbs, names and the total — shown right in the
+   order box so "what did I buy and for how much" is never a mystery */
+function orderContentsHTML(order) {
+  const items = order.items || [];
+  if (!items.length) return "";
+  const pretty = id => String(id).replace(/^(mm2|am|nfl|bd|baddies|acc|bag)-/, "").replace(/-/g, " ");
+  const names = items.map(x => `${byId[x.id]?.name || pretty(x.id)}${x.q > 1 ? " ×" + x.q : ""}`);
+  const thumbs = items.map(x => byId[x.id]).filter(i => i && i.img).slice(0, 5);
+  const extra = items.reduce((n, x) => n + x.q, 0) - thumbs.length;
+  return `
+    <div class="qo-what">
+      ${thumbs.length ? `<span class="ol-thumbs">
+        ${thumbs.map(i => `<span class="ol-thumb ${coCrop(i.img) ? "is-crop" : ""}"><img loading="lazy" src="${imgSrc(i.img)}" alt=""></span>`).join("")}
+        ${extra > 0 ? `<span class="ol-thumb ol-more">+${extra}</span>` : ""}
+      </span>` : ""}
+      <p class="qo-names">${esc(names.join(", "))}</p>
+      ${order.total ? `<p class="qo-total">Total paid <b>${money(order.total)}</b></p>` : ""}
+    </div>`;
+}
+
+function queueHTML(order, orders, opts = {}) {
+  const bare = !!opts.bare;   // card view supplies its own header — skip the order-number box
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
   const vipGames = games.filter(g => VIP_LINKS[g]);
   const hasAccounts = games.includes("accounts");
@@ -1147,11 +1169,13 @@ function queueHTML(order, orders) {
 
   /* delivered orders: no queue, no VIP — just a receipt + the chat */
   if (order.done) {
+    if (bare) return `<div class="q-slim">${chatFold("Open this order's chat")}</div>`;
     return `
       <div class="q-slim">
         <div class="q-order q-delivered">
           <span class="qo-label">Your order number</span>
           <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-done">Delivered</span>
+          ${orderContentsHTML(order)}
           <p class="qo-wait">This order has been delivered. Thanks for shopping with us!</p>
         </div>
         ${chatFold("Open live chat")}
@@ -1161,11 +1185,17 @@ function queueHTML(order, orders) {
   /* account-only orders: no queue. The login drops into #acctDeliver as soon as
      the server hands it over; if the pool is empty it falls back to the chat. */
   if (accountsOnly) {
+    if (bare) return `
+      <div class="q-slim">
+        <div class="acct-deliver" id="acctDeliver"></div>
+        ${chatFold("Open this order's chat")}
+      </div>`;
     return `
       <div class="q-slim">
         <div class="q-order">
           <span class="qo-label">Your order number</span>
           <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-plain">No queue</span>
+          ${orderContentsHTML(order)}
           <p class="qo-wait">Your login is on its way.</p>
         </div>
         <div class="acct-deliver" id="acctDeliver"></div>
@@ -1191,11 +1221,14 @@ function queueHTML(order, orders) {
 
   return `
     <div class="q-slim">
+      ${bare ? `
+      <p class="mo-qline"><b>${q.ahead === 0 ? "You're next!" : q.ahead + " ahead of you"}</b> · estimated wait ${waitTxt}</p>` : `
       <div class="q-order">
         <span class="qo-label">Your order number</span>
         <b class="qo-code">${esc(order.no)}</b><span class="qo-pos">${q.ahead === 0 ? "You're next" : q.ahead + " ahead of you"}</span>
+        ${orderContentsHTML(order)}
         <p class="qo-wait">Estimated wait: ${waitTxt}</p>
-      </div>
+      </div>`}
       ${hasAccounts ? `<div class="acct-deliver" id="acctDeliver"></div>` : ""}
       <div class="coq-links">${vipTiles}</div>
       <details class="coq-fold">
@@ -1221,7 +1254,11 @@ function bindQueueChat(root = document) {
     const log = $(".chat-log", box), form = $(".chat-form", box), input = $(".chat-input", box);
     const repaint = () => paintChat(log, key, "buyer", seed);
     // opening the fold counts as reading — clears this order's unread badge
-    box.closest("details")?.addEventListener("toggle", e => { if (e.target.open) markBuyerSeen(thread); });
+    box.closest("details")?.addEventListener("toggle", e => {
+      if (!e.target.open) return;
+      markBuyerSeen(thread);
+      $(".ol-chat-badge", box.closest(".mo-card") || document.createElement("div"))?.remove();
+    });
     form.addEventListener("submit", async e => {
       e.preventDefault();
       const t = input.value.trim();
@@ -1378,7 +1415,7 @@ function stepDone(username) {
     <p class="co-step">Step 3 of 3</p>
     <h2 class="co-title" id="checkoutTitle">${acctOnly ? `Your account is on the way, ${esc(username)}` : `You're in the queue, ${esc(username)}`}</h2>
     ${queueHTML(order, orders)}
-    <p class="co-note">Your order number is saved on this device under "My order".
+    <p class="co-note">Your order number is saved on this device under "My orders".
     Have it handy ${acctOnly ? "in the chat" : "for the trade"}.</p>
     ${linesHTML(es)}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
@@ -1492,6 +1529,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) resu
 /* ---------- order lookup: past orders are clickable and pull themselves up ---------- */
 /* `openChat` jumps straight into that order's live chat (the "Contact support"
    button on a past order). */
+const COLLAPSE_ALL = " collapse";   // sentinel: render the list with nothing expanded
 function openMyOrder(selectedNo, openChat) {
   const orders = load("rbx-orders", []);
   co.hidden = false;
@@ -1505,59 +1543,77 @@ function openMyOrder(selectedNo, openChat) {
       shows up here.</p>`;
     return;
   }
-  setCoWide(false);
-  const sel = orders.find(o => o.no === selectedNo) || orders[orders.length - 1];
-  const others = orders.filter(o => o.no !== sel.no).reverse();
-  viewingOrder = sel.no;
-  save("rbx-open-order", sel.no);            // survive a reload until they close it
-  /* past orders as full cards: what you bought (thumbs + names), when, how
-     much, its status — and one-tap access to that order's own chat, which is
-     kept forever and stays usable. */
+  /* ONE clean list of every order, newest first — each a full card showing
+     what you bought, when, for how much, and its status. The selected card
+     expands in place with its queue / VIP link / account login / chat;
+     tapping it again collapses everything back to the plain list. */
+  setCoWide(true);
+  const list = [...orders].reverse();
+  const collapse = selectedNo === COLLAPSE_ALL;
+  const sel = collapse ? null : (orders.find(o => o.no === selectedNo) || list[0]);
+  viewingOrder = sel ? sel.no : COLLAPSE_ALL;   // a background repaint keeps this state
+  if (sel) save("rbx-open-order", sel.no);   // survive a reload until they close it
+  else localStorage.removeItem("rbx-open-order");
+
   const prettyId = id => String(id).replace(/^(mm2|am|nfl|bd|baddies|acc|bag)-/, "").replace(/-/g, " ");
   const orderCard = o => {
+    const open = !!sel && o.no === sel.no;
     const items = o.items || [];
     const names = items.map(x => `${byId[x.id]?.name || prettyId(x.id)}${x.q > 1 ? " ×" + x.q : ""}`);
-    const thumbs = items.map(x => byId[x.id]).filter(i => i && i.img).slice(0, 4);
+    const thumbs = items.map(x => byId[x.id]).filter(i => i && i.img).slice(0, 5);
     const extra = items.reduce((n, x) => n + x.q, 0) - thumbs.length;
     const done = o.done || isDone(o.no);
     const acctOnly = items.length > 0 && items.every(x => byId[x.id]?.game === "accounts");
+    const q = (!done && !acctOnly) ? queueInfo(o, orders) : null;
+    const chip = done ? `<span class="ol-chip is-done">Delivered</span>`
+      : acctOnly ? `<span class="ol-chip">Instant</span>`
+      : `<span class="ol-chip">${q && q.ahead === 0 ? "You're next" : "In queue"}</span>`;
     const unread = buyerUnreadFor(o.no);
     return `
-    <article class="ol-card">
-      <button class="ol-card-main" data-order-no="${esc(o.no)}" aria-label="Open order ${esc(o.no)}">
-        <span class="ol-card-top">
-          <b class="ol-no">${esc(o.no)}</b>
-          <span class="ol-chip ${done ? "is-done" : ""}">${done ? "Delivered" : acctOnly ? "Instant" : "In progress"}</span>
+    <article class="mo-card${open ? " is-open" : ""}">
+      <button class="mo-head" data-order-no="${esc(o.no)}" aria-expanded="${open}">
+        <span class="mo-head-main">
+          <span class="ol-card-top"><b class="ol-no">${esc(o.no)}</b>${chip}</span>
+          <span class="mo-row">
+            <span class="ol-thumbs">
+              ${thumbs.map(i => `<span class="ol-thumb ${coCrop(i.img) ? "is-crop" : ""}"><img loading="lazy" src="${imgSrc(i.img)}" alt=""></span>`).join("")}
+              ${extra > 0 ? `<span class="ol-thumb ol-more">+${extra}</span>` : ""}
+            </span>
+            <span class="mo-tx">
+              <span class="ol-items">${names.length ? esc(names.join(", ")) : "Order"}</span>
+              <span class="ol-meta">${new Date(o.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}${o.total ? ` · paid <b>${money(o.total)}</b>` : ""}</span>
+            </span>
+          </span>
         </span>
-        <span class="ol-thumbs">
-          ${thumbs.map(i => `<span class="ol-thumb ${coCrop(i.img) ? "is-crop" : ""}"><img loading="lazy" src="${imgSrc(i.img)}" alt=""></span>`).join("")}
-          ${extra > 0 ? `<span class="ol-thumb ol-more">+${extra}</span>` : ""}
+        <span class="mo-side">
+          ${unread ? `<b class="ol-chat-badge">${unread}</b>` : ""}
+          <span class="mo-chev ${open ? "is-open" : ""}">${IC.chev}</span>
         </span>
-        <span class="ol-items">${names.length ? esc(names.join(", ")) : "Order"}</span>
-        <span class="ol-meta">${new Date(o.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · <b>${money(o.total)}</b></span>
       </button>
-      <button class="ol-chat" data-chat-no="${esc(o.no)}" aria-label="Open this order's chat">
-        ${IC.chat}<span>Chat</span>${unread ? `<b class="ol-chat-badge">${unread}</b>` : ""}
-      </button>
+      ${open ? `<div class="mo-body">${queueHTML(o, orders, { bare: true })}</div>` : ""}
     </article>`;
   };
-  coBody.innerHTML = `
-    <h2 class="co-title" id="checkoutTitle">My order${orders.length > 1 ? "s" : ""}</h2>
-    ${queueHTML(sel, orders)}
-    ${others.length ? `<div class="order-list">
-      <p class="ol-label">Past orders <span>· tap one to see it — every order keeps its chat</span></p>
-      ${others.map(orderCard).join("")}</div>` : ""}`;
-  $$("#checkoutBody [data-order-no]").forEach(b =>
-    b.addEventListener("click", () => openMyOrder(b.dataset.orderNo)));
-  $$("#checkoutBody [data-chat-no]").forEach(b =>
-    b.addEventListener("click", () => openMyOrder(b.dataset.chatNo, true)));
-  bindQueueChat(coBody);
-  deliverAccounts(sel.sid);            // re-shows the login on a past account order
 
-  if (openChat) {
-    const fold = $("#checkoutBody .coq-chatfold");
+  coBody.innerHTML = `
+    <div class="mo-titlebar">
+      <h2 class="co-title" id="checkoutTitle">My orders</h2>
+      <span class="mo-count">${orders.length} order${orders.length === 1 ? "" : "s"}</span>
+    </div>
+    <p class="co-note mo-hint">Tap any order to open it — the queue, your delivery, and that order's chat live inside.</p>
+    <div class="mo-list">${list.map(orderCard).join("")}</div>`;
+
+  // tap another order to expand it here; tap the open one to fold it away
+  $$("#checkoutBody [data-order-no]").forEach(b =>
+    b.addEventListener("click", () =>
+      openMyOrder(sel && b.dataset.orderNo === sel.no ? COLLAPSE_ALL : b.dataset.orderNo)));
+  bindQueueChat(coBody);
+  if (sel) deliverAccounts(sel.sid);   // re-shows the login on an account order
+
+  if (openChat && sel) {
+    const fold = $("#checkoutBody .mo-card.is-open .coq-chatfold");
     if (fold) {
       fold.open = true;
+      markBuyerSeen(sel.no);
       fold.scrollIntoView({ block: "nearest", behavior: MOTION_OK ? "smooth" : "auto" });
       setTimeout(() => $(".chat-input", fold)?.focus(), 80);
     }
