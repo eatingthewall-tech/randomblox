@@ -1749,6 +1749,7 @@ function ownerToast(kind, name, thread) {
     IS_OWNER = true;
     render();                              // reveal the owner-only Testing item
     ownerBtn.hidden = false;
+    refreshSellerEntry();
     refreshOwnerBadge();
     window.addEventListener("storage", refreshOwnerBadge);
     setInterval(refreshOwnerBadge, 20000);
@@ -2453,12 +2454,12 @@ function renderProfile() {
       <p class="pay-err" id="pfErr" hidden></p>
     </div>
 
-    ${ownerBtn && !ownerBtn.hidden ? `
+    ${sellerAllowed() ? `
     <div class="pf-block">
-      <p class="pf-label">Selling <span class="sl-testpill">owner test</span></p>
+      <p class="pf-label">Selling${(typeof AUTH_API !== "undefined" && !AUTH_API) ? ` <span class="sl-testpill">preview</span>` : (ownerBtn && !ownerBtn.hidden ? ` <span class="sl-testpill">owner test</span>` : "")}</p>
       <button class="own-row sl-entry" id="pfSeller">
         <span class="own-av own-av-web">${IC.gift}</span>
-        <span class="own-main"><b>Seller hub</b><i>Verify, list items, balance &amp; withdrawals</i></span>
+        <span class="own-main"><b>Switch to Seller Mode</b><i>Your dashboard, listings, sales &amp; payouts</i></span>
         <span class="own-go">${IC.chev}</span>
       </button>
     </div>` : ""}
@@ -2483,7 +2484,7 @@ function renderProfile() {
     try { await authPost({ action: "logout" }); } catch {}
     setMe(null); renderAuth("login");
   });
-  $("#pfSeller")?.addEventListener("click", renderSeller);
+  $("#pfSeller")?.addEventListener("click", () => { closeAccount(); enterSellerMode(); });
 
   loadMyOrders();
 }
@@ -2521,15 +2522,46 @@ async function loadMyOrders() {
 }
 
 profileBtn?.addEventListener("click", openAccount);
+$("#sellerEnter")?.addEventListener("click", () => enterSellerMode());
 $("#closeAccount")?.addEventListener("click", closeAccount);
 acctModal?.addEventListener("click", e => { if (e.target === acctModal) closeAccount(); });
-(async function bootAuth() { setMe(await authGet()); })();
+(async function bootAuth() { setMe(await authGet()); refreshSellerEntry(); })();
+refreshSellerEntry();
+setTimeout(refreshSellerEntry, 800);   // AUTH_API/owner resolve async — re-check once settled
 
-/* ---------- seller hub (starpets-style) — OWNER TEST MODE ----------
-   Only rendered for the verified owner, and the server refuses every seller
-   call without the owner key until SELLER_PUBLIC=true. Flow: 3-stage
-   verification (terms -> test -> phone), then list items, watch the balance
-   (3-day hold), and request withdrawals. */
+/* ============================================================
+   SELLER MODE — the seller side of Chanceblox.
+   Same site, same account, same purple identity: but the wordmark
+   reads "Chanceblox Sellers", the nav becomes Dashboard / Listings /
+   Sales / Payouts / Settings, and the whole viewport turns into the
+   seller workspace. Toggle back to buying any time.
+
+   Data is backend-optional. It prefers the real /api/seller backend
+   (the owner, on Vercel). When that backend isn't reachable — local
+   preview, or seller accounts not yet public — it runs on a small
+   self-contained local store so the whole experience stays live and
+   demonstrable. Illustrative rows only ever exist in that local
+   preview mode; over a real backend you only ever see real data. */
+const SELLER_FEE = 0.10, HOLD_DAYS = 3;
+const SM_NAV = [
+  ["dashboard", "Dashboard", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`],
+  ["listings", "Listings", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>`],
+  ["sales", "Sales", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3.5-4 3 2.5L21 6"/></svg>`],
+  ["payouts", "Payouts", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12.5" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 14.5h4"/></svg>`],
+  ["settings", "Settings", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 7 2.6h.1A1.6 1.6 0 0 0 8.8 1a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 15 2.6a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.1 1.5h.1a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.1 1z"/></svg>`],
+];
+const WD_METHODS = [
+  { id: "paypal", label: "PayPal", hint: "PayPal email", ph: "you@email.com" },
+  { id: "cashapp", label: "CashApp", hint: "Your $cashtag", ph: "$yourtag" },
+  { id: "crypto", label: "Crypto", hint: "Wallet address", ph: "BTC / ETH / LTC wallet" },
+  { id: "robux", label: "Robux", hint: "Roblox username", ph: "YourRobloxName" },
+  { id: "credit", label: "Site credit", hint: "Straight to your Chanceblox balance", ph: "" },
+];
+const WD_LABEL = Object.fromEntries(WD_METHODS.map(m => [m.id, m.label]));
+
+const SM = { open: false, page: "dashboard", mode: null, st: null, root: null, wizard: false };
+
+/* ---------- remote API (real /api/seller) ---------- */
 async function sellerApi(action, body) {
   const opts = body
     ? { method: "POST", headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() }, body: JSON.stringify({ action, ...body }) }
@@ -2539,254 +2571,748 @@ async function sellerApi(action, body) {
   if (!r.ok) throw new Error(d.error || "Something went wrong.");
   return d;
 }
-const slBack = `<button class="own-back" id="slBack">${IC.chev}<span>Account</span></button>`;
-const slFail = (ex) => { acctBody.innerHTML = `${slBack}<h2 class="co-title">Seller hub</h2><p class="pay-err">${esc(ex.message)}</p>`; $("#slBack").addEventListener("click", renderProfile); };
 
-async function renderSeller() {
-  acctBody.innerHTML = `${slBack}<h2 class="co-title" id="accountTitle">Seller hub</h2><p class="co-note">Loading…</p>`;
-  $("#slBack").addEventListener("click", renderProfile);
-  let st;
-  try { st = await sellerApi("status"); } catch (ex) { return slFail(ex); }
-  if (!st.verified) return renderSellerWizard(st);
-  renderSellerDash(st);
+/* ---------- small helpers ---------- */
+const smId = p => p + Math.random().toString(36).slice(2, 8);
+const smCatItem = (game, name) => CATALOG.find(i => i.game === game && !i.bundle && i.name.toLowerCase() === String(name).toLowerCase());
+function smCrop(img) {
+  return img && (img.startsWith("assets/items/") || img.startsWith("assets/nfl/") || img.startsWith("assets/baddies/") || img.startsWith("assets/accounts/") || img.startsWith("assets/am/"));
+}
+function smThumb(game, name, cls = "sm-thumb") {
+  const it = smCatItem(game, name);
+  if (it && it.img) return `<span class="${cls} ${smCrop(it.img) ? "is-crop" : ""}"><img src="${imgSrc(it.img)}" alt="" loading="lazy" decoding="async"></span>`;
+  return `<span class="${cls} sm-thumb-mono">${esc((name || "?")[0])}</span>`;
+}
+const SM_STATUS = {
+  active: ["Active", "ok"], paused: ["Paused", "mut"], sold: ["Sold out", "ink"],
+  pending: ["Awaiting delivery", "warn"], delivered: ["Delivered · in hold", "brand"], completed: ["Completed", "ok"],
+  paid: ["Paid", "ok"], rejected: ["Rejected", "bad"], queued: ["Pending", "warn"],
+};
+const smPill = key => { const [t, c] = SM_STATUS[key] || [key, "ink"]; return `<span class="sm-pill sm-pill-${c}">${t}</span>`; };
+
+/* ---------- balance is always derived from sales + withdrawals ---------- */
+function smRecompute(st) {
+  const paidWd = st.withdrawals.filter(w => w.status !== "rejected").reduce((n, w) => n + w.amt, 0);
+  const completed = st.sales.filter(s => s.status === "completed").reduce((n, s) => n + s.profit, 0);
+  const held = st.sales.filter(s => s.status === "pending" || s.status === "delivered").reduce((n, s) => n + s.profit, 0);
+  st.balance = {
+    available: Math.max(0, Math.round((completed - paidWd) * 100) / 100),
+    pending: Math.round(held * 100) / 100,
+    lifetime: Math.round(st.sales.reduce((n, s) => n + s.profit, 0) * 100) / 100,
+  };
+  return st;
 }
 
-/* ----- the 3-stage wizard ----- */
-function stageCard(n, title, sub, state) {   // state: done | now | locked
-  const ic = state === "done" ? "✓" : n;
-  return `<div class="sl-stage is-${state}"><span class="sl-stage-n">${ic}</span>
-    <span class="sl-stage-tx"><b>${title}</b><i>${sub}</i></span></div>`;
+/* ---------- local store (preview / not-yet-public) ---------- */
+const SM_KEY = "cb-seller-v1";
+function smSeed() {
+  const D = 864e5, now = Date.now();
+  const pick = (g, n) => CATALOG.filter(i => i.game === g && i.img && !i.bundle).sort((a, b) => b.price - a.price).slice(0, n);
+  const [m1, m2] = pick("mm2", 2), [a1] = pick("am", 1), [n1] = pick("nfl", 1), [b1] = pick("baddies", 1);
+  const list = [];
+  const add = (it, stock, status, desc) => it && list.push({
+    id: smId("L"), game: it.game, name: it.name, price: Math.round(it.price * 100) / 100,
+    stock, status, description: desc, created: now - Math.floor(Math.random() * 20) * D,
+  });
+  add(m1, 3, "active", "Clean, legit copy — traded to you in game within the hour.");
+  add(m2, 1, "active", "Last one in stock. Fast same-day delivery.");
+  add(a1, 5, "active", "Fly Ride ready. Message me for a bundle deal.");
+  add(n1, 2, "paused", "Paused while I restock — back on soon.");
+  add(b1, 4, "active", "Grail-tier skin, verified value.");
+
+  const fee = SELLER_FEE;
+  const net = p => Math.round(p * (1 - fee) * 100) / 100;
+  const sale = (it, buyer, status, daysAgo) => it && ({
+    id: "CB-" + Math.random().toString(36).slice(2, 7).toUpperCase(),
+    item: it.name, game: it.game, buyer, price: Math.round(it.price * 100) / 100,
+    profit: net(it.price), at: now - Math.floor(daysAgo * D), status,
+  });
+  const sales = [
+    sale(m1, "voxil_rbx", "pending", 0.1),
+    sale(a1, "peachykaykay", "delivered", 1.2),
+    sale(b1, "trentontrades", "delivered", 2.4),
+    sale(m2, "sunny.blox", "completed", 6),
+    sale(n1, "gridiron_jax", "completed", 9),
+    sale(a1, "lunareef", "completed", 14),
+  ].filter(Boolean);
+
+  const wd = [
+    { id: smId("W"), amt: 40, method: "paypal", details: "seller@email.com", at: now - 4 * D, status: "paid" },
+    { id: smId("W"), amt: 15, method: "robux", details: "MyRobloxName", at: now - 1 * D, status: "queued" },
+  ];
+
+  const st = {
+    __v: 1, verified: true, phone: "+1 (555) 018-4423", name: (typeof ME !== "undefined" && ME && ME.name) || "",
+    fee, holdDays: HOLD_DAYS, payoutMethod: "paypal", listings: list, sales, withdrawals: wd, balance: null,
+  };
+  return smRecompute(st);
 }
-function renderSellerWizard(st) {
-  const s = st.stages;
-  const current = !s.terms ? 1 : !s.quiz ? 2 : 3;
-  acctBody.innerHTML = `
-    ${slBack}
-    <h2 class="co-title" id="accountTitle">Become a seller</h2>
-    ${st.testMode ? `<p class="sl-test">OWNER TEST MODE — invisible to the public</p>` : ""}
-    <p class="co-note">Three quick steps, exactly once. After that you can list items and get paid.</p>
-    <div class="sl-stages">
-      ${stageCard(1, "Selling terms", "Read and accept the rules", s.terms ? "done" : "now")}
-      ${stageCard(2, "Verification test", "5 questions, ~10 minutes", s.quiz ? "done" : s.terms ? "now" : "locked")}
-      ${stageCard(3, "Phone number", "Confirm via SMS code", s.phone ? "done" : s.quiz ? "now" : "locked")}
+function smLoadLocal() {
+  const s = load(SM_KEY, null);
+  if (s && s.__v === 1 && Array.isArray(s.listings)) return smRecompute(s);
+  const seeded = smSeed(); save(SM_KEY, seeded); return seeded;
+}
+const smSaveLocal = () => { if (SM.mode === "local") save(SM_KEY, SM.st); };
+
+/* ---------- remote → unified state ---------- */
+async function smLoadRemote(status) {
+  const meta = load("cb-seller-meta", {});            // stock/desc/paused the thin API can't store
+  let raw = { listings: [] }, scan = { balance: { available: 0, pending: 0, lifetime: 0 }, credits: [], withdrawals: [], holdDays: HOLD_DAYS };
+  try { raw = await sellerApi("my-listings", {}); } catch {}
+  try { scan = await sellerApi("credit-scan", {}); } catch { try { scan = await sellerApi("balance", {}); } catch {} }
+  const listings = (raw.listings || []).map(l => {
+    const m = meta[l.id] || {};
+    return { id: l.id, game: l.game, name: l.name, price: l.price, created: l.created,
+      stock: m.stock == null ? 1 : m.stock, description: m.description || "",
+      status: l.status === "sold" ? "sold" : (m.paused ? "paused" : "active") };
+  });
+  const sales = (scan.credits || []).map(c => {
+    const cleared = Date.now() - c.at >= HOLD_DAYS * 864e5;
+    return { id: "CB-" + String(c.sid || c.listing || "").slice(-5).toUpperCase(), item: c.name || c.listing,
+      game: (smCatItem_byName(c.name) || {}).game, buyer: c.buyer || "—", price: Math.round((c.amt / (1 - SELLER_FEE)) * 100) / 100,
+      profit: c.amt, at: c.at, status: cleared ? "completed" : "delivered" };
+  });
+  return {
+    __v: 1, verified: true, phone: status.phone || "", name: (ME && ME.name) || "",
+    fee: status.fee || SELLER_FEE, holdDays: scan.holdDays || HOLD_DAYS, payoutMethod: "paypal",
+    listings, sales, withdrawals: scan.withdrawals || [],
+    balance: scan.balance || { available: 0, pending: 0, lifetime: 0 },
+  };
+}
+const smCatItem_byName = name => CATALOG.find(i => !i.bundle && i.name === name);
+function smMetaSet(id, patch) {
+  const meta = load("cb-seller-meta", {}); meta[id] = { ...(meta[id] || {}), ...patch }; save("cb-seller-meta", meta);
+}
+
+/* ---------- detect backend + load ---------- */
+async function smDetect() {
+  let status = null;
+  try {
+    const r = await fetch(`/api/seller?action=status`, { headers: { "x-owner-key": ownerKey() } });
+    if (r.ok) { const d = await r.json(); if (d && d.stages) status = d; }
+  } catch {}
+  if (status) {
+    SM.mode = "remote";
+    if (!status.verified) { SM.wizard = true; SM._status = status; SM.st = null; return; }
+    SM.wizard = false; SM.st = await smLoadRemote(status);
+  } else {
+    SM.mode = "local"; SM.wizard = false; SM.st = smLoadLocal();
+  }
+}
+
+/* ---------- entry / exit ----------
+   OWNER ONLY. The seller area is visible to nobody but the verified owner.
+   `localhost`/`127.0.0.1` is the single exception so the owner can preview it
+   on their own machine — that host is never the public site (neither the
+   Vercel deploy nor GitHub Pages), so this can't leak to visitors.
+   PUBLIC LAUNCH: when selling opens to everyone (SELLER_PUBLIC=true on the
+   backend), add `|| !!ME` here so any logged-in user gets the seller area. */
+function sellerLocalPreview() {
+  return /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+}
+function sellerAllowed() {
+  return (typeof ownerBtn !== "undefined" && ownerBtn && !ownerBtn.hidden) || sellerLocalPreview();
+}
+function refreshSellerEntry() {
+  const on = sellerAllowed();
+  const b = $("#sellerEnter"); if (b) b.hidden = !on;
+}
+async function enterSellerMode(page) {
+  if (!sellerAllowed()) return;   // owner only — blocks #seller / ?seller from opening it for anyone else
+  if (SM.open) { if (page) smGo(page); return; }
+  SM.open = true;
+  document.body.classList.add("sm-active");
+  smBuildRoot();
+  SM.root.hidden = false;
+  requestAnimationFrame(() => SM.root.classList.add("is-in"));
+  SM.page = page || "dashboard";
+  smRenderLoading();
+  await smDetect();
+  smRender();
+  if (location.hash !== "#seller") history.pushState({ sm: 1 }, "", "#seller");
+}
+function exitSellerMode() {
+  if (!SM.open) return;
+  SM.open = false;
+  SM.root.classList.remove("is-in");
+  document.body.classList.remove("sm-active");
+  setTimeout(() => { if (!SM.open && SM.root) SM.root.hidden = true; }, 240);
+  if (location.hash === "#seller") history.pushState({}, "", location.pathname + location.search);
+}
+function smGo(page) {
+  SM.page = page;
+  smRender();
+  const main = $(".sm-main", SM.root); if (main) main.scrollTop = 0;
+}
+
+/* ---------- shell ---------- */
+function smBuildRoot() {
+  if (SM.root) return;
+  const el = document.createElement("div");
+  el.className = "sm"; el.id = "sellerMode"; el.hidden = true;
+  el.innerHTML = `
+    <header class="sm-top">
+      <a class="sm-brand" id="smBrand" href="#seller">
+        <span class="sm-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26"><defs><linearGradient id="smA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b18cff"/><stop offset=".55" stop-color="#7c3aed"/><stop offset="1" stop-color="#45108a"/></linearGradient></defs><rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="url(#smA)"/><rect x="2.1" y="2.1" width="19.8" height="19.8" rx="5.5" fill="none" stroke="#fff" stroke-opacity=".32" stroke-width=".9"/><circle cx="7.6" cy="7.6" r="1.9" fill="#fff"/><circle cx="16.4" cy="7.6" r="1.9" fill="#fff"/><circle cx="12" cy="12" r="1.9" fill="#fff"/><circle cx="7.6" cy="16.4" r="1.9" fill="#fff"/><circle cx="16.4" cy="16.4" r="1.9" fill="#fff"/></svg>
+        </span>
+        <span class="sm-brand-word">CHANCE<em>BLOX</em></span>
+        <span class="sm-brand-tag">Sellers</span>
+      </a>
+      <div class="sm-top-right">
+        <div class="sm-switch" role="tablist" aria-label="Buyer or seller mode">
+          <button role="tab" class="sm-switch-b" id="smToBuyer">Buyer</button>
+          <button role="tab" class="sm-switch-b is-on" id="smToSeller" aria-selected="true">Seller</button>
+        </div>
+        <button class="sm-acct" id="smAcct" aria-label="Account"><span id="smAcctIni">S</span></button>
+      </div>
+    </header>
+    <div class="sm-shell">
+      <nav class="sm-side" aria-label="Seller sections">
+        <ul class="sm-side-nav" id="smSideNav"></ul>
+        <div class="sm-side-foot" id="smSideFoot"></div>
+      </nav>
+      <main class="sm-main" id="smMain" tabindex="-1"></main>
     </div>
-    <div id="slStageBody"></div>`;
-  $("#slBack").addEventListener("click", renderProfile);
-  if (current === 1) renderTermsStage();
-  else if (current === 2) renderQuizStage();
-  else renderPhoneStage(st);
+    <nav class="sm-bottom" id="smBottom" aria-label="Seller sections"></nav>`;
+  document.body.appendChild(el);
+  SM.root = el;
+  $("#smToBuyer", el).addEventListener("click", exitSellerMode);
+  $("#smAcct", el).addEventListener("click", () => openAccount());
+  // build nav (side + bottom)
+  const navHTML = (compact) => SM_NAV.map(([id, label, ic]) =>
+    `<li><button class="sm-nav-b" data-page="${id}"><span class="sm-nav-ic">${ic}</span><span class="sm-nav-l">${label}</span></button></li>`).join("");
+  $("#smSideNav", el).innerHTML = navHTML();
+  $("#smBottom", el).innerHTML = `<ul>${navHTML(true)}</ul>`;
+  el.querySelectorAll("[data-page]").forEach(b => b.addEventListener("click", () => smGo(b.dataset.page)));
+}
+function smSyncNav() {
+  SM.root.querySelectorAll(".sm-nav-b").forEach(b => b.classList.toggle("is-on", b.dataset.page === SM.page));
+  const ini = ((ME && (ME.name || ME.email)) || "S").trim()[0].toUpperCase();
+  $("#smAcctIni", SM.root).textContent = ini;
+}
+function smRenderLoading() {
+  const m = $("#smMain", SM.root);
+  if (m) m.innerHTML = `<div class="sm-load"><span class="sm-spin"></span></div>`;
+}
+function smSideFoot() {
+  const foot = $("#smSideFoot", SM.root);
+  if (!foot) return;
+  const b = SM.st ? SM.st.balance : { available: 0 };
+  foot.innerHTML = `
+    <button class="sm-foot-bal" data-page="payouts">
+      <i>Available to withdraw</i><b>${money(b.available)}</b>
+    </button>
+    ${SM.mode === "local" ? `<span class="sm-demo">Preview data · this device only</span>` : ""}`;
+  foot.querySelector("[data-page]").addEventListener("click", () => smGo("payouts"));
 }
 
-function renderTermsStage() {
-  $("#slStageBody").innerHTML = `
-    <div class="sl-terms">
-      <p class="pf-label">Selling terms</p>
-      <ul>
-        <li><b>Deliver within 24 hours.</b> When your item sells, you trade it to the buyer in-game within 24h or the sale is refunded.</li>
-        <li><b>10% marketplace fee.</b> The fee comes out of your sale price — you always see your exact payout before listing.</li>
-        <li><b>3-day hold.</b> Sale money sits in your pending balance for 3 days in case the buyer disputes; then it becomes withdrawable.</li>
-        <li><b>No off-site deals.</b> Taking a buyer off the site to pay you directly = permanent seller ban.</li>
-        <li><b>Real items only.</b> List only items you own and can deliver. Fake or undeliverable listings are removed and repeated offences are banned.</li>
-        <li><b>Disputes freeze the money.</b> If a buyer complains during the hold, that sale's funds stay frozen until it's resolved.</li>
-      </ul>
+function smRender() {
+  if (!SM.open) return;
+  if (SM.wizard) { smSyncNav(); smSideFoot(); return smWizardView(); }
+  smSyncNav(); smSideFoot();
+  const m = $("#smMain", SM.root);
+  ({ dashboard: smDashboard, listings: smListings, sales: smSales, payouts: smPayouts, settings: smSettings }[SM.page] || smDashboard)(m);
+}
+
+/* ---------- page header ---------- */
+function smHead(title, sub, action) {
+  return `<div class="sm-head">
+    <div><h1 class="sm-h1">${title}</h1>${sub ? `<p class="sm-sub">${sub}</p>` : ""}</div>
+    ${action || ""}</div>`;
+}
+
+/* ================= DASHBOARD ================= */
+function smDashboard(m) {
+  const st = SM.st, b = st.balance;
+  const active = st.listings.filter(l => l.status === "active").length;
+  const pendingOrders = st.sales.filter(s => s.status === "pending").length;
+  const recent = st.sales.slice().sort((a, c) => c.at - a.at).slice(0, 5);
+  const first = (st.name || (ME && ME.name) || "").split(" ")[0];
+  m.innerHTML = `
+    ${smHead("Dashboard", `Welcome back${first ? ", " + esc(first) : ""} — here's how your shop is doing.`,
+      `<button class="sm-btn sm-btn-primary" data-act="new">${smIcon("plus")}Create listing</button>`)}
+
+    <section class="sm-kpis">
+      <div class="sm-card sm-kpi sm-kpi-hero">
+        <div class="sm-kpi-top"><span class="sm-kpi-label">Available balance</span>${smIcon("wallet", "sm-kpi-mk")}</div>
+        <b class="sm-kpi-val sm-money">${money(b.available)}</b>
+        <p class="sm-kpi-note">Cleared and ready to withdraw.</p>
+        <button class="sm-btn sm-btn-primary sm-kpi-cta" data-page="payouts">Withdraw funds</button>
+      </div>
+      <div class="sm-card sm-kpi">
+        <div class="sm-kpi-top"><span class="sm-kpi-label">Pending balance</span></div>
+        <b class="sm-kpi-val sm-amber">${money(b.pending)}</b>
+        <p class="sm-kpi-note">In the ${st.holdDays}-day dispute hold.</p>
+      </div>
+      <div class="sm-card sm-kpi">
+        <div class="sm-kpi-top"><span class="sm-kpi-label">Lifetime earnings</span></div>
+        <b class="sm-kpi-val">${money(b.lifetime)}</b>
+        <p class="sm-kpi-note">All time, after fees.</p>
+      </div>
+      <div class="sm-card sm-kpi sm-kpi-count">
+        <div class="sm-kpi-top"><span class="sm-kpi-label">Active listings</span></div>
+        <b class="sm-kpi-val">${active}</b>
+        <button class="sm-kpi-link" data-page="listings">Manage listings ${smIcon("arrow")}</button>
+      </div>
+      <div class="sm-card sm-kpi sm-kpi-count">
+        <div class="sm-kpi-top"><span class="sm-kpi-label">Pending orders</span></div>
+        <b class="sm-kpi-val">${pendingOrders}</b>
+        <button class="sm-kpi-link" data-page="sales">Go to sales ${smIcon("arrow")}</button>
+      </div>
+    </section>
+
+    <div class="sm-cols">
+      <section class="sm-card sm-panel">
+        <div class="sm-panel-head"><h2 class="sm-h2">Recent sales</h2><button class="sm-link" data-page="sales">View all</button></div>
+        ${recent.length ? `
+        <div class="sm-scroll"><table class="sm-table sm-table-sales">
+          <thead><tr><th>Item</th><th>Buyer</th><th class="sm-r">Price</th><th>Status</th></tr></thead>
+          <tbody>${recent.map(s => `<tr>
+            <td class="sm-td-item">${smThumb(s.game, s.item, "sm-thumb-sm")}<span>${esc(s.item)}</span></td>
+            <td class="sm-mut">@${esc(s.buyer)}</td>
+            <td class="sm-r sm-money">${money(s.price)}</td>
+            <td>${smPill(s.status)}</td></tr>`).join("")}</tbody>
+        </table></div>` : smEmpty("No sales yet", "When a buyer purchases one of your listings it shows up here.")}
+      </section>
+
+      <section class="sm-card sm-panel sm-quick">
+        <h2 class="sm-h2">Quick actions</h2>
+        <button class="sm-quick-b" data-act="new">${smIcon("plus", "sm-quick-ic")}<span><b>Create listing</b><i>List an item for sale</i></span>${smIcon("arrow", "sm-quick-go")}</button>
+        <button class="sm-quick-b" data-page="listings">${smIcon("grid", "sm-quick-ic")}<span><b>Manage listings</b><i>Edit, pause or remove</i></span>${smIcon("arrow", "sm-quick-go")}</button>
+        <button class="sm-quick-b" data-page="payouts">${smIcon("wallet", "sm-quick-ic")}<span><b>Withdraw funds</b><i>${money(b.available)} available</i></span>${smIcon("arrow", "sm-quick-go")}</button>
+      </section>
+    </div>`;
+  smWire(m);
+}
+
+/* ================= LISTINGS ================= */
+function smListings(m) {
+  const st = SM.st, ls = st.listings.filter(l => l.status !== "removed");
+  m.innerHTML = `
+    ${smHead("Listings", `${ls.length} ${ls.length === 1 ? "item" : "items"} in your shop.`,
+      `<button class="sm-btn sm-btn-primary" data-act="new">${smIcon("plus")}New listing</button>`)}
+    ${ls.length ? `<div class="sm-grid sm-listings">${ls.map(smListingCard).join("")}</div>`
+      : smEmptyBig("Your shop is empty", "Create your first listing and it goes live for buyers right away.", `<button class="sm-btn sm-btn-primary" data-act="new">${smIcon("plus")}Create your first listing</button>`)}`;
+  smWire(m);
+}
+function smListingCard(l) {
+  const net = money(l.price * (1 - SM.st.fee));
+  return `<article class="sm-card sm-listing ${l.status === "paused" ? "is-paused" : ""}">
+    <div class="sm-listing-top">
+      ${smThumb(l.game, l.name, "sm-thumb")}
+      <div class="sm-listing-meta">
+        <span class="sm-chip sm-chip-${l.game}">${esc(GAME_LABEL[l.game] || l.game)}</span>
+        <h3 class="sm-listing-name">${esc(l.name)}</h3>
+        <div class="sm-listing-facts"><b class="sm-money">${money(l.price)}</b><span class="sm-dot">·</span><span class="sm-mut">${l.stock} in stock</span></div>
+      </div>
+      ${smPill(l.status)}
     </div>
-    <button class="primary-btn" id="slAccept">I've read the terms — accept &amp; continue</button>
-    <p class="pay-err" id="slErr" hidden></p>`;
-  $("#slAccept").addEventListener("click", async () => {
-    try { await sellerApi("accept-terms", {}); renderSeller(); }
-    catch (ex) { const e = $("#slErr"); e.textContent = ex.message; e.hidden = false; }
+    ${l.description ? `<p class="sm-listing-desc">${esc(l.description)}</p>` : ""}
+    <div class="sm-listing-foot">
+      <span class="sm-mut sm-small">You receive ${net} after fee</span>
+      <div class="sm-listing-acts">
+        <button class="sm-icb" data-edit="${l.id}" title="Edit" aria-label="Edit listing">${smIcon("edit")}</button>
+        <button class="sm-icb" data-pause="${l.id}" title="${l.status === "paused" ? "Resume" : "Pause"}" aria-label="${l.status === "paused" ? "Resume" : "Pause"} listing">${smIcon(l.status === "paused" ? "play" : "pause")}</button>
+        <button class="sm-icb sm-icb-bad" data-del="${l.id}" title="Delete" aria-label="Delete listing">${smIcon("trash")}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ---------- listing form (create / edit) as an in-mode sheet ---------- */
+function smOpenForm(editId) {
+  const editing = editId ? SM.st.listings.find(l => l.id === editId) : null;
+  const games = ["mm2", "am", "nfl", "baddies"];
+  const wrap = document.createElement("div");
+  wrap.className = "sm-sheet"; wrap.id = "smSheet";
+  wrap.innerHTML = `
+    <div class="sm-sheet-scrim"></div>
+    <form class="sm-card sm-sheet-panel" id="smForm">
+      <div class="sm-sheet-head"><h2 class="sm-h2">${editing ? "Edit listing" : "New listing"}</h2>
+        <button type="button" class="sm-icb" id="smSheetX" aria-label="Close">${smIcon("x")}</button></div>
+      <div class="sm-field-2">
+        <label class="sm-field"><span>Game</span>
+          <select id="smfGame">${games.map(g => `<option value="${g}" ${editing && editing.game === g ? "selected" : ""}>${GAME_LABEL[g]}</option>`).join("")}</select></label>
+        <label class="sm-field"><span>Price (USD)</span>
+          <input id="smfPrice" type="number" min="1" max="500" step="0.01" required placeholder="9.99" value="${editing ? editing.price : ""}"></label>
+      </div>
+      <label class="sm-field"><span>Item name</span>
+        <input id="smfName" maxlength="80" required placeholder="Start typing — pick from your game's items" list="smfNames" value="${editing ? esc(editing.name) : ""}"><datalist id="smfNames"></datalist></label>
+      <div class="sm-field-2">
+        <label class="sm-field"><span>Stock</span>
+          <input id="smfStock" type="number" min="1" max="999" step="1" required placeholder="1" value="${editing ? editing.stock : "1"}"></label>
+        <div class="sm-field"><span>You receive</span><output class="sm-field-out" id="smfNet">—</output></div>
+      </div>
+      <label class="sm-field"><span>Description <em class="sm-opt">optional</em></span>
+        <textarea id="smfDesc" maxlength="240" rows="3" placeholder="Delivery speed, bundle deals, anything a buyer should know.">${editing ? esc(editing.description || "") : ""}</textarea></label>
+      <p class="sm-err" id="smfErr" hidden></p>
+      <div class="sm-sheet-foot">
+        <button type="button" class="sm-btn sm-btn-ghost" id="smfCancel">Cancel</button>
+        <button type="submit" class="sm-btn sm-btn-primary">${editing ? "Save changes" : "List it for sale"}</button>
+      </div>
+    </form>`;
+  SM.root.appendChild(wrap);
+  requestAnimationFrame(() => wrap.classList.add("is-in"));
+  const close = () => { wrap.classList.remove("is-in"); setTimeout(() => wrap.remove(), 220); };
+  $("#smSheetX", wrap).addEventListener("click", close);
+  $("#smfCancel", wrap).addEventListener("click", close);
+  wrap.querySelector(".sm-sheet-scrim").addEventListener("click", close);
+
+  const fillNames = () => {
+    const g = $("#smfGame", wrap).value;
+    $("#smfNames", wrap).innerHTML = CATALOG.filter(i => i.game === g && !i.bundle).map(i => `<option value="${esc(i.name)}">`).join("");
+  };
+  fillNames();
+  $("#smfGame", wrap).addEventListener("change", fillNames);
+  const net = () => {
+    const p = Number($("#smfPrice", wrap).value);
+    $("#smfNet", wrap).textContent = p >= 1 ? money(p * (1 - SM.st.fee)) : "—";
+  };
+  net();
+  $("#smfPrice", wrap).addEventListener("input", net);
+
+  $("#smForm", wrap).addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#smfErr", wrap); err.hidden = true;
+    const data = {
+      game: $("#smfGame", wrap).value, name: $("#smfName", wrap).value.trim(),
+      price: Math.round(Number($("#smfPrice", wrap).value) * 100) / 100,
+      stock: Math.max(1, Math.round(Number($("#smfStock", wrap).value) || 1)),
+      description: $("#smfDesc", wrap).value.trim(),
+    };
+    if (data.name.length < 2) return smShowErr(err, "Name the item you're selling.");
+    if (!(data.price >= 1 && data.price <= 500)) return smShowErr(err, "Price must be between $1 and $500.");
+    const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
+    try {
+      if (editing) await smUpdateListing(editing.id, data);
+      else await smCreateListing(data);
+      close(); smGo("listings");
+    } catch (ex) { btn.disabled = false; smShowErr(err, ex.message); }
   });
 }
 
-async function renderQuizStage() {
-  const box = $("#slStageBody");
-  box.innerHTML = `<p class="co-note">Loading the test…</p>`;
+/* ================= SALES ================= */
+const SM_SALE_TABS = [["pending", "Pending"], ["delivered", "Delivered"], ["completed", "Completed"]];
+function smSales(m, tab) {
+  const st = SM.st;
+  tab = tab || SM._salesTab || "pending";
+  SM._salesTab = tab;
+  const rows = st.sales.filter(s => s.status === tab).sort((a, c) => c.at - a.at);
+  const count = k => st.sales.filter(s => s.status === k).length;
+  m.innerHTML = `
+    ${smHead("Sales", "Every order for your listings, from purchase to payout.")}
+    <div class="sm-tabs" role="tablist">
+      ${SM_SALE_TABS.map(([k, l]) => `<button role="tab" class="sm-tab ${k === tab ? "is-on" : ""}" data-tab="${k}">${l}<b class="sm-tab-n">${count(k)}</b></button>`).join("")}
+    </div>
+    <section class="sm-card sm-panel">
+      ${rows.length ? `
+      <div class="sm-scroll"><table class="sm-table sm-table-orders">
+        <thead><tr><th>Order</th><th>Item</th><th>Buyer</th><th class="sm-r">Profit</th><th>Status</th></tr></thead>
+        <tbody>${rows.map(s => `<tr>
+          <td class="sm-mono">${esc(s.id)}</td>
+          <td class="sm-td-item">${smThumb(s.game, s.item, "sm-thumb-sm")}<span>${esc(s.item)}</span></td>
+          <td class="sm-mut">@${esc(s.buyer)}</td>
+          <td class="sm-r sm-money">${money(s.profit)}</td>
+          <td>${smPill(s.status)}${s.status === "pending" ? `<button class="sm-mini" data-deliver="${esc(s.id)}">Mark delivered</button>` : ""}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>` : smEmpty(
+        tab === "pending" ? "No orders waiting" : tab === "delivered" ? "Nothing in the hold" : "No completed sales yet",
+        tab === "pending" ? "New orders that need delivering will appear here." :
+        tab === "delivered" ? "Delivered orders clear the 3-day hold, then land in Completed." :
+        "Sales that clear the hold show here — that money is yours to withdraw.")}
+    </section>`;
+  m.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => smSales(m, b.dataset.tab)));
+  m.querySelectorAll("[data-deliver]").forEach(b => b.addEventListener("click", () => smMarkDelivered(b.dataset.deliver, m)));
+}
+
+/* ================= PAYOUTS ================= */
+function smPayouts(m) {
+  const st = SM.st, b = st.balance;
+  const method = st.payoutMethod || "paypal";
+  const md = WD_METHODS.find(x => x.id === method) || WD_METHODS[0];
+  const wds = st.withdrawals.slice().sort((a, c) => c.at - a.at);
+  m.innerHTML = `
+    ${smHead("Payouts", "Cash out your cleared balance, your way.")}
+    <section class="sm-bal3">
+      <div class="sm-card sm-bal"><i>Available</i><b class="sm-money">${money(b.available)}</b><span>Ready now</span></div>
+      <div class="sm-card sm-bal"><i>Pending</i><b class="sm-amber">${money(b.pending)}</b><span>In ${st.holdDays}-day hold</span></div>
+      <div class="sm-card sm-bal"><i>Lifetime</i><b>${money(b.lifetime)}</b><span>Earned all time</span></div>
+    </section>
+    <div class="sm-cols">
+      <section class="sm-card sm-panel">
+        <h2 class="sm-h2">Withdraw</h2>
+        <form id="smWd">
+          <p class="sm-flabel">Payout method</p>
+          <div class="sm-methods">${WD_METHODS.map(x => `<button type="button" class="sm-method ${x.id === method ? "is-on" : ""}" data-m="${x.id}">${x.label}</button>`).join("")}</div>
+          <label class="sm-field" id="smWdDestField" ${md.id === "credit" ? "hidden" : ""}><span id="smWdHint">${md.hint}</span>
+            <input id="smWdDest" maxlength="120" placeholder="${md.ph}"></label>
+          <label class="sm-field"><span>Amount <em class="sm-opt">min $5.00</em></span>
+            <input id="smWdAmt" type="number" min="5" step="0.01" max="${b.available}" placeholder="${b.available >= 5 ? b.available.toFixed(2) : "5.00"}"></label>
+          <p class="sm-err" id="smWdErr" hidden></p>
+          <button type="submit" class="sm-btn sm-btn-primary sm-block" ${b.available < 5 ? "disabled" : ""}>${b.available < 5 ? "Nothing to withdraw yet" : "Request withdrawal"}</button>
+          <p class="sm-mut sm-small sm-center">Requests are paid out by hand, usually within a day.</p>
+        </form>
+      </section>
+      <section class="sm-card sm-panel">
+        <h2 class="sm-h2">Payout history</h2>
+        ${wds.length ? `<ul class="sm-hist">${wds.map(w => `<li>
+          <span class="sm-hist-ic">${smIcon("wallet")}</span>
+          <div class="sm-hist-main"><b>${money(w.amt)} <span class="sm-mut">· ${esc(WD_LABEL[w.method] || w.method)}</span></b>
+            <i>${new Date(w.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}${w.details ? " · " + esc(w.details) : ""}</i></div>
+          ${smPill(w.status === "pending" ? "queued" : w.status)}</li>`).join("")}</ul>`
+        : smEmpty("No payouts yet", "Your withdrawals will be listed here once you request one.")}
+      </section>
+    </div>`;
+  // method picker
+  let cur = method;
+  const applyMethod = id => {
+    cur = id;
+    m.querySelectorAll(".sm-method").forEach(x => x.classList.toggle("is-on", x.dataset.m === id));
+    const meta = WD_METHODS.find(x => x.id === id);
+    const field = $("#smWdDestField", m);
+    field.hidden = id === "credit";
+    $("#smWdHint", m).textContent = meta.hint;
+    $("#smWdDest", m).placeholder = meta.ph;
+  };
+  m.querySelectorAll(".sm-method").forEach(x => x.addEventListener("click", () => applyMethod(x.dataset.m)));
+  $("#smWd", m).addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#smWdErr", m); err.hidden = true;
+    const amount = Math.round(Number($("#smWdAmt", m).value) * 100) / 100;
+    const details = ($("#smWdDest", m).value || "").trim();
+    if (!(amount >= 5)) return smShowErr(err, "Minimum withdrawal is $5.00.");
+    if (amount > b.available) return smShowErr(err, `Only ${money(b.available)} is available — the rest is still in the hold.`);
+    if (cur !== "credit" && details.length < 3) return smShowErr(err, "Enter where to send it.");
+    const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
+    try { await smWithdraw({ method: cur, details, amount }); smGo("payouts"); }
+    catch (ex) { btn.disabled = false; smShowErr(err, ex.message); }
+  });
+}
+
+/* ================= SETTINGS ================= */
+function smSettings(m) {
+  const st = SM.st;
+  m.innerHTML = `
+    ${smHead("Settings", "Your seller profile and preferences.")}
+    <div class="sm-cols">
+      <section class="sm-card sm-panel">
+        <h2 class="sm-h2">Seller profile</h2>
+        <form id="smProfile">
+          <label class="sm-field"><span>Display name</span><input id="smpName" maxlength="40" value="${esc(st.name || "")}" placeholder="Shown to buyers"></label>
+          <label class="sm-field"><span>Phone <em class="sm-opt">verified</em></span><input value="${esc(st.phone || "—")}" disabled></label>
+          <label class="sm-field"><span>Default payout method</span>
+            <select id="smpPayout">${WD_METHODS.map(x => `<option value="${x.id}" ${st.payoutMethod === x.id ? "selected" : ""}>${x.label}</option>`).join("")}</select></label>
+          <button type="submit" class="sm-btn sm-btn-primary">Save changes</button>
+          <span class="sm-saved" id="smpSaved" hidden>Saved</span>
+        </form>
+      </section>
+      <section class="sm-card sm-panel">
+        <h2 class="sm-h2">Selling terms</h2>
+        <ul class="sm-terms">
+          <li><b>Deliver within 24 hours</b> of a sale by trading the item in game.</li>
+          <li><b>${Math.round(st.fee * 100)}% marketplace fee</b>, taken from your sale price.</li>
+          <li><b>${st.holdDays}-day hold</b> on every sale before it's withdrawable.</li>
+          <li><b>No off-site deals</b> — taking a buyer off Chanceblox is a permanent ban.</li>
+        </ul>
+        <div class="sm-danger">
+          <div><b>Leave the seller program</b><i>Hides Seller Mode and clears your seller profile on this device.</i></div>
+          <button class="sm-btn sm-btn-danger" id="smLeave">Leave</button>
+        </div>
+      </section>
+    </div>`;
+  $("#smProfile", m).addEventListener("submit", e => {
+    e.preventDefault();
+    st.name = $("#smpName", m).value.trim();
+    st.payoutMethod = $("#smpPayout", m).value;
+    smSaveLocal();
+    const s = $("#smpSaved", m); s.hidden = false; setTimeout(() => { s.hidden = true; }, 1600);
+  });
+  $("#smLeave", m).addEventListener("click", () => {
+    if (SM.mode === "local") { localStorage.removeItem(SM_KEY); }
+    exitSellerMode();
+  });
+}
+
+/* ================= VERIFICATION WIZARD (remote, not yet verified) ================= */
+const SM_QUIZ_LOCAL = [
+  { q: "A buyer purchases your item. How fast must you deliver it in game?", a: ["Whenever I like", "Within 24 hours", "Within a week"], c: 1 },
+  { q: "Where does the marketplace fee come from?", a: ["The buyer pays extra", "It's taken from my sale price", "There is no fee"], c: 1 },
+  { q: "A buyer asks to pay you directly off-site. What do you do?", a: ["Take the deal", "Refuse — off-site deals are banned", "Ask the owner"], c: 1 },
+];
+async function smWizardView() {
+  const m = $("#smMain", SM.root);
+  let status = SM._status;
+  m.innerHTML = `
+    ${smHead("Become a seller", "Three quick steps, once — then you can list items and get paid.")}
+    <div class="sm-steps" id="smSteps"></div>
+    <div class="sm-card sm-panel" id="smStepBody"></div>`;
+  const s = status.stages || { terms: false, quiz: false, phone: false };
+  const cur = !s.terms ? 1 : !s.quiz ? 2 : 3;
+  $("#smSteps", m).innerHTML = [["Terms", 1], ["Test", 2], ["Phone", 3]].map(([l, n]) =>
+    `<div class="sm-step ${n < cur || (n === 1 && s.terms) || (n === 2 && s.quiz) || (n === 3 && s.phone) ? "is-done" : n === cur ? "is-now" : "is-todo"}"><span>${(n < cur) ? "✓" : n}</span>${l}</div>`).join("");
+  const body = $("#smStepBody", m);
+  if (cur === 1) smWizTerms(body);
+  else if (cur === 2) smWizQuiz(body);
+  else smWizPhone(body, status);
+}
+function smWizTerms(body) {
+  body.innerHTML = `
+    <ul class="sm-terms sm-terms-lg">
+      <li><b>Deliver within 24 hours.</b> Trade the item to the buyer in game, or the sale is refunded.</li>
+      <li><b>10% marketplace fee.</b> Taken from your sale price — you always see your exact payout first.</li>
+      <li><b>3-day hold.</b> Sale money is pending for 3 days for disputes, then becomes withdrawable.</li>
+      <li><b>No off-site deals.</b> Taking a buyer off Chanceblox is a permanent seller ban.</li>
+      <li><b>Real items only.</b> List only what you own and can deliver.</li>
+    </ul>
+    <p class="sm-err" id="smWzErr" hidden></p>
+    <button class="sm-btn sm-btn-primary" id="smWzAccept">Accept & continue</button>`;
+  $("#smWzAccept", body).addEventListener("click", async () => {
+    try { await sellerApi("accept-terms", {}); await smDetect(); smRender(); }
+    catch (ex) { smShowErr($("#smWzErr", body), ex.message); }
+  });
+}
+async function smWizQuiz(body) {
+  body.innerHTML = `<p class="sm-mut">Loading the test…</p>`;
   let qz;
-  try { qz = await sellerApi("quiz", {}); } catch (ex) { box.innerHTML = `<p class="pay-err">${esc(ex.message)}</p>`; return; }
-  box.innerHTML = `
-    <p class="pf-label">Verification test — all ${qz.questions.length} answers must be right</p>
-    <form id="slQuiz">${qz.questions.map((q, i) => `
-      <fieldset class="sl-q"><legend>${i + 1}. ${esc(q.q)}</legend>
-        ${q.a.map((a, j) => `<label class="sl-opt"><input type="radio" name="q${i}" value="${j}" required><span>${esc(a)}</span></label>`).join("")}
+  try { qz = await sellerApi("quiz", {}); } catch (ex) { return smShowErr(body, ex.message, true); }
+  body.innerHTML = `
+    <p class="sm-flabel">Verification test — every answer must be correct.</p>
+    <form id="smWzQuiz">${qz.questions.map((q, i) => `
+      <fieldset class="sm-quiz-q"><legend>${i + 1}. ${esc(q.q)}</legend>
+        ${q.a.map((a, j) => `<label class="sm-quiz-o"><input type="radio" name="q${i}" value="${j}" required><span>${esc(a)}</span></label>`).join("")}
       </fieldset>`).join("")}
-      <button class="primary-btn" type="submit">Submit answers</button>
-      <p class="pay-err" id="slErr" hidden></p>
-    </form>`;
-  $("#slQuiz").addEventListener("submit", async e => {
+      <p class="sm-err" id="smWzErr" hidden></p>
+      <button class="sm-btn sm-btn-primary" type="submit">Submit answers</button></form>`;
+  $("#smWzQuiz", body).addEventListener("submit", async e => {
     e.preventDefault();
     const answers = qz.questions.map((_, i) => Number(new FormData(e.target).get("q" + i)));
     try {
       const r = await sellerApi("quiz-submit", { answers });
-      if (r.passed) renderSeller();
-      else { const el = $("#slErr"); el.textContent = `${r.score}/${r.total} — all ${r.total} must be correct. Check the terms and try again.`; el.hidden = false; }
-    } catch (ex) { const el = $("#slErr"); el.textContent = ex.message; el.hidden = false; }
+      if (r.passed) { await smDetect(); smRender(); }
+      else smShowErr($("#smWzErr", body), `${r.score}/${r.total} correct — all must be right. Re-read the terms and try again.`);
+    } catch (ex) { smShowErr($("#smWzErr", body), ex.message); }
   });
 }
-
-function renderPhoneStage(st) {
-  const box = $("#slStageBody");
-  box.innerHTML = `
-    <p class="pf-label">Confirm your phone</p>
-    <p class="co-note">We text a 6-digit code to this number. It's only used for seller verification.</p>
-    <form id="slPhone" class="pf-name-row">
-      <input id="sl-phone" type="tel" maxlength="24" placeholder="+1 555 123 4567" value="${esc(st.phone || "")}" required>
-      <button class="btn-light" type="submit">Send code</button>
-    </form>
-    <div id="slCodeWrap" hidden>
-      <p class="sl-test" id="slTestCode" hidden></p>
-      <form id="slCode" class="pf-name-row" style="margin-top:10px">
-        <input id="sl-code" inputmode="numeric" maxlength="6" placeholder="6-digit code" required>
-        <button class="primary-btn" type="submit">Verify</button>
-      </form>
+function smWizPhone(body, status) {
+  body.innerHTML = `
+    <p class="sm-flabel">Confirm your phone</p>
+    <p class="sm-mut sm-small">We text a 6-digit code — only used for seller verification.</p>
+    <form id="smWzPhone" class="sm-inline-form"><input id="smWzP" type="tel" maxlength="24" placeholder="+1 555 123 4567" value="${esc(status.phone || "")}" required>
+      <button class="sm-btn sm-btn-ghost" type="submit">Send code</button></form>
+    <div id="smWzCodeWrap" hidden>
+      <p class="sm-code-note" id="smWzCode" hidden></p>
+      <form id="smWzCodeForm" class="sm-inline-form"><input id="smWzC" inputmode="numeric" maxlength="6" placeholder="6-digit code" required>
+        <button class="sm-btn sm-btn-primary" type="submit">Verify</button></form>
     </div>
-    <p class="pay-err" id="slErr" hidden></p>`;
-  $("#slPhone").addEventListener("submit", async e => {
+    <p class="sm-err" id="smWzErr" hidden></p>`;
+  $("#smWzPhone", body).addEventListener("submit", async e => {
     e.preventDefault();
     try {
-      const r = await sellerApi("phone-start", { phone: $("#sl-phone").value });
-      $("#slCodeWrap").hidden = false;
-      if (r.testCode) { const t = $("#slTestCode"); t.textContent = `TEST MODE — your code is ${r.testCode}`; t.hidden = false; }
-      $("#sl-code").focus();
-    } catch (ex) { const el = $("#slErr"); el.textContent = ex.message; el.hidden = false; }
+      const r = await sellerApi("phone-start", { phone: $("#smWzP", body).value });
+      $("#smWzCodeWrap", body).hidden = false;
+      if (r.testCode) { const t = $("#smWzCode", body); t.textContent = `Test mode — your code is ${r.testCode}`; t.hidden = false; }
+      $("#smWzC", body).focus();
+    } catch (ex) { smShowErr($("#smWzErr", body), ex.message); }
   });
-  $("#slCode").addEventListener("submit", async e => {
+  $("#smWzCodeForm", body).addEventListener("submit", async e => {
     e.preventDefault();
-    try { await sellerApi("phone-verify", { code: $("#sl-code").value.trim() }); renderSeller(); }
-    catch (ex) { const el = $("#slErr"); el.textContent = ex.message; el.hidden = false; }
+    try { await sellerApi("phone-verify", { code: $("#smWzC", body).value.trim() }); await smDetect(); smRender(); }
+    catch (ex) { smShowErr($("#smWzErr", body), ex.message); }
   });
 }
 
-/* ----- verified: the dashboard ----- */
-const WD_HINT = {
-  robux: "Your Roblox username", credit: "Goes straight to your site balance",
-  cashapp: "$yourcashtag", paypal: "PayPal email", crypto: "BTC / ETH / LTC address",
-};
-async function renderSellerDash(st) {
-  let data;
-  try { data = await sellerApi("credit-scan", {}); } catch (ex) { return slFail(ex); }
-  const b = data.balance;
-  let listings = [];
-  try { listings = (await sellerApi("my-listings", {})).listings || []; } catch {}
-  const feePct = Math.round((st.fee || 0.1) * 100);
-  acctBody.innerHTML = `
-    ${slBack}
-    <h2 class="co-title" id="accountTitle">Seller hub</h2>
-    ${st.testMode ? `<p class="sl-test">OWNER TEST MODE — invisible to the public</p>` : ""}
-
-    <div class="sl-bal">
-      <div><i>Available</i><b>${money(b.available)}</b></div>
-      <div><i>Pending (${data.holdDays}-day hold)</i><b>${money(b.pending)}</b></div>
-      <div><i>Lifetime</i><b>${money(b.lifetime)}</b></div>
-    </div>
-
-    <div class="pf-block">
-      <p class="pf-label">List an item</p>
-      <form id="slList">
-        <div class="pay-2col">
-          <div class="co-field"><label for="sl-game">Game</label>
-            <select id="sl-game" class="pool-sku">
-              <option value="mm2">Murder Mystery 2</option><option value="am">Adopt Me</option>
-              <option value="nfl">NFL Universe</option><option value="baddies">Baddies</option>
-            </select></div>
-          <div class="co-field"><label for="sl-price">Your price (USD)</label>
-            <input id="sl-price" type="number" min="1" max="500" step="0.01" required placeholder="9.99"></div>
-        </div>
-        <div class="co-field"><label for="sl-name">Item</label>
-          <input id="sl-name" maxlength="80" required placeholder="Exact item name" list="slNames"><datalist id="slNames"></datalist></div>
-        <p class="co-note" id="slNet">After the ${feePct}% fee you receive: —</p>
-        <button class="primary-btn" type="submit">List it for sale</button>
-        <p class="pay-err" id="slListErr" hidden></p>
-      </form>
-    </div>
-
-    <div class="pf-block">
-      <p class="pf-label">My listings</p>
-      <div id="slMine" class="pf-orders">${listings.length ? "" : `<p class="co-note">Nothing listed yet.</p>`}</div>
-    </div>
-
-    <div class="pf-block">
-      <p class="pf-label">Withdraw</p>
-      <div class="seg sl-methods" role="radiogroup">
-        ${["robux", "credit", "cashapp", "paypal", "crypto"].map((m, i) =>
-          `<button role="radio" data-wd="${m}" aria-checked="${i === 0}">${{ robux: "Robux", credit: "Site credit", cashapp: "CashApp", paypal: "PayPal", crypto: "Crypto" }[m]}</button>`).join("")}
-      </div>
-      <form id="slWd" style="margin-top:10px">
-        <div class="co-field"><label for="sl-dest" id="slDestLabel">${WD_HINT.robux}</label>
-          <input id="sl-dest" maxlength="120" placeholder="${WD_HINT.robux}"></div>
-        <div class="co-field"><label for="sl-amt">Amount (min $5)</label>
-          <input id="sl-amt" type="number" min="5" step="0.01" max="${b.available}" placeholder="${b.available >= 5 ? b.available.toFixed(2) : "5.00"}"></div>
-        <button class="primary-btn" type="submit" ${b.available < 5 ? "disabled" : ""}>${b.available < 5 ? "Nothing withdrawable yet" : "Request withdrawal"}</button>
-        <p class="pay-err" id="slWdErr" hidden></p>
-      </form>
-      <div id="slWds" class="pf-orders" style="margin-top:12px"></div>
-    </div>
-
-    <div class="pf-block">
-      <p class="pf-label">Recent sales</p>
-      <div class="pf-orders">${(data.credits || []).length ? data.credits.map(c =>
-        `<div class="pf-order"><div class="pf-order-top"><b>${esc(c.name || c.listing)}</b><span class="pf-status ${Date.now() - c.at >= 3 * 864e5 ? "is-done" : ""}">${Date.now() - c.at >= 3 * 864e5 ? "Cleared" : "On hold"}</span></div>
-          <p class="pf-order-meta">${new Date(c.at).toLocaleDateString()} · you earned ${money(c.amt)}</p></div>`).join("")
-      : `<p class="co-note">No sales yet. When someone buys your listing, it lands here (held ${data.holdDays} days, then withdrawable).</p>`}</div>
-    </div>`;
-  $("#slBack").addEventListener("click", renderProfile);
-
-  /* my listings rows */
-  const mine = $("#slMine");
-  if (listings.length) {
-    mine.innerHTML = listings.map(l => `
-      <div class="pf-order"><div class="pf-order-top"><b>${esc(l.name)}</b><span class="pf-status">${money(l.price)}</span></div>
-        <p class="pf-order-meta">${esc(GAME_LABEL[l.game] || l.game)} · you receive ${money(l.price * (1 - (st.fee || .1)))} <button class="sl-rm" data-rm="${esc(l.id)}">Remove</button></p></div>`).join("");
-    $$("[data-rm]", mine).forEach(btn => btn.addEventListener("click", async () => {
-      try { await sellerApi("list-remove", { id: btn.dataset.rm }); renderSellerDash(st); } catch {}
-    }));
+/* ================= data actions ================= */
+async function smCreateListing(data) {
+  if (SM.mode === "remote") {
+    const r = await sellerApi("list-create", { game: data.game, name: data.name, price: data.price });
+    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false });
+    SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
+  } else {
+    SM.st.listings.unshift({ id: smId("L"), game: data.game, name: data.name, price: data.price, stock: data.stock, description: data.description, status: "active", created: Date.now() });
+    smSaveLocal();
   }
-
-  /* datalist of real item names for the picked game */
-  const fillNames = () => {
-    const g = $("#sl-game").value;
-    $("#slNames").innerHTML = CATALOG.filter(i => i.game === g && !i.bundle).map(i => `<option value="${esc(i.name)}">`).join("");
-  };
-  fillNames();
-  $("#sl-game").addEventListener("change", fillNames);
-
-  /* live payout preview */
-  $("#sl-price").addEventListener("input", () => {
-    const p = Number($("#sl-price").value);
-    $("#slNet").textContent = p >= 1 ? `After the ${feePct}% fee you receive: ${money(p * (1 - (st.fee || .1)))}` : `After the ${feePct}% fee you receive: —`;
-  });
-
-  /* create listing */
-  $("#slList").addEventListener("submit", async e => {
-    e.preventDefault();
-    const err = $("#slListErr"); err.hidden = true;
-    try {
-      await sellerApi("list-create", { game: $("#sl-game").value, name: $("#sl-name").value, price: Number($("#sl-price").value) });
-      renderSellerDash(st);
-    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
-  });
-
-  /* withdraw method picker + submit */
-  let wdMethod = "robux";
-  $$(".sl-methods [data-wd]").forEach(btn => btn.addEventListener("click", () => {
-    wdMethod = btn.dataset.wd;
-    $$(".sl-methods [data-wd]").forEach(x => x.setAttribute("aria-checked", x === btn));
-    $("#slDestLabel").textContent = WD_HINT[wdMethod];
-    $("#sl-dest").placeholder = WD_HINT[wdMethod];
-  }));
-  $("#slWd").addEventListener("submit", async e => {
-    e.preventDefault();
-    const err = $("#slWdErr"); err.hidden = true;
-    try {
-      await sellerApi("withdraw", { method: wdMethod, details: $("#sl-dest").value, amount: Number($("#sl-amt").value) });
-      renderSellerDash(st);
-    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
-  });
-
-  /* withdrawal history */
-  $("#slWds").innerHTML = (data.withdrawals || []).map(w =>
-    `<div class="pf-order"><div class="pf-order-top"><b>${money(w.amt)} · ${esc(w.method)}</b><span class="pf-status ${w.status === "paid" ? "is-done" : ""}">${esc(w.status)}</span></div>
-      <p class="pf-order-meta">${new Date(w.at).toLocaleDateString()}${w.details ? " · " + esc(w.details) : ""}</p></div>`).join("");
 }
+async function smUpdateListing(id, data) {
+  if (SM.mode === "remote") {
+    try { await sellerApi("list-remove", { id }); } catch {}
+    const r = await sellerApi("list-create", { game: data.game, name: data.name, price: data.price });
+    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false });
+    SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
+  } else {
+    const l = SM.st.listings.find(x => x.id === id);
+    if (l) Object.assign(l, data);
+    smSaveLocal();
+  }
+}
+async function smDeleteListing(id) {
+  if (SM.mode === "remote") { try { await sellerApi("list-remove", { id }); } catch {} SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE }); }
+  else { SM.st.listings = SM.st.listings.filter(l => l.id !== id); smSaveLocal(); }
+  smGo("listings");
+}
+async function smTogglePause(id) {
+  const l = SM.st.listings.find(x => x.id === id);
+  if (!l) return;
+  const paused = l.status !== "paused";
+  l.status = paused ? "paused" : "active";
+  if (SM.mode === "remote") smMetaSet(id, { paused });
+  else smSaveLocal();
+  smGo("listings");
+}
+async function smWithdraw(data) {
+  if (SM.mode === "remote") { await sellerApi("withdraw", data); SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE }); }
+  else {
+    SM.st.withdrawals.unshift({ id: smId("W"), amt: data.amount, method: data.method, details: data.details, at: Date.now(), status: "queued" });
+    smRecompute(SM.st); smSaveLocal();
+  }
+}
+function smMarkDelivered(id, m) {   // local-only convenience so the flow is demonstrable
+  const s = SM.st.sales.find(x => x.id === id);
+  if (s) { s.status = "delivered"; smRecompute(SM.st); smSaveLocal(); }
+  smSales(m, "delivered");
+}
+
+/* ================= shared UI bits ================= */
+function smIcon(k, cls = "") {
+  const p = {
+    plus: `<path d="M12 5v14M5 12h14"/>`,
+    arrow: `<path d="M5 12h14M13 6l6 6-6 6"/>`,
+    wallet: `<rect x="2.5" y="6" width="19" height="12.5" rx="2.5"/><path d="M16 12h2.5"/>`,
+    grid: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>`,
+    edit: `<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>`,
+    pause: `<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>`,
+    play: `<path d="M6 4l14 8-14 8V4Z"/>`,
+    trash: `<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>`,
+    x: `<path d="M6 6l12 12M18 6 6 18"/>`,
+  }[k] || "";
+  return `<svg class="sm-i ${cls}" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+}
+function smEmpty(title, sub) {
+  return `<div class="sm-empty"><b>${title}</b><p>${sub}</p></div>`;
+}
+function smEmptyBig(title, sub, action) {
+  return `<div class="sm-card sm-empty-big"><span class="sm-empty-mk">${smIcon("grid")}</span><b>${title}</b><p>${sub}</p>${action || ""}</div>`;
+}
+function smShowErr(el, msg, replace) {
+  if (replace) { el.innerHTML = `<p class="sm-err" style="display:block">${esc(msg)}</p>`; return; }
+  el.textContent = msg; el.hidden = false;
+}
+function smWire(m) {
+  m.querySelectorAll("[data-page]").forEach(b => b.addEventListener("click", () => smGo(b.dataset.page)));
+  m.querySelectorAll('[data-act="new"]').forEach(b => b.addEventListener("click", () => smOpenForm()));
+  m.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => smOpenForm(b.dataset.edit)));
+  m.querySelectorAll("[data-pause]").forEach(b => b.addEventListener("click", () => smTogglePause(b.dataset.pause)));
+  m.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+    if (confirm("Delete this listing? This can't be undone.")) smDeleteListing(b.dataset.del);
+  }));
+}
+
+/* ---------- back button / hash routing ---------- */
+window.addEventListener("popstate", () => {
+  if (location.hash === "#seller" && !SM.open) enterSellerMode();
+  else if (location.hash !== "#seller" && SM.open) exitSellerMode();
+});
+if (location.hash === "#seller") requestAnimationFrame(() => enterSellerMode());
 
 /* ---------- boot ---------- */
 document.body.dataset.game = state.game;
