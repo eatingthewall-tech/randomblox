@@ -2734,6 +2734,17 @@ html[data-theme="light"] .sm-field-out { background: #efe9fa; }
   padding: 5px 8px; overflow-wrap: anywhere; user-select: all;
 }
 .pool-empty { color: var(--ink-3); font-size: .8rem; margin: 2px 0 4px; }
+/* the sold-accounts log: same rows, plus which order it went to */
+.pool-cred.pool-sold { grid-template-columns: 92px 1fr 1fr; row-gap: 4px; }
+.pool-cred.pool-sold .pc-n { text-align: left; color: var(--ink-2); letter-spacing: .02em; }
+.pool-cred.pool-sold .pc-meta { grid-column: 1 / -1; color: var(--ink-3); font: 500 .72rem var(--font); }
+@media (max-width: 560px) {
+  .pool-cred.pool-sold { grid-template-columns: 1fr 1fr; }
+  .pool-cred.pool-sold .pc-n { grid-column: 1 / -1; }
+}
+/* a past account order: delivered, but the login is no longer shown here */
+.ad-box.ad-box-past { border-color: var(--line-2); background: rgb(0 0 0 / .03); }
+.ad-box-past .ad-head { color: var(--ink-2); }
 
 /* VIP join-by-code tile (e.g. NFL Universe) — a copyable button, not a link */
 button.coq-tile { width: 100%; text-align: left; cursor: pointer; font: inherit; }

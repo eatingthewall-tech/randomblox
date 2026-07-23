@@ -45,6 +45,12 @@ function ownerOK(req) {
 const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+/* How long a buyer can pull their own login back up from the order page. After
+   this the credentials are owner-only and they go through the live chat, so an
+   old checkout link stops being a way into someone's account. */
+const REVEAL_DAYS = Number(process.env.ACCOUNT_REVEAL_DAYS || 7);
+const REVEAL_MS = REVEAL_DAYS * 24 * 3600 * 1000;
+
 /* true only if EVERY line in the cart is an account SKU (>=1 line) — used to
    decide whether an order can be auto-marked delivered. */
 function accountCartIsOnly(cart) {
@@ -76,6 +82,12 @@ function accountLines(cart) {
 }
 
 module.exports = async (req, res) => {
+  /* Credentials must never sit in a shared cache (Vercel's edge, a company
+     proxy, the browser's back/forward store). Every reply from this route is
+     private and one-off. */
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.setHeader("Pragma", "no-cache");
+
   if (!KV_URL || !KV_TOKEN) return res.status(501).json({ error: "Account store not connected." });
 
   try {
@@ -134,13 +146,43 @@ module.exports = async (req, res) => {
       return res.status(200).json({ lists });
     }
 
+    /* ---------- owner: every account that has already gone out, and to which
+       order. This is the only place a sold login can be looked up after the
+       buyer's reveal window closes, and it is owner-gated like the pool. ------ */
+    if (req.query && req.query.sold) {
+      if (!ownerOK(req)) return res.status(401).json({ error: "Owner only." });
+      const r = await kv(["LRANGE", "acct:sold", "0", "-1"]);
+      const sold = ((r && r.result) || [])
+        .map(s => { try { return JSON.parse(s); } catch { return null; } })
+        .filter(Boolean)
+        .sort((a, b) => (b.when || 0) - (a.when || 0));
+      return res.status(200).json({ sold });
+    }
+
     /* ---------- buyer: claim the accounts for a paid session ---------- */
     const sid = clip(req.query && req.query.session_id, 90);
     if (!sid) return res.status(400).json({ error: "session_id required" });
 
-    // already assigned? hand back the same thing (refresh must not re-claim)
+    /* Already assigned? Hand back the same thing so a refresh never re-claims —
+       but only inside the reveal window. A checkout session id can leak (browser
+       history, a shared screenshot, a referrer header), and without this it would
+       be a permanent key to someone's login. After the window the buyer asks in
+       the live chat and the owner reads it off the sold log. */
     const seen = await kv(["GET", `acct:given:${sid}`]);
-    if (seen && seen.result) return res.status(200).json(JSON.parse(seen.result));
+    if (seen && seen.result) {
+      let given; try { given = JSON.parse(seen.result); } catch { given = null; }
+      if (given) {
+        if (!given.at) {                       // pre-window delivery: start its clock now
+          given.at = Date.now();
+          await kv(["SET", `acct:given:${sid}`, JSON.stringify(given)]);
+        }
+        if (ownerOK(req) || Date.now() - given.at <= REVEAL_MS) return res.status(200).json(given);
+        return res.status(200).json({          // expired: say what they bought, never the login
+          accounts: [], queued: given.queued || [], expired: true,
+          items: (given.accounts || []).map(a => ({ id: a.id, name: a.name })),
+        });
+      }
+    }
 
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) return res.status(500).json({ error: "Payments are not configured yet." });
@@ -177,8 +219,32 @@ module.exports = async (req, res) => {
       }
     }
 
-    const payload = { accounts, queued };
+    const payload = { accounts, queued, at: Date.now() };
     await kv(["SET", `acct:given:${sid}`, JSON.stringify(payload)]);
+
+    const orderRef = s.client_reference_id
+      || (s.metadata && s.metadata.order)
+      || String(s.id).slice(-8).toUpperCase();
+
+    /* Owner's record of what went out. Kept out of the buyer path entirely — it
+       is read only through ?sold=1 with the owner key, and it's how a login gets
+       looked up once the buyer's reveal window has closed. */
+    if (accounts.length) {
+      try {
+        await kv(["RPUSH", "acct:sold", ...accounts.map(a => JSON.stringify({
+          order: orderRef,
+          sid,
+          id: a.id,
+          name: a.name,
+          u: a.u,
+          p: a.p,
+          buyer: clip(s.metadata && s.metadata.roblox_user, 60),
+          email: clip(s.customer_details && s.customer_details.email, 120),
+          when: Date.now(),
+        }))]);
+        await kv(["LTRIM", "acct:sold", "-1000", "-1"]);
+      } catch (e) { console.error("sold log failed:", e); }
+    }
 
     /* Accounts are delivered instantly, so mark the order done automatically —
        the owner never has to press "delivered". Only when it's an ACCOUNTS-ONLY
@@ -187,10 +253,7 @@ module.exports = async (req, res) => {
        chat for any account problems either way. */
     const allAccounts = accountCartIsOnly(s.metadata && s.metadata.cart);
     if (allAccounts && accounts.length && !queued.length) {
-      const orderNo = s.client_reference_id
-        || (s.metadata && s.metadata.order)
-        || String(s.id).slice(-8).toUpperCase();
-      try { await kv(["SADD", "orders:done", orderNo]); } catch (e) { console.error("auto-deliver mark failed:", e); }
+      try { await kv(["SADD", "orders:done", orderRef]); } catch (e) { console.error("auto-deliver mark failed:", e); }
     }
 
     return res.status(200).json(payload);

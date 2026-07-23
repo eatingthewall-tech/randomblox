@@ -1152,6 +1152,17 @@ async function deliverAccounts(sid, tries = 0) {
     if (!r.ok) return;                                   // not paid / not connected -> chat fallback
     const d = await r.json();
     if (d.pending && tries < 8) return void setTimeout(() => deliverAccounts(sid, tries + 1), 1200);
+    /* The login is only shown for a while after the sale — an old order page
+       must not stay a way into the account. After that it's the chat. */
+    if (d.expired) {
+      mount.innerHTML = `
+        <div class="ad-box ad-box-past">
+          <p class="ad-head">${(d.items || []).map(i => esc(i.name)).join(", ") || "Account"} — delivered</p>
+          <p class="ad-fine">For your safety the login isn't shown on this page any more.
+          If you still need it, message in the chat below and it'll be sent to you.</p>
+        </div>`;
+      return;
+    }
     if (!d.accounts || !d.accounts.length) return;       // pool dry -> the chat handles it
     mount.innerHTML = acctDeliverHTML(d);
     $$(".ad-v", mount).forEach(el => el.addEventListener("click", () => {
@@ -1500,7 +1511,7 @@ function showPaidOrder(d, sid) {
     <p class="co-step">Payment confirmed</p>
     <h2 class="co-title" id="checkoutTitle">${acctOnly ? `Your account is on the way, ${esc(d.user)}` : `You're in the queue, ${esc(d.user)}`}</h2>
     ${queueHTML(order, orders)}
-    <p class="co-note">Paid ${money(d.total)}. Your order number is saved on this device under "My order".
+    <p class="co-note">Paid ${money(d.total)}. Your order number is saved on this device under "My orders".
     Have it handy ${acctOnly ? "in the chat" : "for the trade"}.</p>
     ${es.length ? linesHTML(es) : ""}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
@@ -1588,7 +1599,7 @@ function openMyOrder(selectedNo, openChat) {
     viewingOrder = null;
     localStorage.removeItem("rbx-open-order");
     coBody.innerHTML = `
-      <h2 class="co-title" id="checkoutTitle">My order</h2>
+      <h2 class="co-title" id="checkoutTitle">My orders</h2>
       <p class="co-note">No orders on this device yet. When you check out, your order number
       shows up here.</p>`;
     return;
@@ -1980,6 +1991,8 @@ async function renderAcctPools() {
     <div id="poolCounts" class="pool-counts">Loading…</div>
     <button class="own-notify-btn" id="poolReveal" style="margin-top:12px">Show loaded accounts</button>
     <div id="poolList" class="pool-list" hidden></div>
+    <button class="own-notify-btn" id="soldReveal" style="margin-top:8px">Show accounts already sold</button>
+    <div id="soldList" class="pool-list" hidden></div>
     <label class="co-field" style="display:block;margin-top:14px">
       <span class="ad-k">Add logins</span>
       <select id="poolSku" class="pool-sku">${SKUS.map(i => `<option value="${esc(i.id)}">${esc(i.name)}</option>`).join("")}</select>
@@ -2027,6 +2040,35 @@ async function renderAcctPools() {
     btn.textContent = "Loading…";
     try { await loadPoolList(); }
     catch (e) { btn.textContent = "Show loaded accounts"; alert(e.message); }
+  });
+
+  /* Owner-only: every account that has already been sold, with the order it went
+     to. Nobody else can reach this — the endpoint checks the owner key, and the
+     buyer's own copy of the login stops being served after the reveal window. */
+  let soldShown = false;
+  async function loadSoldList() {
+    const box = $("#soldList"), btn = $("#soldReveal");
+    const r = await fetch("/api/account?sold=1", { headers: { "x-owner-key": ownerKey() } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Couldn't read the sold accounts.");
+    const sold = d.sold || [];
+    box.innerHTML = sold.length
+      ? `<p class="pool-sku-name">${sold.length} account${sold.length === 1 ? "" : "s"} sold <span>· newest first</span></p>` +
+        sold.map(a => `
+          <div class="pool-cred pool-sold">
+            <span class="pc-n">${esc(a.order || "—")}</span>
+            <code>${esc(a.u)}</code><code>${esc(a.p)}</code>
+            <span class="pc-meta">${esc(a.name || a.id || "")}${a.buyer ? " · " + esc(a.buyer) : ""} · ${a.when ? new Date(a.when).toLocaleDateString() : ""}</span>
+          </div>`).join("")
+      : `<p class="pool-empty">No accounts have been sold yet.</p>`;
+    box.hidden = false; soldShown = true; btn.textContent = "Hide accounts already sold";
+  }
+  $("#soldReveal").addEventListener("click", async () => {
+    const box = $("#soldList"), btn = $("#soldReveal");
+    if (soldShown) { box.hidden = true; box.innerHTML = ""; soldShown = false; btn.textContent = "Show accounts already sold"; return; }
+    btn.textContent = "Loading…";
+    try { await loadSoldList(); }
+    catch (e) { btn.textContent = "Show accounts already sold"; alert(e.message); }
   });
 
   $("#poolSave").addEventListener("click", async () => {
