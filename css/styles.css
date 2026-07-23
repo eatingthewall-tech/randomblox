@@ -2734,3 +2734,14 @@ html[data-theme="light"] .sm-field-out { background: #efe9fa; }
   padding: 5px 8px; overflow-wrap: anywhere; user-select: all;
 }
 .pool-empty { color: var(--ink-3); font-size: .8rem; margin: 2px 0 4px; }
+
+/* VIP join-by-code tile (e.g. NFL Universe) — a copyable button, not a link */
+button.coq-tile { width: 100%; text-align: left; cursor: pointer; font: inherit; }
+button.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft); }
+.coq-tile-code .vip-code {
+  font: 800 .82rem ui-monospace, monospace; color: var(--brand-up);
+  letter-spacing: .06em; background: var(--brand-soft-2);
+  padding: 1px 6px; border-radius: 6px;
+}
+.coq-tile-code.is-copied { border-color: var(--go); background: color-mix(in oklab, var(--go) 12%, transparent); }
+.coq-tile-code.is-copied .coq-tx i::after { content: " ✓ copied"; color: var(--go); font-weight: 700; }

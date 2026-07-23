@@ -45,6 +45,21 @@ function ownerOK(req) {
 const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+/* true only if EVERY line in the cart is an account SKU (>=1 line) — used to
+   decide whether an order can be auto-marked delivered. */
+function accountCartIsOnly(cart) {
+  let seen = 0;
+  for (const part of String(cart || "").split(",")) {
+    const p = part.trim();
+    if (!p) continue;
+    const i = p.lastIndexOf(":");
+    if (i < 1) continue;
+    if (!ACCOUNT_IDS.has(p.slice(0, i))) return false;
+    seen++;
+  }
+  return seen > 0;
+}
+
 /* "acc-korblox:1,acc-random-male:2" -> [{id, q}] for account SKUs only */
 function accountLines(cart) {
   const out = [];
@@ -164,6 +179,20 @@ module.exports = async (req, res) => {
 
     const payload = { accounts, queued };
     await kv(["SET", `acct:given:${sid}`, JSON.stringify(payload)]);
+
+    /* Accounts are delivered instantly, so mark the order done automatically —
+       the owner never has to press "delivered". Only when it's an ACCOUNTS-ONLY
+       order that was fully handed over (nothing left in the queue); a mixed
+       order still needs the game items traded by hand. The buyer keeps a live
+       chat for any account problems either way. */
+    const allAccounts = accountCartIsOnly(s.metadata && s.metadata.cart);
+    if (allAccounts && accounts.length && !queued.length) {
+      const orderNo = s.client_reference_id
+        || (s.metadata && s.metadata.order)
+        || String(s.id).slice(-8).toUpperCase();
+      try { await kv(["SADD", "orders:done", orderNo]); } catch (e) { console.error("auto-deliver mark failed:", e); }
+    }
+
     return res.status(200).json(payload);
   } catch (e) {
     console.error("account error:", e);

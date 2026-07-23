@@ -809,9 +809,14 @@ const setCoWide = on => $(".checkout-panel")?.classList.toggle("co-wide", !!on);
 const VIP_LINKS = {
   mm2:     "https://www.roblox.com/share?code=31918145a25ec44d91400d790306df2b&type=Server",
   am:      "https://www.roblox.com/games/920587237?privateServerLinkCode=_K_fHtcXliZJ6bU50wdT1xG_8VlH25O2",
-  nfl:     "https://www.roblox.com/share?code=a687359d4575e84a89ea666f407914fe&type=Server",
   baddies: "https://www.roblox.com/share?code=0d70f61fd27dee44ad02faccedee7dfa&type=Server",
 };
+/* Some games join by an in-game code instead of a link — the buyer enters it in
+   the game's private-server field. NFL Universe works this way. */
+const VIP_CODES = {
+  nfl: "275FF9",
+};
+const hasVip = g => !!(VIP_LINKS[g] || VIP_CODES[g]);
 const esc = s => String(s).replace(/[&<>"']/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -1181,7 +1186,7 @@ function orderContentsHTML(order) {
 function queueHTML(order, orders, opts = {}) {
   const bare = !!opts.bare;   // card view supplies its own header — skip the order-number box
   const games = [...new Set((order.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
-  const vipGames = games.filter(g => VIP_LINKS[g]);
+  const vipGames = games.filter(hasVip);
   const hasAccounts = games.includes("accounts");
   const accountsOnly = hasAccounts && !vipGames.length;
   const chatMode = hasAccounts ? "account" : "fallback";
@@ -1200,6 +1205,28 @@ function queueHTML(order, orders, opts = {}) {
       </div>
     </details>`;
 
+  /* account-only orders: instant, no queue. The login drops into #acctDeliver as
+     soon as the server hands it over. Checked BEFORE `done` so the login + chat
+     stay visible even though the order is auto-marked delivered on the server. */
+  if (accountsOnly) {
+    if (bare) return `
+      <div class="q-slim">
+        <div class="acct-deliver" id="acctDeliver"></div>
+        ${chatFold("Problem with your account? Open live chat")}
+      </div>`;
+    return `
+      <div class="q-slim">
+        <div class="q-order">
+          <span class="qo-label">Your order number</span>
+          <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-done">Delivered instantly</span>
+          ${orderContentsHTML(order)}
+          <p class="qo-wait">Your login is below. Log in and change the password right away.</p>
+        </div>
+        <div class="acct-deliver" id="acctDeliver"></div>
+        ${chatFold("Problem with your account? Open live chat")}
+      </div>`;
+  }
+
   /* delivered orders: no queue, no VIP — just a receipt + the chat */
   if (order.done) {
     if (bare) return `<div class="q-slim">${chatFold("Open this order's chat")}</div>`;
@@ -1215,27 +1242,6 @@ function queueHTML(order, orders, opts = {}) {
       </div>`;
   }
 
-  /* account-only orders: no queue. The login drops into #acctDeliver as soon as
-     the server hands it over; if the pool is empty it falls back to the chat. */
-  if (accountsOnly) {
-    if (bare) return `
-      <div class="q-slim">
-        <div class="acct-deliver" id="acctDeliver"></div>
-        ${chatFold("Open this order's chat")}
-      </div>`;
-    return `
-      <div class="q-slim">
-        <div class="q-order">
-          <span class="qo-label">Your order number</span>
-          <b class="qo-code">${esc(order.no)}</b><span class="qo-pos qo-pos-plain">No queue</span>
-          ${orderContentsHTML(order)}
-          <p class="qo-wait">Your login is on its way.</p>
-        </div>
-        <div class="acct-deliver" id="acctDeliver"></div>
-        ${chatFold("Open live chat")}
-      </div>`;
-  }
-
   /* game / mixed orders: order number + wait, the VIP link, and two folded panels
      (the steps, and the chat fallback) so nothing hits all at once */
   const q = queueInfo(order, orders);
@@ -1243,11 +1249,16 @@ function queueHTML(order, orders, opts = {}) {
   // the VIP link is hidden until the buyer reaches the front of the queue
   const atFront = q.ahead === 0;
   const lockIc = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2.2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>`;
+  const keyIc = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.5 12.5 8-8"/><path d="m16 5 3 3"/><path d="m13 8 3 3"/></svg>`;
   const vipTiles = atFront
-    ? vipGames.map(g =>
-        `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
-           <span class="qi-ic">${IC.link}</span>
-           <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>You're up — open it now</i></span></a>`).join("")
+    ? vipGames.map(g => VIP_CODES[g]
+        // code games (e.g. NFL Universe): tap to copy, then enter it in game
+        ? `<button type="button" class="coq-tile coq-tile-code" data-copy="${esc(VIP_CODES[g])}">
+             <span class="qi-ic">${keyIc}</span>
+             <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP code</b><i>Enter this in game to join · <span class="vip-code">${esc(VIP_CODES[g])}</span> · tap to copy</i></span></button>`
+        : `<a class="coq-tile" href="${VIP_LINKS[g]}" target="_blank" rel="noopener">
+             <span class="qi-ic">${IC.link}</span>
+             <span class="coq-tx"><b>${esc(GAME_LABEL[g])} VIP server</b><i>You're up — open it now</i></span></a>`).join("")
     : `<div class="coq-tile coq-tile-locked" aria-disabled="true">
          <span class="qi-ic">${lockIc}</span>
          <span class="coq-tx"><b>VIP server locked</b><i>Unlocks when you reach the front of the queue</i></span></div>`;
@@ -1268,7 +1279,7 @@ function queueHTML(order, orders, opts = {}) {
         <summary><span class="fold-ic">${IC.bell}</span><span class="fold-tx">When it's your turn</span><span class="fold-chev">${IC.chev}</span></summary>
         <ol class="q-turn">
           <li><span class="qt-ic">${IC.bell}</span><div class="qt-tx"><b>1. You reach the front</b><p>Your spot moves up to the front of the queue.</p></div></li>
-          <li><span class="qt-ic">${IC.link}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link above and hop in. Can't join? Use the chat.</p></div></li>
+          <li><span class="qt-ic">${IC.link}</span><div class="qt-tx"><b>2. Join the VIP server</b><p>Open the VIP link above, or enter the VIP code in game, and hop in. Can't join? Use the chat.</p></div></li>
           <li><span class="qt-ic">${IC.user}</span><div class="qt-tx"><b>3. Your items are prepared</b><p>Your order is matched to your code and sent to you inside the server.</p></div></li>
           <li><span class="qt-ic">${IC.gift}</span><div class="qt-tx"><b>4. Accept the trade</b><p>The trade comes through in game. Accept it and you're done.</p></div></li>
         </ol>
@@ -1280,6 +1291,12 @@ function queueHTML(order, orders, opts = {}) {
 
 /* buyer-side chat: buyer messages sit right, owner replies land left */
 function bindQueueChat(root = document) {
+  // copyable VIP code tiles (e.g. NFL Universe) — tap to copy the code
+  $$(".coq-tile-code", root).forEach(btn => btn.addEventListener("click", () => {
+    navigator.clipboard?.writeText(btn.dataset.copy);
+    btn.classList.add("is-copied");
+    setTimeout(() => btn.classList.remove("is-copied"), 1100);
+  }));
   $$(".coq-chat", root).forEach(box => {
     const thread = box.dataset.order;
     const key = "rbx-chat-" + thread;
