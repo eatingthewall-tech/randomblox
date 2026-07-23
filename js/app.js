@@ -1351,14 +1351,19 @@ function closeCheckout() {
 }
 $("#closeCheckout").addEventListener("click", closeCheckout);
 
-function linesHTML(es) {
+/* `total` is what was actually charged. On a receipt that must come from the
+   order, not the cart: by the time a wallet (Cash App, Apple Pay) sends the
+   buyer back the cart can already be empty, which printed "Total $0.00" — and
+   a spin credit means the cart never matched the amount paid anyway. */
+function linesHTML(es, total) {
   const rows = es.map(([id, q]) => {
     const i = byId[id];
     return `<div class="co-line"><span>${i.name}${q > 1 ? ` ×${q}` : ""}</span>
       <span class="co-price">${money(i.price * q)}</span></div>`;
   }).join("");
+  const sum = total == null ? cartTotal() : total;
   return `<div class="co-summary">${rows}
-    <div class="co-line co-total"><span>Total</span><span class="co-price">${money(cartTotal())}</span></div></div>`;
+    <div class="co-line co-total"><span>Total</span><span class="co-price">${money(sum)}</span></div></div>`;
 }
 
 const coCrop = p => !!p && (p.startsWith("assets/items/") || p.startsWith("assets/nfl/") || p.startsWith("assets/baddies/") || p.startsWith("assets/accounts/"));
@@ -1513,7 +1518,7 @@ function showPaidOrder(d, sid) {
     ${queueHTML(order, orders)}
     <p class="co-note">Paid ${money(d.total)}. Your order number is saved on this device under "My orders".
     Have it handy ${acctOnly ? "in the chat" : "for the trade"}.</p>
-    ${es.length ? linesHTML(es) : ""}
+    ${es.length ? linesHTML(es, d.total) : ""}
     <button class="primary-btn" id="coDone" style="margin-top:16px">Done</button>`;
   $("#coDone").addEventListener("click", closeCheckout);
   bindQueueChat(coBody);
