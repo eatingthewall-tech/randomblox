@@ -282,13 +282,14 @@ button { font-family: inherit; }
 .sl-rm:hover { background: rgb(255 100 112 / .12); }
 @media (max-width: 560px) { .sl-methods { grid-template-columns: repeat(3, 1fr); } .sl-bal { grid-template-columns: 1fr 1fr; } }
 .order-lookup {
-  display: inline-flex; align-items: center; height: 40px;
+  display: inline-flex; align-items: center; gap: 7px; height: 40px;
   background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px;
   font: 600 .88rem var(--font); color: var(--ink-2);
   padding: 0 16px; cursor: pointer; white-space: nowrap;
   transition: border-color .16s, color .16s, background .16s;
 }
 .order-lookup:hover { border-color: var(--brand-up); color: var(--brand-up); background: var(--brand-soft); }
+.order-lookup-ico { display: none; }   /* shown only when the label collapses (mid widths) */
 .cart-btn {
   position: relative;
   display: flex; align-items: center; gap: 8px; height: 40px;
@@ -1069,6 +1070,24 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
   .game-tab::before { margin-right: 6px; }
   .order-lookup { padding: 0 13px; }
   .topbar-right { gap: 7px; }
+}
+/* laptop band: below ~1480px the three zones (logo · game nav · actions) can no
+   longer sit at full size, so the action cluster's secondary items collapse to
+   icons and the nav footprint tightens. All five game tabs stay. Mirrors the
+   icon-only pattern already used at ≤720px. */
+@media (max-width: 1480px) and (min-width: 721px) {
+  .spin-btn-label, .cart-btn-label { display: none; }
+  .topbar-right { gap: 7px; }
+}
+@media (max-width: 1480px) and (min-width: 1041px) {
+  .topbar-in { gap: 12px; }
+  .game-tab { padding: 9px 13px; font-size: .84rem; }
+}
+/* tighter still: drop the "My orders" text too, leaving just its receipt icon */
+@media (max-width: 1260px) and (min-width: 721px) {
+  .order-lookup-label { display: none; }
+  .order-lookup-ico { display: block; }
+  .order-lookup { width: 40px; padding: 0; justify-content: center; }
 }
 /* narrow phones: the dice mark carries the brand so My order + Discord + Cart fit */
 @media (max-width: 560px) { .logo-word { display: none; } }
@@ -2697,3 +2716,21 @@ html[data-theme="light"] .sm-field-out { background: #efe9fa; }
 
 .sm-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 @media (max-width: 560px) { .sm-scroll .sm-table { min-width: 430px; } }
+
+/* owner console: revealed account logins (owner-only, credentials) */
+.pool-list { margin: 10px 0 4px; }
+.pool-sku-block { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
+.pool-sku-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.pool-sku-name { font: 700 .78rem var(--font); color: var(--ink-2); margin: 0 0 7px; text-transform: uppercase; letter-spacing: .05em; }
+.pool-sku-name span { color: var(--ink-3); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.pool-cred {
+  display: grid; grid-template-columns: 20px 1fr 1fr; gap: 8px; align-items: center;
+  padding: 6px 0; border-bottom: 1px dashed var(--line);
+}
+.pool-cred .pc-n { color: var(--ink-3); font: 700 .72rem var(--font); text-align: center; }
+.pool-cred code {
+  font: 500 .78rem/1.3 ui-monospace, monospace; color: var(--ink);
+  background: var(--tile); border: 1px solid var(--line); border-radius: 7px;
+  padding: 5px 8px; overflow-wrap: anywhere; user-select: all;
+}
+.pool-empty { color: var(--ink-3); font-size: .8rem; margin: 2px 0 4px; }

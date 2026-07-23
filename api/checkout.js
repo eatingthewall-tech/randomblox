@@ -166,7 +166,17 @@ module.exports = async (req, res) => {
         continue;
       }
 
-      const left = Math.max(0, (Number(item.stock) || 0) - (sold[item.id] || 0));
+      /* Roblox accounts are only as available as the loaded pool — an account
+         with no logins loaded is genuinely sold out, not just low. LLEN is the
+         live count; the atomic LPOP at delivery is still the real guarantee. */
+      let left;
+      if (item.game === "accounts") {
+        let pool = 0;
+        try { const pr = await U.kv(["LLEN", `acct:pool:${item.id}`]); pool = (pr && pr.result) || 0; } catch { pool = 0; }
+        left = pool;
+      } else {
+        left = Math.max(0, (Number(item.stock) || 0) - (sold[item.id] || 0));
+      }
       if (left <= 0) return res.status(400).json({ error: `${item.name} just sold out.` });
       const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, left));
       bought.push({ id: item.id, q: qty });
@@ -226,10 +236,11 @@ module.exports = async (req, res) => {
       ...(discounts.length ? { discounts } : {}),
       // No explicit payment_method_types: Checkout renders every method that is
       // turned on in the Stripe Dashboard (Settings -> Payment methods) and is
-      // eligible for this transaction, each in its own section — Card (credit/
-      // debit), PayPal, Cash App Pay, plus Apple Pay / Google Pay on supported
+      // eligible for this transaction, each in its own section — e.g. Card
+      // (credit/debit), Cash App Pay, plus Apple Pay / Google Pay on supported
       // devices. Enable a method in the Dashboard and it appears here with no
-      // code change.
+      // code change (the buyer-facing copy in js/app.js lists card, Cash App Pay
+      // and Apple/Google Pay — update it there too if you enable more).
       line_items,
       customer_email: email ? String(email).slice(0, 120) : undefined,
       client_reference_id: orderNo ? String(orderNo).slice(0, 60) : undefined,

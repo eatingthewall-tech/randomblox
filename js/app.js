@@ -280,6 +280,39 @@ function syncAcctButtons() {
   });
 }
 
+/* Account availability = how many logins the owner has loaded into the pool.
+   So an account SKU shows exactly that many in stock (Korblox available when
+   loaded, random sold out when the pool is empty) and can't be oversold. Falls
+   back to the catalog numbers if the store isn't reachable (e.g. local preview). */
+let ACCT_STOCK_API = true;
+async function syncAcctStock() {
+  if (!ACCT_STOCK_API) return;
+  let counts;
+  try {
+    const r = await fetch("/api/account?stock=1");
+    if (r.status === 501 || r.status === 404) { ACCT_STOCK_API = false; return; }
+    if (!r.ok) return;
+    counts = (await r.json()).counts;
+  } catch { return; }
+  if (!counts) return;
+  let changed = false;
+  for (const i of CATALOG) {
+    if (i.game !== "accounts") continue;
+    const n = Math.max(0, Number(counts[i.id]) || 0);
+    if (i.stock !== n) { i.stock = n; changed = true; }
+  }
+  if (changed) {
+    syncAcctButtons();
+    // drop from the cart anything that just sold out from under the buyer
+    for (const id of Object.keys(state.cart)) {
+      if (byId[id] && byId[id].game === "accounts" && state.cart[id] > byId[id].stock) {
+        if (byId[id].stock > 0) state.cart[id] = byId[id].stock; else delete state.cart[id];
+        save("rbx-cart", state.cart); syncCount();
+      }
+    }
+  }
+}
+
 /* ---------- pause the hero light show while it's offscreen ---------- */
 (function heroPause() {
   const hero = $(".hero");
@@ -1349,7 +1382,7 @@ function stepPay() {
       </div>
 
       <div class="pay-panel pay-wallet">
-        <p>You'll finish on <b>Stripe's secure page</b> — pay by card, PayPal, Cash&nbsp;App&nbsp;Pay, or Apple&nbsp;Pay&nbsp;/&nbsp;Google&nbsp;Pay. Your card details are never seen by us.</p>
+        <p>You'll finish on <b>Stripe's secure page</b> — pay by card, Cash&nbsp;App&nbsp;Pay, or Apple&nbsp;Pay&nbsp;/&nbsp;Google&nbsp;Pay. Your card details are never seen by us.</p>
       </div>
 
       <button class="primary-btn pay-submit" type="submit"><span class="pay-lock">${PAY_IC.lock}</span><span data-pay-label>Pay ${money(payingTotal)}</span></button>
@@ -1928,6 +1961,8 @@ async function renderAcctPools() {
     that item goes back to the queue and you deliver it in the chat. Logins are stored on the
     server only — never in the website's code.</p>
     <div id="poolCounts" class="pool-counts">Loading…</div>
+    <button class="own-notify-btn" id="poolReveal" style="margin-top:12px">Show loaded accounts</button>
+    <div id="poolList" class="pool-list" hidden></div>
     <label class="co-field" style="display:block;margin-top:14px">
       <span class="ad-k">Add logins</span>
       <select id="poolSku" class="pool-sku">${SKUS.map(i => `<option value="${esc(i.id)}">${esc(i.name)}</option>`).join("")}</select>
@@ -1948,6 +1983,35 @@ async function renderAcctPools() {
   };
   counts();
 
+  /* Owner-only: reveal the exact logins in stock so the owner never hands out
+     the same account twice. These are credentials, so they load only on demand
+     and only through the owner-gated endpoint. */
+  let listShown = false;
+  async function loadPoolList() {
+    const box = $("#poolList"), btn = $("#poolReveal");
+    const r = await fetch("/api/account?list=1", { headers: { "x-owner-key": ownerKey() } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Couldn't read the accounts.");
+    const lists = d.lists || {};
+    box.innerHTML = SKUS.map(sku => {
+      const rows = lists[sku.id] || [];
+      return `<div class="pool-sku-block">
+        <p class="pool-sku-name">${esc(sku.name)} <span>· ${rows.length} loaded</span></p>
+        ${rows.length
+          ? rows.map((a, n) => `<div class="pool-cred"><span class="pc-n">${n + 1}</span><code>${esc(a.u)}</code><code>${esc(a.p)}</code></div>`).join("")
+          : `<p class="pool-empty">None loaded — this account shows as sold out.</p>`}
+      </div>`;
+    }).join("");
+    box.hidden = false; listShown = true; btn.textContent = "Hide loaded accounts";
+  }
+  $("#poolReveal").addEventListener("click", async () => {
+    const box = $("#poolList"), btn = $("#poolReveal");
+    if (listShown) { box.hidden = true; box.innerHTML = ""; listShown = false; btn.textContent = "Show loaded accounts"; return; }
+    btn.textContent = "Loading…";
+    try { await loadPoolList(); }
+    catch (e) { btn.textContent = "Show loaded accounts"; alert(e.message); }
+  });
+
   $("#poolSave").addEventListener("click", async () => {
     const err = $("#poolErr"); err.hidden = true;
     const id = $("#poolSku").value;
@@ -1966,6 +2030,7 @@ async function renderAcctPools() {
       if (!r.ok) throw new Error(d.error || "Couldn't save.");
       $("#poolPaste").value = "";
       counts();
+      if (listShown) loadPoolList().catch(() => {});   // keep the revealed list current
     } catch (e) { err.textContent = e.message; err.hidden = false; }
   });
 }
@@ -3559,5 +3624,7 @@ renderBagSlot(state.game);
 refreshSpin();
 
 syncStock();
-document.addEventListener("visibilitychange", () => { if (!document.hidden) syncStock(); });
+syncAcctStock();
+setInterval(syncAcctStock, 30000);            // keep account availability live
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { syncStock(); syncAcctStock(); } });
 })();

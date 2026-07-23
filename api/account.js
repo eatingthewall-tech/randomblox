@@ -87,15 +87,36 @@ module.exports = async (req, res) => {
 
     if (req.method !== "GET") return res.status(405).json({ error: "GET or POST only" });
 
-    /* ---------- owner: how many are left in each pool ---------- */
-    if (req.query && req.query.counts) {
-      if (!ownerOK(req)) return res.status(401).json({ error: "Owner only." });
+    /* ---------- public: how many are in stock (numbers only, no logins) ----------
+       The shopfront uses this so an account SKU shows exactly as many as the
+       owner has loaded — sold out when the pool is empty. Counts aren't secret
+       (it's just a stock number); the credentials are never returned here. */
+    if (req.query && (req.query.stock || req.query.counts)) {
+      // ?counts is the old owner-only alias; ?stock is the public one
+      if (req.query.counts && !req.query.stock && !ownerOK(req)) {
+        return res.status(401).json({ error: "Owner only." });
+      }
       const counts = {};
       for (const id of ACCOUNT_IDS) {
         const r = await kv(["LLEN", `acct:pool:${id}`]);
         counts[id] = (r && r.result) || 0;
       }
       return res.status(200).json({ counts });
+    }
+
+    /* ---------- owner: the actual loaded logins, so the owner can see what's in
+       stock and never hands out the same one. Strictly owner-gated — these are
+       credentials and must never reach a buyer. ---------- */
+    if (req.query && req.query.list) {
+      if (!ownerOK(req)) return res.status(401).json({ error: "Owner only." });
+      const lists = {};
+      for (const id of ACCOUNT_IDS) {
+        const r = await kv(["LRANGE", `acct:pool:${id}`, "0", "-1"]);
+        lists[id] = ((r && r.result) || [])
+          .map(s => { try { const o = JSON.parse(s); return { u: o.u, p: o.p }; } catch { return null; } })
+          .filter(Boolean);
+      }
+      return res.status(200).json({ lists });
     }
 
     /* ---------- buyer: claim the accounts for a paid session ---------- */
