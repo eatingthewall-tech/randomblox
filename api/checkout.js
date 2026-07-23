@@ -30,8 +30,10 @@ const GAME_LABEL = {
    tail and never its top grails, so the shop keeps a wide margin; a rare ~5%
    "lucky bag" upgrades one slot to a mid item for excitement. Runs server-side
    so the contents can't be influenced from the browser. */
-function drawBag(section, sold, bagPrice) {
-  const left = i => (Number(i.stock) || 0) - (sold[i.id] || 0);
+function drawBag(section, sold, bagPrice, overrides = {}) {
+  const left = i => overrides[i.id] != null
+    ? Math.max(0, overrides[i.id])
+    : (Number(i.stock) || 0) - (sold[i.id] || 0);
   const all = CATALOG.filter(i =>
     i.game === section && !i.bundle && !i.ownerOnly && i.img && left(i) > 0);
   if (all.length < 3) return null;                       // not enough stock to fill a bag
@@ -107,6 +109,22 @@ module.exports = async (req, res) => {
     let sold = {};
     try { sold = await getSold(stripe, { fresh: true }); } catch (e) { console.error("stock check failed:", e); }
 
+    // Owner's manual stock counts. When set, the override is authoritative for
+    // that item — so a "sold out" toggle can't be bypassed by crafting a request.
+    let overrides = {};
+    try {
+      const r = await U.kv(["HGETALL", "stock:override"]);
+      const arr = (r && r.result) || [];
+      for (let k = 0; k < arr.length; k += 2) {
+        const n = parseInt(arr[k + 1], 10);
+        if (Number.isFinite(n)) overrides[arr[k]] = Math.max(0, n);
+      }
+    } catch { /* no store — fall back to catalog stock */ }
+    // remaining units for an item id: a manual count wins, else catalog − sold
+    const stockLeft = it => overrides[it.id] != null
+      ? Math.max(0, overrides[it.id])
+      : Math.max(0, (Number(it.stock) || 0) - (sold[it.id] || 0));
+
     const isOwner = ownerOK(req);
     const bought = [];                       // the quantities we actually charge for
     const listingIds = [];                   // seller-marketplace listings in this order
@@ -145,7 +163,7 @@ module.exports = async (req, res) => {
       if (item.bundle) {
         const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, 10));
         for (let k = 0; k < qty; k++) {
-          const bag = drawBag(item.game, sold, Number(item.price));
+          const bag = drawBag(item.game, sold, Number(item.price), overrides);
           if (!bag) return res.status(400).json({ error: `The ${item.name} is out of stock right now.` });
           for (const it of bag) {
             sold[it.id] = (sold[it.id] || 0) + 1;          // reserve within this order
@@ -173,9 +191,10 @@ module.exports = async (req, res) => {
       if (item.game === "accounts") {
         let pool = 0;
         try { const pr = await U.kv(["LLEN", `acct:pool:${item.id}`]); pool = (pr && pr.result) || 0; } catch { pool = 0; }
-        left = pool;
+        // a manual override still caps it, so the owner can force an account out
+        left = overrides[item.id] != null ? Math.min(pool, overrides[item.id]) : pool;
       } else {
-        left = Math.max(0, (Number(item.stock) || 0) - (sold[item.id] || 0));
+        left = stockLeft(item);
       }
       if (left <= 0) return res.status(400).json({ error: `${item.name} just sold out.` });
       const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, left));

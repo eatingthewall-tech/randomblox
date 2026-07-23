@@ -3503,7 +3503,7 @@ const CATALOG = [
    "price": 41,
    "was": 57.54,
    "img": "assets/nfl/nfl-bright-white-tactical-vest.png",
-   "stock": 3,
+   "stock": 5,
    "creator": "Foxtrot Arms",
    "badge": "Limited"
   },
@@ -5441,7 +5441,7 @@ const CATALOG = [
    "variant": "base",
    "price": 10.39,
    "img": "assets/baddies/bd-golden-snowball-launcher.png",
-   "stock": 4,
+   "stock": 0,
    "badge": ""
   },
   {
@@ -5574,7 +5574,7 @@ const CATALOG = [
    "variant": "base",
    "price": 11.99,
    "img": "assets/baddies/bd-cheerleader-finisher.png",
-   "stock": 2,
+   "stock": 0,
    "badge": ""
   },
   {

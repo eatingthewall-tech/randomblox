@@ -607,6 +607,7 @@ function cardHTML(i) {
       ${soldOut ? `<span class="card-sold">Out of stock</span>` : ""}
       ${s && !soldOut ? `<span class="card-save">-${s.pct}%</span>` : ""}
       ${!soldOut && i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
+      ${ownerStockCtl(i)}
     </div>
     <div class="card-body">
       <div class="card-name">${i.name}</div>
@@ -624,8 +625,57 @@ function cardHTML(i) {
   </article>`;
 }
 
+/* Owner-only stock control, laid over each card. Hover (or tap on mobile) to
+   set the shelf count: −/+ nudge it, "Sold out" forces zero, "Auto" hands the
+   item back to the automatic catalog-minus-sold tally. Everyone else never sees
+   it — it only renders when the server has confirmed this device as the owner. */
+function ownerStockCtl(i) {
+  if (!IS_OWNER || i.game === "accounts") return "";   // accounts are managed by their login pool
+  const manual = STOCK_OVERRIDES[i.id] != null;
+  const n = i.stock;
+  return `<div class="card-own" data-own-stock="${i.id}">
+    <button class="cown-btn" data-stock-dec="${i.id}" aria-label="One fewer" ${n <= 0 ? "disabled" : ""}>–</button>
+    <span class="cown-n ${n <= 0 ? "is-out" : ""}">${n <= 0 ? "Sold out" : `${n} in stock`}</span>
+    <button class="cown-btn" data-stock-inc="${i.id}" aria-label="One more">+</button>
+    ${n > 0 ? `<button class="cown-out" data-stock-out="${i.id}">Sold out</button>` : ""}
+    <button class="cown-mode ${manual ? "is-manual" : ""}" data-stock-auto="${i.id}" title="${manual ? "Manual count — click for automatic" : "Automatic (catalog minus sold)"}">${manual ? "Manual" : "Auto"}</button>
+  </div>`;
+}
+
+/* Push a stock change to the server, then re-sync so every device sees it. */
+async function setStock(id, payload) {
+  try {
+    const r = await fetch("/api/stock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() },
+      body: JSON.stringify({ id, ...payload }),
+    });
+    const d = await r.json().catch(() => null);
+    if (!r.ok) { alert((d && d.error) || "Couldn't save the stock change."); return; }
+    if (d && d.overrides) STOCK_OVERRIDES = d.overrides;
+    await syncStock();
+    // syncStock only re-renders when a number changed; force it so Auto/Manual updates too
+    renderFeatured(); renderGameBand(); buildRarityChips(); render();
+  } catch { alert("Couldn't reach the server to save that."); }
+}
+
 function bindBuyButtons(root) {
   $$("[data-add]", root).forEach(b => b.addEventListener("click", () => addToCart(b.dataset.add, b)));
+  // owner stock controls (present only when unlocked as owner)
+  $$("[data-stock-dec]", root).forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation(); const id = b.dataset.stockDec;
+    setStock(id, { stock: Math.max(0, (byId[id] ? byId[id].stock : 0) - 1) });
+  }));
+  $$("[data-stock-inc]", root).forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation(); const id = b.dataset.stockInc;
+    setStock(id, { stock: (byId[id] ? byId[id].stock : 0) + 1 });
+  }));
+  $$("[data-stock-out]", root).forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation(); setStock(b.dataset.stockOut, { stock: 0 });
+  }));
+  $$("[data-stock-auto]", root).forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation(); setStock(b.dataset.stockAuto, { clear: true });
+  }));
 }
 
 /* ---------- render ---------- */
@@ -1814,6 +1864,7 @@ function ownerToast(kind, name, thread) {
   if (ownerBtn && (await verifyOwner())) {
     IS_OWNER = true;
     render();                              // reveal the owner-only Testing item
+    renderFeatured(); renderGameBand();    // and the owner stock control on every card
     ownerBtn.hidden = false;
     refreshSellerEntry();
     refreshOwnerBadge();
@@ -3470,20 +3521,26 @@ setSort(state.sort);   // sync sort control + first render (grouped by rarity)
    The catalog's own numbers are the starting point (baseStock), so repeated
    syncs never compound. If the endpoint is unreachable we just leave the
    catalog as-is; checkout re-checks stock server-side before charging. */
+let STOCK_OVERRIDES = {};   // owner's manual counts, id -> number (authoritative when set)
 async function syncStock() {
-  let sold;
+  let sold, overrides;
   try {
     const r = await fetch("/api/stock");
     if (!r.ok) return;
     const d = await r.json();
     sold = d && d.sold;
+    overrides = (d && d.overrides) || {};
   } catch { return; }
   if (!sold || typeof sold !== "object") return;
+  STOCK_OVERRIDES = overrides;
 
   let changed = false;
   for (const i of CATALOG) {
     if (i.baseStock == null) i.baseStock = Number(i.stock) || 0;
-    const left = Math.max(0, i.baseStock - (Number(sold[i.id]) || 0));
+    // a manual override is the shelf count the owner set; otherwise catalog − sold
+    const left = overrides[i.id] != null
+      ? Math.max(0, Number(overrides[i.id]) || 0)
+      : Math.max(0, i.baseStock - (Number(sold[i.id]) || 0));
     if (i.stock !== left) { i.stock = left; changed = true; }
   }
   if (!changed) return;
