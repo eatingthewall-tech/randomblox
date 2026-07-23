@@ -1896,6 +1896,35 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .own-chat { border: 1px solid rgb(0 0 0 / .08); border-radius: 16px; background: rgb(0 0 0 / .02); }
 .own-chat .chat-log { min-height: 280px; max-height: 52vh; }
 
+/* ---------- owner console: modern header + snappier rows ---------- */
+.own-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2px; padding-right: 44px; }
+.own-head .co-title { margin: 0; }
+.own-status {
+  flex: none; display: inline-flex; align-items: center; gap: 7px;
+  font: 700 .74rem var(--font); color: var(--ink-2);
+  border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 12px; white-space: nowrap;
+}
+.own-status.is-live { color: #fff; background: linear-gradient(95deg, #ff5470, #e5354f); border-color: transparent; }
+.own-spin {
+  width: 12px; height: 12px; flex: none; border-radius: 999px;
+  border: 2px solid currentColor; border-right-color: transparent; opacity: .7;
+  animation: own-spin .7s linear infinite;
+}
+@keyframes own-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .own-spin { animation: none; } }
+.chat-loading { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 120px; color: var(--ink-3); font: 500 .86rem var(--font); }
+
+/* rows: clearer press feedback + an unread accent so a new message pops */
+.own-row { transition: border-color .14s var(--ease), background .14s var(--ease), transform .1s var(--ease); }
+.own-row:active { transform: scale(.99); }
+.own-row-unread { border-color: rgb(255 84 112 / .45); background: rgb(255 84 112 / .06); }
+.own-row-unread .own-main b { color: var(--ink); }
+.own-row-done { opacity: .62; }
+.own-row-done:hover { opacity: 1; }
+
+/* chat header sits tight to the top of the panel when you open a thread */
+.own-chat-head { padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+
 /* ============================================================
    v5.8 — instant-account callout
    ============================================================ */

@@ -1090,6 +1090,7 @@ async function chatApiThreads() {
     if (r.status === 501 || r.status === 404) { CHAT_API = false; return null; }
     if (!r.ok) return null;
     const d = await r.json();
+    if (d.read && typeof d.read === "object") ownerReadMap = d.read;   // shared read state
     return Array.isArray(d.threads) ? d.threads : null;
   } catch { return null; }
 }
@@ -1767,6 +1768,8 @@ const ownerKey = () => localStorage.getItem("rbx-owner-key") || "";
 let ownerOrders = [];
 let ownerView = null;   // "list" | "chat" | null — so background refresh never clobbers an open chat
 let ownerChatThreads = [];   // declared up here: ownerUnread() below reads it
+let ownerReadMap = {};       // shared read state (thread -> ts) from the server, so opening a
+                             // chat on one device clears the unread marker on all of them
 async function verifyOwner() {
   const k = ownerKey();
   if (!k) return false;
@@ -1943,10 +1946,15 @@ async function syncOwnerChats(silent) {
    Reads the shared store (same basis as the console badge), so it's right across
    devices — the old per-row check only saw chats saved on this one device, which
    is why a live chat never showed which one was new. */
+/* When was this thread last read? Take the later of this device's own record
+   and the shared server record, so a read on ANY of the owner's devices counts. */
+function threadReadAt(threadId) {
+  return Math.max(load("rbx-own-chat-read", {})[threadId] || 0, ownerReadMap[threadId] || 0);
+}
 function threadIsUnread(threadId) {
   const t = ownerChatThreads.find(x => x.thread === threadId);
   if (!t || t.who === "owner") return false;
-  return (t.last || 0) > (load("rbx-own-chat-read", {})[threadId] || 0);
+  return (t.last || 0) > threadReadAt(threadId);
 }
 /* the newest message in a thread, for the row preview */
 function threadMeta(threadId) {
@@ -1955,15 +1963,21 @@ function threadMeta(threadId) {
 
 /* unread = threads with a buyer message newer than the last time it was opened */
 function ownerChatUnread() {
-  const read = load("rbx-own-chat-read", {});
-  return ownerChatThreads.filter(t => t.who !== "owner" && (t.last || 0) > (read[t.thread] || 0)).length;
+  return ownerChatThreads.filter(t => t.who !== "owner" && (t.last || 0) > threadReadAt(t.thread)).length;
 }
 function markThreadRead(thread) {
   const t = ownerChatThreads.find(x => x.thread === thread);
-  if (!t) return;
+  const at = (t && t.last) || Date.now();
   const read = load("rbx-own-chat-read", {});
-  read[thread] = t.last || Date.now();
+  read[thread] = at;
   save("rbx-own-chat-read", read);
+  ownerReadMap[thread] = Math.max(ownerReadMap[thread] || 0, at);   // instant on this device
+  // tell the server, so every other owner device clears it too (fire-and-forget)
+  if (CHAT_API) fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() },
+    body: JSON.stringify({ markRead: thread }),
+  }).catch(() => {});
 }
 
 /* Asked here rather than on page load: Safari refuses outright without a user
@@ -2195,37 +2209,57 @@ function webRowHTML(t) {
       <span class="own-go">${IC.chev}</span>
     </button>`;
 }
-async function renderOwnerList(quiet) {
-  ownerView = "list";
-  if (!quiet) {                                    // background refreshes skip the placeholder
-    ownerBody.innerHTML = `
-      <h2 class="co-title">Owner console</h2>
-      <p class="co-note">Loading chats and paid orders…</p>
-      <div class="own-list">${generalRowHTML()}</div>`;
-    $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
-  }
-
-  let err = null;
-  try {
-    const r = await fetch("/api/orders", { headers: { "x-owner-key": ownerKey() } });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) err = d.error || `Couldn't load orders (${r.status}).`;
-    else ownerOrders = d.orders || [];
-  } catch {
-    err = "Couldn't reach the server. Orders only load on the live site, not a local preview.";
-  }
-
-  const threads = await chatApiThreads();          // shared-store chat threads (per person)
-  const webRows = threads
+/* Build the console list straight from the cached globals (ownerOrders +
+   ownerChatThreads), which the 7-second pollers keep fresh. No awaits here, so
+   opening the console and stepping back to the list are both instant. */
+let OWN_LIST_ERR = null;
+function paintOwnerList(refreshing) {
+  const threads = ownerChatThreads || [];
+  const webRows = threads.length
     ? threads.filter(t => (t.kind || "").indexOf("order") !== 0 && String(t.thread).indexOf("web:") === 0)
         .map(webRowHTML).join("")
-    : generalRowHTML();                            // fallback: this device's website chat
+    : generalRowHTML();
 
+  const orderRows = [...ownerOrders]
+    // anything with an unread buyer message floats to the top
+    .sort((a, b) => (threadIsUnread(b.no) ? 1 : 0) - (threadIsUnread(a.no) ? 1 : 0))
+    .map(o => {
+      const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
+      const tag = games.length === 1 && games[0] === "accounts"
+        ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
+      const n = (o.items || []).reduce((a, x) => a + x.q, 0);
+      const unread = threadIsUnread(o.no) || unreadFor(o.no) > 0;
+      const done = o.done || isDone(o.no);
+      const pos = done ? null : o.queuePos;
+      const meta = threadMeta(o.no);
+      const when = meta && meta.last ? msgTime(meta.last) : "";
+      const line = unread && meta && meta.preview
+        ? `${meta.who === "owner" ? "You: " : ""}${meta.preview}`
+        : `${o.no} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : (tag || "order")}`;
+      return `
+      <button class="own-row${done ? " own-row-done" : ""}${unread ? " own-row-unread" : ""}" data-own="${esc(o.no)}">
+        <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
+        <span class="own-main">
+          <b>${esc(o.user || "Buyer")}${pos ? `<span class="own-pos">#${pos} in queue</span>` : ""}${
+            unread && when ? `<span class="own-when">${esc(when)}</span>` : ""}</b>
+          <i>${esc(line)}</i>
+        </span>
+        ${unread ? `<span class="own-badge">New</span>` : ""}
+        <span class="own-go">${IC.chev}</span>
+      </button>`;
+    }).join("");
+
+  const newCount = ownerUnread();
   ownerBody.innerHTML = `
-    <h2 class="co-title">Owner console</h2>
-    <p class="co-note">${err ? "Live chat still works below." :
-      `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"} from Stripe, newest first. Every buyer, any device.`}</p>
-    ${err ? `<p class="pay-err">${esc(err)}</p>` : ""}
+    <div class="own-head">
+      <h2 class="co-title">Owner console</h2>
+      <span class="own-status${newCount ? " is-live" : ""}">${
+        refreshing ? `<span class="own-spin" aria-hidden="true"></span>Refreshing…`
+        : newCount ? `${newCount} new` : "All caught up"}</span>
+    </div>
+    <p class="co-note">${OWN_LIST_ERR ? "Live chat still works below." :
+      `${ownerOrders.length} paid order${ownerOrders.length === 1 ? "" : "s"}, newest first. Every buyer, any device.`}</p>
+    ${OWN_LIST_ERR ? `<p class="pay-err">${esc(OWN_LIST_ERR)}</p>` : ""}
     ${notifyRowHTML()}
     <div class="own-list">
       <p class="own-group">Stock <span>· auto-delivered logins</span></p>
@@ -2233,38 +2267,34 @@ async function renderOwnerList(quiet) {
       <p class="own-group">Live chats <span>· questions only, not the queue</span></p>
       ${webRows || generalRowHTML()}
       ${ownerOrders.length ? `<p class="own-group">Paid orders <span>· these form the delivery queue</span></p>` : ""}
-      ${[...ownerOrders]
-        // anything with an unread buyer message floats to the top, so a new
-        // message on an older order can't hide down the list
-        .sort((a, b) => (threadIsUnread(b.no) ? 1 : 0) - (threadIsUnread(a.no) ? 1 : 0))
-        .map(o => {
-        const games = [...new Set((o.items || []).map(x => byId[x.id]?.game).filter(Boolean))];
-        const tag = games.length === 1 && games[0] === "accounts"
-          ? "Account" : games.map(g => GAME_LABEL[g] || g).join(", ");
-        const n = (o.items || []).reduce((a, x) => a + x.q, 0);
-        const unread = threadIsUnread(o.no) || unreadFor(o.no) > 0;
-        const done = o.done || isDone(o.no);
-        const pos = done ? null : o.queuePos;
-        const meta = threadMeta(o.no);
-        const when = meta && meta.last ? msgTime(meta.last) : "";
-        const line = unread && meta && meta.preview
-          ? `${meta.who === "owner" ? "You: " : ""}${meta.preview}`
-          : `${o.no} · ${n} item${n === 1 ? "" : "s"} · ${money(o.total)} · ${done ? "Delivered" : (tag || "order")}`;
-        return `
-        <button class="own-row${done ? " own-row-done" : ""}${unread ? " own-row-unread" : ""}" data-own="${esc(o.no)}">
-          <span class="own-av">${esc((o.user || "?").slice(0, 1).toUpperCase())}</span>
-          <span class="own-main">
-            <b>${esc(o.user || "Buyer")}${pos ? `<span class="own-pos">#${pos} in queue</span>` : ""}${
-              unread && when ? `<span class="own-when">${esc(when)}</span>` : ""}</b>
-            <i>${esc(line)}</i>
-          </span>
-          ${unread ? `<span class="own-badge">New</span>` : ""}
-          <span class="own-go">${IC.chev}</span>
-        </button>`;
-      }).join("")}
+      ${orderRows}
     </div>`;
   $$("#ownerBody .own-row").forEach(b => b.addEventListener("click", () => renderOwnerChat(b.dataset.own)));
   $("#ownNotify")?.addEventListener("click", () => askNotifyPermission(() => renderOwnerList(true)));
+}
+
+/* Refresh the cached globals from the server (orders + chat threads in
+   parallel). Returns nothing — callers repaint from the fresh globals. */
+async function refreshOwnerData() {
+  const [ordersRes, threads] = await Promise.all([
+    fetch("/api/orders", { headers: { "x-owner-key": ownerKey() } })
+      .then(r => r.json().then(d => ({ ok: r.ok, status: r.status, d })))
+      .catch(() => ({ ok: false, status: 0, d: {} })),
+    chatApiThreads(),
+  ]);
+  if (ordersRes.ok) { ownerOrders = ordersRes.d.orders || []; OWN_LIST_ERR = null; }
+  else if (ordersRes.status === 0) OWN_LIST_ERR = "Couldn't reach the server. Orders only load on the live site, not a local preview.";
+  else OWN_LIST_ERR = (ordersRes.d && ordersRes.d.error) || `Couldn't load orders (${ordersRes.status}).`;
+  if (threads) ownerChatThreads = threads;
+}
+
+async function renderOwnerList(quiet) {
+  ownerView = "list";
+  // paint instantly from what we already have, so navigation never blocks
+  paintOwnerList(!quiet && !ownerOrders.length && !ownerChatThreads.length);
+  if (quiet) return;                               // a background repaint: don't re-fetch
+  await refreshOwnerData();
+  if (ownerView === "list" && !ownerPanel.hidden) paintOwnerList(false);
 }
 
 function renderOwnerChat(no) {
@@ -2315,7 +2345,7 @@ function renderOwnerChat(no) {
         <button class="chat-send" type="submit" aria-label="Send reply">${IC.send}</button>
       </form>
     </div>`;
-  $("#ownBack").addEventListener("click", renderOwnerList);
+  $("#ownBack").addEventListener("click", () => renderOwnerList());
   $("#ownDel")?.addEventListener("click", async () => {
     if (!confirm("Delete this chat for good? This can't be undone.")) return;
     try {
@@ -2357,8 +2387,26 @@ function renderOwnerChat(no) {
   save("rbx-seen-" + no, load(key, []).length);   // mark this thread read (on-device chat)
   markThreadRead(no);                             // ...and in the shared store, so the badge clears
   refreshOwnerBadge();
-  repaint();
-  syncChats();                                     // pull any shared-store history
+  repaint();                                       // instant: whatever this device already has
+  // The owner's device usually has none of the buyer's history locally, so fetch
+  // this one thread directly and show a spinner meanwhile — no more staring at an
+  // empty box waiting on the generic 2.5s poll.
+  if (CHAT_API && !load(key, []).length) {
+    log.innerHTML = `<div class="chat-loading"><span class="own-spin"></span>Loading messages…</div>`;
+  }
+  (async () => {
+    const msgs = await chatApiGet(no);
+    if (msgs) {
+      save(key, msgs);
+      save("rbx-seen-" + no, msgs.length);         // history just landed — keep it marked read
+      if (ownerView === "chat" && document.body.contains(log)) {
+        renderMsgs(log, msgs, "owner", "");
+        log.dataset.n = msgs.length;
+      }
+    } else if (ownerView === "chat" && document.body.contains(log) && !load(key, []).length) {
+      log.innerHTML = `<div class="chat-loading">No messages yet — say hi 👋</div>`;
+    }
+  })();
 }
 
 ownerBtn?.addEventListener("click", openOwner);

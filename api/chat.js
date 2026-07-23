@@ -39,17 +39,28 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === "GET") {
-      // owner: list every thread (who has messaged), newest first
+      // owner: list every thread (who has messaged), newest first, plus the
+      // shared "read" map so opening a chat on ONE device clears the unread
+      // marker on every other device too (not just localStorage per browser).
       if (req.query && req.query.threads) {
         if (!ownerOK(req)) return res.status(401).json({ error: "Owner only." });
-        const h = await kv(["HGETALL", "chat:threads"]);
+        const [h, rd] = await Promise.all([
+          kv(["HGETALL", "chat:threads"]),
+          kv(["HGETALL", "owner:read"]),
+        ]);
         const arr = (h && h.result) || [];
         const threads = [];
         for (let i = 0; i < arr.length; i += 2) {
           try { threads.push({ thread: arr[i], ...JSON.parse(arr[i + 1]) }); } catch {}
         }
         threads.sort((a, b) => (b.last || 0) - (a.last || 0));
-        return res.status(200).json({ threads });
+        const rdArr = (rd && rd.result) || [];
+        const read = {};
+        for (let i = 0; i < rdArr.length; i += 2) {
+          const n = parseInt(rdArr[i + 1], 10);
+          if (Number.isFinite(n)) read[rdArr[i]] = n;
+        }
+        return res.status(200).json({ threads, read });
       }
       /* serve an attached image by id. Stored separately from the message list
          so the 5-second chat poll never re-downloads photos — the browser caches
@@ -84,6 +95,25 @@ module.exports = async (req, res) => {
       let body = req.body;
       if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
       body = body || {};
+
+      // owner marks a thread read (or every thread, with markRead:"*") — this is
+      // the shared read state, so the unread badge clears on all the owner's
+      // devices at once, not just the one they opened the chat on.
+      if (body.markRead) {
+        if (!ownerOK(req)) return res.status(401).json({ error: "Owner only." });
+        const now = Date.now();
+        if (body.markRead === "*") {
+          const h = await kv(["HGETALL", "chat:threads"]);
+          const arr = (h && h.result) || [];
+          const sets = [];
+          for (let i = 0; i < arr.length; i += 2) sets.push(arr[i], String(now));
+          if (sets.length) await kv(["HSET", "owner:read", ...sets]);
+        } else {
+          await kv(["HSET", "owner:read", clip(body.markRead, 80), String(now)]);
+        }
+        return res.status(200).json({ ok: true, at: now });
+      }
+
       const thread = clip(body.thread, 80);
       const text = clip(body.text, 500).trim();
       const name = clip(body.name, 40);
