@@ -14,7 +14,7 @@
                  (Twilio) where marked below.
 
    Money:
-     - A sale credits the seller MINUS the marketplace fee (10%).
+     - A sale credits the seller MINUS the marketplace fee (20%).
      - Credits are "pending" for 3 days (dispute window), then available.
      - Withdrawals: robux / site credit / cashapp / paypal / crypto. They queue
        as requests the owner pays out manually, then marks done. */
