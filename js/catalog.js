@@ -3501,7 +3501,8 @@ const CATALOG = [
    "rarity": "Amethyst",
    "variant": "base",
    "price": 50,
-   "stock": 3,
+   "img": "assets/nfl/nfl-swat-vest.png",
+   "stock": 1,
    "badge": "Limited"
   },
   {
@@ -3512,7 +3513,8 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 25,
-   "stock": 3,
+   "img": "assets/nfl/nfl-jabbaway-switch.png",
+   "stock": 6,
    "badge": "Limited"
   },
   {
@@ -3523,7 +3525,8 @@ const CATALOG = [
    "rarity": "Diamond",
    "variant": "base",
    "price": 38,
-   "stock": 3,
+   "img": "assets/nfl/nfl-keep-ups.png",
+   "stock": 1,
    "badge": "Limited"
   },
   {
