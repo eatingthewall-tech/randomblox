@@ -1,17 +1,20 @@
 /* Public: how many units of each item have already sold, plus any manual stock
-   the owner has set — so the shop can show real remaining stock (6x drops to 5x
-   after a sale, 0 shows Out of stock) and the owner can force an item in or out
-   of stock from the shop grid.
+   the owner has set — so the shop shows real remaining stock (6x drops to 5x
+   after a sale, 0 shows Out of stock) and the owner can set an item's stock
+   from the shop grid.
 
    GET  /api/stock                      -> { sold, overrides }   (public, read-only)
    POST /api/stock { id, stock }        -> set a manual count     (owner only)
    POST /api/stock { id, clear:true }   -> back to automatic       (owner only)
 
-   A manual count (override) is authoritative for that item: it's the shelf
-   quantity the owner set, and "clear" hands the item back to the automatic
-   catalog-minus-sold tally. Only ever returns counts — never buyer data. If
-   payments aren't configured or Stripe is unreachable we still return the
-   overrides; /api/checkout re-checks stock for real before charging. */
+   A manual count is the number of units available RIGHT NOW when the owner sets
+   it, and every sale after that drops it by one — exactly like the automatic
+   catalog count. We store it as { n, s }: n is the shelf count the owner set,
+   s is how many of that item had already sold at that moment (the baseline).
+   Remaining is then n − (soldNow − s), so past sales never count against a
+   fresh number and each new sale decrements it. "clear" hands the item back to
+   the automatic catalog-minus-sold tally. Only ever returns counts — never
+   buyer data. /api/checkout re-checks stock for real before charging. */
 const Stripe = require("stripe");
 const crypto = require("crypto");
 const { getSold } = require("../lib/sold.js");
@@ -30,16 +33,24 @@ function ownerOK(req) {
   return !!pw && !!given && sameSecret(given, pw);
 }
 
-/* the owner's manual counts as { id: number }. Reads through lib/users' kv
-   helper, which returns nothing when no store is connected. */
+/* one stored override -> { n, s }. Accepts the legacy bare-number format (an
+   older version stored just the count) and treats its baseline as 0. */
+function parseOverride(v) {
+  try {
+    const o = JSON.parse(v);
+    if (o && typeof o.n === "number") return { n: Math.max(0, o.n), s: Math.max(0, o.s || 0) };
+  } catch { /* not JSON — fall through to the legacy number */ }
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? { n: Math.max(0, n), s: 0 } : null;
+}
 async function readOverrides() {
   try {
     const r = await U.kv(["HGETALL", OVERRIDE_KEY]);
     const arr = (r && r.result) || [];
     const out = {};
     for (let i = 0; i < arr.length; i += 2) {
-      const n = parseInt(arr[i + 1], 10);
-      if (Number.isFinite(n)) out[arr[i]] = Math.max(0, n);
+      const o = parseOverride(arr[i + 1]);
+      if (o) out[arr[i]] = o;
     }
     return out;
   } catch { return {}; }
@@ -59,7 +70,12 @@ module.exports = async (req, res) => {
         await U.kv(["HDEL", OVERRIDE_KEY, id]);
       } else {
         const n = Math.max(0, Math.min(9999, parseInt(body.stock, 10) || 0));
-        await U.kv(["HSET", OVERRIDE_KEY, id, String(n)]);
+        // baseline: how many have sold so far, so this count means "n available
+        // now" and each future sale — never a past one — decrements it.
+        let base = 0;
+        const key = process.env.STRIPE_SECRET_KEY;
+        if (key) { try { const sold = await getSold(new Stripe(key), { fresh: true }); base = sold[id] || 0; } catch {} }
+        await U.kv(["HSET", OVERRIDE_KEY, id, JSON.stringify({ n, s: base })]);
       }
       return res.status(200).json({ ok: true, overrides: await readOverrides() });
     } catch (e) {

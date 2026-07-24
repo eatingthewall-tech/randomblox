@@ -31,9 +31,12 @@ const GAME_LABEL = {
    "lucky bag" upgrades one slot to a mid item for excitement. Runs server-side
    so the contents can't be influenced from the browser. */
 function drawBag(section, sold, bagPrice, overrides = {}) {
-  const left = i => overrides[i.id] != null
-    ? Math.max(0, overrides[i.id])
-    : (Number(i.stock) || 0) - (sold[i.id] || 0);
+  const left = i => {
+    const ov = overrides[i.id];
+    const soldN = sold[i.id] || 0;
+    if (ov) return Math.max(0, ov.n - Math.max(0, soldN - ov.s));
+    return (Number(i.stock) || 0) - soldN;
+  };
   const all = CATALOG.filter(i =>
     i.game === section && !i.bundle && !i.ownerOnly && i.img && left(i) > 0);
   if (all.length < 3) return null;                       // not enough stock to fill a bag
@@ -109,21 +112,29 @@ module.exports = async (req, res) => {
     let sold = {};
     try { sold = await getSold(stripe, { fresh: true }); } catch (e) { console.error("stock check failed:", e); }
 
-    // Owner's manual stock counts. When set, the override is authoritative for
-    // that item — so a "sold out" toggle can't be bypassed by crafting a request.
+    // Owner's manual stock counts, stored as { n, s } (shelf count + the sold
+    // baseline when it was set). A manual count still decrements on every sale —
+    // n − (sold − s) — and a "sold out" (n:0) can't be bypassed by crafting a
+    // request, since checkout re-checks it here before charging.
     let overrides = {};
     try {
       const r = await U.kv(["HGETALL", "stock:override"]);
       const arr = (r && r.result) || [];
       for (let k = 0; k < arr.length; k += 2) {
-        const n = parseInt(arr[k + 1], 10);
-        if (Number.isFinite(n)) overrides[arr[k]] = Math.max(0, n);
+        let o = null;
+        try { const p = JSON.parse(arr[k + 1]); if (p && typeof p.n === "number") o = { n: Math.max(0, p.n), s: Math.max(0, p.s || 0) }; } catch {}
+        if (!o) { const n = parseInt(arr[k + 1], 10); if (Number.isFinite(n)) o = { n: Math.max(0, n), s: 0 }; }
+        if (o) overrides[arr[k]] = o;
       }
     } catch { /* no store — fall back to catalog stock */ }
-    // remaining units for an item id: a manual count wins, else catalog − sold
-    const stockLeft = it => overrides[it.id] != null
-      ? Math.max(0, overrides[it.id])
-      : Math.max(0, (Number(it.stock) || 0) - (sold[it.id] || 0));
+    // remaining units for an item id: manual count minus sales since it was set,
+    // else the automatic catalog − sold
+    const stockLeft = it => {
+      const ov = overrides[it.id];
+      const soldN = sold[it.id] || 0;
+      if (ov) return Math.max(0, ov.n - Math.max(0, soldN - ov.s));
+      return Math.max(0, (Number(it.stock) || 0) - soldN);
+    };
 
     const isOwner = ownerOK(req);
     const bought = [];                       // the quantities we actually charge for
@@ -192,7 +203,7 @@ module.exports = async (req, res) => {
         let pool = 0;
         try { const pr = await U.kv(["LLEN", `acct:pool:${item.id}`]); pool = (pr && pr.result) || 0; } catch { pool = 0; }
         // a manual override still caps it, so the owner can force an account out
-        left = overrides[item.id] != null ? Math.min(pool, overrides[item.id]) : pool;
+        left = overrides[item.id] ? Math.min(pool, stockLeft(item)) : pool;
       } else {
         left = stockLeft(item);
       }

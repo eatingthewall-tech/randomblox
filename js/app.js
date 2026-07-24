@@ -3671,7 +3671,16 @@ setSort(state.sort);   // sync sort control + first render (grouped by rarity)
    The catalog's own numbers are the starting point (baseStock), so repeated
    syncs never compound. If the endpoint is unreachable we just leave the
    catalog as-is; checkout re-checks stock server-side before charging. */
-let STOCK_OVERRIDES = {};   // owner's manual counts, id -> number (authoritative when set)
+let STOCK_OVERRIDES = {};   // owner's manual counts, id -> { n, s }
+/* remaining units for an item: a manual count (set to "n available now", with
+   baseline s) still drops by one on every sale — n − (sold − s) — otherwise the
+   automatic catalog − sold. */
+function stockRemaining(item, sold, overrides) {
+  const ov = overrides[item.id];
+  const soldN = Number(sold[item.id]) || 0;
+  if (ov && typeof ov.n === "number") return Math.max(0, ov.n - Math.max(0, soldN - (ov.s || 0)));
+  return Math.max(0, (item.baseStock != null ? item.baseStock : Number(item.stock) || 0) - soldN);
+}
 async function syncStock() {
   let sold, overrides;
   try {
@@ -3687,10 +3696,7 @@ async function syncStock() {
   let changed = false;
   for (const i of CATALOG) {
     if (i.baseStock == null) i.baseStock = Number(i.stock) || 0;
-    // a manual override is the shelf count the owner set; otherwise catalog − sold
-    const left = overrides[i.id] != null
-      ? Math.max(0, Number(overrides[i.id]) || 0)
-      : Math.max(0, i.baseStock - (Number(sold[i.id]) || 0));
+    const left = stockRemaining(i, sold, overrides);
     if (i.stock !== left) { i.stock = left; changed = true; }
   }
   if (!changed) return;
