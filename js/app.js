@@ -2811,6 +2811,18 @@ function smThumb(game, name, cls = "sm-thumb") {
   if (it && it.img) return `<span class="${cls} ${smCrop(it.img) ? "is-crop" : ""}"><img src="${imgSrc(it.img)}" alt="" loading="lazy" decoding="async"></span>`;
   return `<span class="${cls} sm-thumb-mono">${esc((name || "?")[0])}</span>`;
 }
+/* a listing's own uploaded photo takes priority over the catalog art */
+function smListingThumb(l, cls = "sm-thumb") {
+  if (l.image) return `<span class="${cls} is-photo"><img src="${l.image}" alt="" loading="lazy" decoding="async"></span>`;
+  return smThumb(l.game, l.name, cls);
+}
+/* the seller's public handle, drawn from their account (needed to sell) */
+function sellerHandle() {
+  if (ME && (ME.name || ME.email)) return (ME.name || ME.email.split("@")[0]).replace(/\s+/g, "").slice(0, 24) || "seller";
+  return sellerLocalPreview() ? "you" : "";
+}
+/* you must be signed in to list (localhost preview is exempt so it can be tested) */
+function sellerCanList() { return !!(ME && (ME.name || ME.email)) || sellerLocalPreview(); }
 const SM_STATUS = {
   active: ["Active", "ok"], paused: ["Paused", "mut"], sold: ["Sold out", "ink"],
   pending: ["Awaiting delivery", "warn"], delivered: ["Delivered · in hold", "brand"], completed: ["Completed", "ok"],
@@ -2892,6 +2904,7 @@ async function smLoadRemote(status) {
     const m = meta[l.id] || {};
     return { id: l.id, game: l.game, name: l.name, price: l.price, created: l.created,
       stock: m.stock == null ? 1 : m.stock, description: m.description || "",
+      image: m.image || "", seller: m.seller || "",
       status: l.status === "sold" ? "sold" : (m.paused ? "paused" : "active") };
   });
   const sales = (scan.credits || []).map(c => {
@@ -3126,17 +3139,26 @@ function smListings(m) {
 }
 function smListingCard(l) {
   const net = money(l.price * (1 - SM.st.fee));
+  const handle = l.seller || sellerHandle();
+  const ini = (handle || "?").trim()[0].toUpperCase();
   return `<article class="sm-card sm-listing ${l.status === "paused" ? "is-paused" : ""}">
     <div class="sm-listing-top">
-      ${smThumb(l.game, l.name, "sm-thumb")}
+      ${smListingThumb(l, "sm-thumb")}
       <div class="sm-listing-meta">
-        <span class="sm-chip sm-chip-${l.game}">${esc(GAME_LABEL[l.game] || l.game)}</span>
+        <div class="sm-listing-row1">
+          <span class="sm-chip sm-chip-${l.game}">${esc(GAME_LABEL[l.game] || l.game)}</span>
+          ${smPill(l.status)}
+        </div>
         <h3 class="sm-listing-name">${esc(l.name)}</h3>
         <div class="sm-listing-facts"><b class="sm-money">${money(l.price)}</b><span class="sm-dot">·</span><span class="sm-mut">${l.stock} in stock</span></div>
       </div>
-      ${smPill(l.status)}
     </div>
     ${l.description ? `<p class="sm-listing-desc">${esc(l.description)}</p>` : ""}
+    ${handle ? `<div class="sm-seller">
+      <span class="sm-seller-av">${esc(ini)}</span>
+      <span class="sm-seller-by">Sold by</span>
+      <button class="sm-seller-name" data-chat-seller="${esc(handle)}" title="Message ${esc(handle)}">@${esc(handle)}</button>
+    </div>` : ""}
     <div class="sm-listing-foot">
       <span class="sm-mut sm-small">You receive ${net} after fee</span>
       <div class="sm-listing-acts">
@@ -3151,7 +3173,13 @@ function smListingCard(l) {
 /* ---------- listing form (create / edit) as an in-mode sheet ---------- */
 function smOpenForm(editId) {
   const editing = editId ? SM.st.listings.find(l => l.id === editId) : null;
+
+  // You must be signed in to list an item — the seller's account is who buyers
+  // see and message. (localhost preview is exempt so the flow can be tested.)
+  if (!editing && !sellerCanList()) return smOpenSignInPrompt();
+
   const games = ["mm2", "am", "nfl", "baddies"];
+  let photo = editing && editing.image ? editing.image : "";   // data URL, kept until replaced
   const wrap = document.createElement("div");
   wrap.className = "sm-sheet"; wrap.id = "smSheet";
   wrap.innerHTML = `
@@ -3159,6 +3187,22 @@ function smOpenForm(editId) {
     <form class="sm-card sm-sheet-panel" id="smForm">
       <div class="sm-sheet-head"><h2 class="sm-h2">${editing ? "Edit listing" : "New listing"}</h2>
         <button type="button" class="sm-icb" id="smSheetX" aria-label="Close">${smIcon("x")}</button></div>
+
+      <div class="sm-field">
+        <span>Photo of the item <em class="sm-req">required</em></span>
+        <label class="sm-photo" id="smPhoto">
+          <input id="smfPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+          <span class="sm-photo-empty" id="smPhotoEmpty">
+            ${smIcon("image", "sm-photo-ic")}
+            <b>Add a photo</b><i>A clear screenshot of the exact item. PNG or JPG.</i>
+          </span>
+          <span class="sm-photo-has" id="smPhotoHas" hidden>
+            <img id="smPhotoImg" alt="Listing photo preview">
+            <span class="sm-photo-swap">Change photo</span>
+          </span>
+        </label>
+      </div>
+
       <div class="sm-field-2">
         <label class="sm-field"><span>Game</span>
           <select id="smfGame">${games.map(g => `<option value="${g}" ${editing && editing.game === g ? "selected" : ""}>${GAME_LABEL[g]}</option>`).join("")}</select></label>
@@ -3187,6 +3231,24 @@ function smOpenForm(editId) {
   $("#smfCancel", wrap).addEventListener("click", close);
   wrap.querySelector(".sm-sheet-scrim").addEventListener("click", close);
 
+  // photo picker: compress on select, show a preview
+  const showPhoto = () => {
+    $("#smPhotoEmpty", wrap).hidden = !!photo;
+    $("#smPhotoHas", wrap).hidden = !photo;
+    $("#smPhoto", wrap).classList.toggle("has-photo", !!photo);
+    if (photo) $("#smPhotoImg", wrap).src = photo;
+  };
+  showPhoto();
+  if (editing && editing.image) showPhoto();
+  $("#smfPhoto", wrap).addEventListener("change", async e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const err = $("#smfErr", wrap); err.hidden = true;
+    try { photo = await compressImage(file); showPhoto(); }
+    catch (ex) { smShowErr(err, ex.message || "Couldn't read that image."); }
+  });
+
   const fillNames = () => {
     const g = $("#smfGame", wrap).value;
     $("#smfNames", wrap).innerHTML = CATALOG.filter(i => i.game === g && !i.bundle).map(i => `<option value="${esc(i.name)}">`).join("");
@@ -3208,7 +3270,9 @@ function smOpenForm(editId) {
       price: Math.round(Number($("#smfPrice", wrap).value) * 100) / 100,
       stock: Math.max(1, Math.round(Number($("#smfStock", wrap).value) || 1)),
       description: $("#smfDesc", wrap).value.trim(),
+      image: photo, seller: sellerHandle(),
     };
+    if (!data.image) return smShowErr(err, "Add a photo of the item you're selling.");
     if (data.name.length < 2) return smShowErr(err, "Name the item you're selling.");
     if (!(data.price >= 1 && data.price <= 500)) return smShowErr(err, "Price must be between $1 and $500.");
     const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
@@ -3218,6 +3282,29 @@ function smOpenForm(editId) {
       close(); smGo("listings");
     } catch (ex) { btn.disabled = false; smShowErr(err, ex.message); }
   });
+}
+
+/* Not signed in → you can't sell. A friendly gate that sends them to sign up. */
+function smOpenSignInPrompt() {
+  const wrap = document.createElement("div");
+  wrap.className = "sm-sheet"; wrap.id = "smSheet";
+  wrap.innerHTML = `
+    <div class="sm-sheet-scrim"></div>
+    <div class="sm-card sm-sheet-panel sm-signin">
+      <div class="sm-signin-ic">${smIcon("user")}</div>
+      <h2 class="sm-h2">Sign in to start selling</h2>
+      <p class="sm-mut">Your account is the name buyers see on your listings and the one they message. Create a free account or log in to list your first item.</p>
+      <div class="sm-sheet-foot sm-signin-foot">
+        <button type="button" class="sm-btn sm-btn-ghost" id="smSignCancel">Not now</button>
+        <button type="button" class="sm-btn sm-btn-primary" id="smSignGo">Sign in or sign up</button>
+      </div>
+    </div>`;
+  SM.root.appendChild(wrap);
+  requestAnimationFrame(() => wrap.classList.add("is-in"));
+  const close = () => { wrap.classList.remove("is-in"); setTimeout(() => wrap.remove(), 220); };
+  $("#smSignCancel", wrap).addEventListener("click", close);
+  wrap.querySelector(".sm-sheet-scrim").addEventListener("click", close);
+  $("#smSignGo", wrap).addEventListener("click", () => { close(); openAccount(); });
 }
 
 /* ================= SALES ================= */
@@ -3454,10 +3541,10 @@ function smWizPhone(body, status) {
 async function smCreateListing(data) {
   if (SM.mode === "remote") {
     const r = await sellerApi("list-create", { game: data.game, name: data.name, price: data.price });
-    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false });
+    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false, image: data.image, seller: data.seller });
     SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
   } else {
-    SM.st.listings.unshift({ id: smId("L"), game: data.game, name: data.name, price: data.price, stock: data.stock, description: data.description, status: "active", created: Date.now() });
+    SM.st.listings.unshift({ id: smId("L"), game: data.game, name: data.name, price: data.price, stock: data.stock, description: data.description, image: data.image, seller: data.seller, status: "active", created: Date.now() });
     smSaveLocal();
   }
 }
@@ -3465,7 +3552,7 @@ async function smUpdateListing(id, data) {
   if (SM.mode === "remote") {
     try { await sellerApi("list-remove", { id }); } catch {}
     const r = await sellerApi("list-create", { game: data.game, name: data.name, price: data.price });
-    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false });
+    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false, image: data.image, seller: data.seller });
     SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
   } else {
     const l = SM.st.listings.find(x => x.id === id);
@@ -3512,6 +3599,8 @@ function smIcon(k, cls = "") {
     play: `<path d="M6 4l14 8-14 8V4Z"/>`,
     trash: `<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>`,
     x: `<path d="M6 6l12 12M18 6 6 18"/>`,
+    image: `<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="9" r="1.6"/><path d="M21 15l-5-5L5 21"/>`,
+    user: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>`,
   }[k] || "";
   return `<svg class="sm-i ${cls}" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 }
@@ -3533,6 +3622,19 @@ function smWire(m) {
   m.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
     if (confirm("Delete this listing? This can't be undone.")) smDeleteListing(b.dataset.del);
   }));
+  // tap a seller's name to message them — leaves seller mode and opens the chat
+  m.querySelectorAll("[data-chat-seller]").forEach(b => b.addEventListener("click", () => openSellerChat(b.dataset.chatSeller)));
+}
+
+/* Message a seller. Buyers reach a seller through the site's live chat; this
+   leaves the seller area (if open) and pops the chat open, primed for them. */
+function openSellerChat(handle) {
+  const wasOpen = SM.open;
+  if (wasOpen) exitSellerMode();
+  setTimeout(() => {
+    const fab = $("#chatFab"), widget = $("#chatWidget");
+    if (fab && widget && widget.hidden) fab.click();
+  }, wasOpen ? 260 : 0);
 }
 
 /* ---------- back button / hash routing ---------- */
