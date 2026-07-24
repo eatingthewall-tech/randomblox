@@ -800,6 +800,25 @@ button { font-family: inherit; }
   box-shadow: 0 5px 12px -4px rgb(229 53 79 / .55);
 }
 
+/* community seller listing: a badge on the art + a clickable @handle pill */
+.card-seller-tag {
+  position: absolute; z-index: 2; top: 9px; left: 9px;
+  font: 800 .64rem var(--font); text-transform: uppercase; letter-spacing: .06em; color: #fff;
+  background: linear-gradient(95deg, var(--brand-up), var(--brand-down));
+  border-radius: 999px; padding: 4px 10px;
+  box-shadow: 0 5px 12px -4px rgb(124 58 237 / .5);
+}
+.card.is-listing { border-color: color-mix(in srgb, var(--brand-up) 40%, var(--line)); }
+.pill.pill-seller {
+  border: none; cursor: pointer; font: 700 .72rem var(--font);
+  color: var(--brand-up); background: var(--brand-soft);
+  text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px;
+}
+.pill.pill-seller:hover { color: #fff; background: var(--brand); }
+.qv-seller { margin: 0; color: var(--ink-2); font-size: .9rem; }
+.qv-seller-name { background: none; border: none; padding: 0; cursor: pointer; color: var(--brand-up); font: 700 .9rem var(--font); text-decoration: underline; text-underline-offset: 2px; }
+.qv-seller-name:hover { color: var(--ink); }
+
 /* ---------- sold out: a banner across the art, item greyed back ---------- */
 .card-sold {
   position: absolute; z-index: 3; left: 50%; top: 50%;
@@ -1378,6 +1397,20 @@ body.rv-on .rv.in { opacity: 1; transform: none; }
 .qv-sub { margin: 0; color: var(--ink-3); font-size: .9rem; }
 .qv-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 8px; }
 .qv-price { font: 800 1.6rem var(--font-display); color: var(--go, #ffd98f); }
+
+/* owner-only price editor inside the enlarged item */
+.qv-owner { margin-top: 4px; padding: 13px 14px; border: 1px solid var(--brand-up); border-radius: 14px; background: var(--brand-soft); display: flex; flex-direction: column; gap: 9px; }
+.qv-owner-lbl { font: 700 .68rem var(--font); text-transform: uppercase; letter-spacing: .08em; color: var(--brand-up); }
+.qv-owner-row { display: flex; align-items: center; gap: 8px; }
+.qv-owner-cur { font: 800 1.1rem var(--font-display); color: var(--ink-2); }
+.qv-owner-input { flex: 1; min-width: 0; font: 700 1rem var(--font); color: var(--ink); background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 11px; }
+.qv-owner-input:focus { outline: none; border-color: var(--brand-up); box-shadow: 0 0 0 3px var(--brand-soft-2); }
+.qv-owner-save { flex: none; padding: 9px 15px; border: none; border-radius: 10px; cursor: pointer; font: 700 .85rem var(--font); color: #fff; background: linear-gradient(150deg, var(--brand-up), var(--brand-down)); }
+.qv-owner-save:hover { filter: brightness(1.06); }
+.qv-owner-auto { flex: none; padding: 9px 12px; border: 1px solid var(--line-2); border-radius: 10px; cursor: pointer; font: 700 .82rem var(--font); color: var(--ink-2); background: none; }
+.qv-owner-auto:hover { color: var(--ink); border-color: var(--brand-up); }
+.qv-owner-note { margin: 0; font: 500 .78rem var(--font); color: var(--ink-3); }
+
 @media (max-width: 640px) {
   #qvBody { grid-template-columns: 1fr; gap: 16px; }
   .qv-panel { padding: 20px; }

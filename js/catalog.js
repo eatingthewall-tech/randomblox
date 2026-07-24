@@ -3494,6 +3494,39 @@ const CATALOG = [
    "badge": "Limited"
   },
   {
+   "id": "nfl-swat-vest",
+   "game": "nfl",
+   "name": "SWAT Vest",
+   "kind": "gear",
+   "rarity": "Amethyst",
+   "variant": "base",
+   "price": 50,
+   "stock": 3,
+   "badge": "Limited"
+  },
+  {
+   "id": "nfl-jabbaway-switch",
+   "game": "nfl",
+   "name": "Jabbaway Switch",
+   "kind": "emote",
+   "rarity": "Diamond",
+   "variant": "base",
+   "price": 25,
+   "stock": 3,
+   "badge": "Limited"
+  },
+  {
+   "id": "nfl-keep-ups",
+   "game": "nfl",
+   "name": "Keep Ups",
+   "kind": "emote",
+   "rarity": "Diamond",
+   "variant": "base",
+   "price": 38,
+   "stock": 3,
+   "badge": "Limited"
+  },
+  {
    "id": "nfl-bright-white-tactical-vest",
    "game": "nfl",
    "name": "Bright White Tactical Vest",
@@ -3555,7 +3588,7 @@ const CATALOG = [
    "kind": "cleats",
    "rarity": "Diamond",
    "variant": "base",
-   "price": 36.32,
+   "price": 24,
    "was": 50.98,
    "img": "assets/nfl/nfl-f4-low-top-twisted-reality.png",
    "stock": 2,

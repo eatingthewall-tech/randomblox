@@ -6,7 +6,7 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const money = n => "$" + n.toFixed(2);
 const IMG_V = "20260716a";                       // bump when item art changes
-const imgSrc = p => p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
+const imgSrc = p => /^data:/.test(p) ? p : p + (p.includes("?") ? "&" : "?") + "v=" + IMG_V;
 
 const PILL = {
   Godly: "godly", Chroma: "chroma", Ancient: "ancient", Vintage: "vintage",
@@ -14,10 +14,10 @@ const PILL = {
   Egg: "uncommon", Vehicle: "rare", Toy: "vintage",
   Diamond: "nflmvp", Amethyst: "nflallpro", Ruby: "nflpro", Gold: "nflstarter", Silver: "nflrookie", Bronze: "nflrookie", Custom: "nflmvp",
   Legend: "bdlegend", Epic: "bdepic", Basic: "bdbasic",
-  Korblox: "korblox", Random: "account",
+  Korblox: "korblox", Random: "account", Seller: "account",
 };
 const RARITY_ORDER = ["Korblox","Chroma","Godly","Ancient","Vintage","Legend","Legendary","Epic","Rare","Basic","Uncommon","Common","Egg","Vehicle","Toy",
-  "Custom","Diamond","Amethyst","Ruby","Gold","Silver","Bronze","Random"];
+  "Custom","Diamond","Amethyst","Ruby","Gold","Silver","Bronze","Random","Seller"];
 const CATS = {
   mm2: [["all", "Everything"], ["knife", "Knives"], ["gun", "Guns"], ["pet", "Pets"], ["collectible", "Collectibles"]],
   am:  [["all", "Everything"], ["pet", "Pets"], ["egg", "Eggs"], ["vehicle", "Vehicles"], ["toy", "Toys & items"]],
@@ -58,7 +58,35 @@ applyTheme(load("rbx-theme", "dark"));
 let IS_OWNER = false;
 /* bundles are pinned as their own top card per section, never listed among the
    individual items, so they're filtered out of the grid/search/counts here */
-const shopItems = () => (IS_OWNER ? CATALOG : CATALOG.filter(i => !i.ownerOnly)).filter(i => !i.bundle);
+/* Community seller listings, released into the shop as buyable cards. Each is
+   shaped like a catalog item (so it flows through the grid, filters and cart)
+   and flagged isListing so checkout routes it to the seller-payout branch. */
+let SELLER_LISTINGS = [];
+const shopItems = () =>
+  (IS_OWNER ? CATALOG : CATALOG.filter(i => !i.ownerOnly)).filter(i => !i.bundle).concat(SELLER_LISTINGS);
+
+async function syncMarket() {
+  let listings;
+  try {
+    const r = await fetch("/api/seller?action=market");
+    if (!r.ok) return;
+    const d = await r.json();
+    listings = Array.isArray(d.listings) ? d.listings : null;
+  } catch { return; }
+  if (!listings) return;
+  // drop the previous batch from byId, then rebuild
+  for (const l of SELLER_LISTINGS) delete byId[l.id];
+  SELLER_LISTINGS = listings
+    .filter(l => l.game && l.name && l.image && Number(l.price) > 0)
+    .map(l => ({
+      id: l.id, game: l.game, kind: (l.kind || "gear"), name: l.name,
+      price: Math.round(Number(l.price) * 100) / 100, img: l.image,
+      rarity: "Seller", stock: Math.max(0, parseInt(l.stock, 10) || 1),
+      isListing: true, seller: l.sellerName || "seller", description: l.description || "",
+    }));
+  for (const l of SELLER_LISTINGS) byId[l.id] = l;
+  renderFeatured(); renderGameBand(); buildRarityChips(); render();
+}
 
 /* one-time reset: wipe every order / chat / read-marker so the queue starts
    empty and at #1 for everyone. Bump RESET_TAG to reset again later. */
@@ -595,24 +623,28 @@ function cardHTML(i) {
   const soldOut = i.stock <= 0;                       // gone for good, not just in a cart
   const inCart = (state.cart[i.id] || 0) > 0;
   const pill = PILL[i.rarity] || "common";
-  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/") || i.img.startsWith("assets/accounts/"));
+  const listing = !!i.isListing;
+  const crop = i.img && (i.img.startsWith("assets/items/") || i.img.startsWith("assets/nfl/") || i.img.startsWith("assets/baddies/") || i.img.startsWith("assets/accounts/") || (listing && /^data:/.test(i.img)));
   const variant = i.badge && i.badge !== "CHROMA" && i.badge !== "FX"
     ? `<span class="pill" style="--pill-bg:var(--pill-rare-bg);--pill-ink:var(--pill-rare-ink)">${i.badge}</span>` : "";
   const fx = i.badge === "FX" ? `<span class="pill">FX</span>` : "";
-  const s = saleInfo(i);
-  return `<article class="card${soldOut ? " is-sold" : ""}" data-id="${i.id}" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
+  const s = listing ? null : saleInfo(i);
+  return `<article class="card${soldOut ? " is-sold" : ""}${listing ? " is-listing" : ""}" data-id="${i.id}" data-rarity="${pill}" style="--rar:var(--pill-${pill}-ink);--rar-soft:var(--pill-${pill}-bg)">
     <div class="card-art ${crop ? "is-crop" : ""}">
       ${i.img ? `<img loading="lazy" src="${imgSrc(i.img)}" alt="">`
               : `<span class="card-noart" aria-hidden="true">${i.name[0]}</span>`}
+      ${listing ? `<span class="card-seller-tag">Seller</span>` : ""}
       ${soldOut ? `<span class="card-sold">Out of stock</span>` : ""}
       ${s && !soldOut ? `<span class="card-save">-${s.pct}%</span>` : ""}
-      ${!soldOut && i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
+      ${!soldOut && !listing && i.stock > 1 ? `<span class="card-stock">×${i.stock} left</span>` : ""}
       ${ownerStockCtl(i)}
     </div>
     <div class="card-body">
       <div class="card-name">${i.name}</div>
       <div class="card-tags">
-        <span class="pill" style="--pill-bg:var(--pill-${pill}-bg);--pill-ink:var(--pill-${pill}-ink)">${i.rarity}</span>
+        ${listing
+          ? `<button class="pill pill-seller" data-chat-seller="${esc(i.seller)}" title="Message @${esc(i.seller)}">@${esc(i.seller)}</button>`
+          : `<span class="pill" style="--pill-bg:var(--pill-${pill}-bg);--pill-ink:var(--pill-${pill}-ink)">${i.rarity}</span>`}
         ${variant}${fx}
       </div>
       <div class="card-row">
@@ -630,7 +662,7 @@ function cardHTML(i) {
    item back to the automatic catalog-minus-sold tally. Everyone else never sees
    it — it only renders when the server has confirmed this device as the owner. */
 function ownerStockCtl(i) {
-  if (!IS_OWNER || i.game === "accounts") return "";   // accounts are managed by their login pool
+  if (!IS_OWNER || i.game === "accounts" || i.isListing) return "";   // accounts / seller listings aren't catalog stock
   const manual = STOCK_OVERRIDES[i.id] != null;
   const n = i.stock;
   return `<div class="card-own" data-own-stock="${i.id}">
@@ -675,6 +707,10 @@ function bindBuyButtons(root) {
   }));
   $$("[data-stock-auto]", root).forEach(b => b.addEventListener("click", e => {
     e.stopPropagation(); setStock(b.dataset.stockAuto, { clear: true });
+  }));
+  // tap a seller's name on a listing card to message them
+  $$("[data-chat-seller]", root).forEach(b => b.addEventListener("click", e => {
+    e.stopPropagation(); openSellerChat(b.dataset.chatSeller);
   }));
 }
 
@@ -780,10 +816,13 @@ const entries = () => Object.entries(state.cart).filter(([, q]) => q > 0);
 const cartTotal = () => entries().reduce((n, [id, q]) => n + byId[id].price * q, 0);
 const cartCount = () => entries().reduce((n, [, q]) => n + q, 0);
 
+// seller listings are bought one at a time (the checkout charges one per listing)
+const cartCap = item => item.isListing ? Math.min(1, item.stock) : item.stock;
 function addToCart(id, btn) {
   const item = byId[id];
+  if (!item) return;
   const q = state.cart[id] || 0;
-  if (q >= item.stock) return;
+  if (q >= cartCap(item)) return;
   state.cart[id] = q + 1;
   save("rbx-cart", state.cart);
   flyToCart(btn);
@@ -791,7 +830,7 @@ function addToCart(id, btn) {
   render();
 }
 function setQty(id, q) {
-  state.cart[id] = Math.max(0, Math.min(q, byId[id].stock));
+  state.cart[id] = Math.max(0, Math.min(q, cartCap(byId[id])));
   if (!state.cart[id]) delete state.cart[id];
   save("rbx-cart", state.cart);
   syncCount(); renderDrawer(); render();
@@ -1488,7 +1527,8 @@ function stepPay() {
         // the owner key rides along so the server accepts the owner-only Testing item
         headers: { "Content-Type": "application/json", ...(ownerKey() ? { "x-owner-key": ownerKey() } : {}) },
         body: JSON.stringify({
-          items: entries().map(([id, q]) => ({ id, q })),
+          // seller listings route to the marketplace branch by their listing id
+          items: entries().map(([id, q]) => byId[id] && byId[id].isListing ? { listing: id, q: 1 } : { id, q }),
           user: form.user.value.trim(),
           email: form.mail.value.trim(),
           name: form.name.value.trim(),
@@ -2488,18 +2528,57 @@ function openQV(id) {
       </div>
       <h2 class="qv-name">${i.name}</h2>
       <p class="qv-sub">${GAME_LABEL[i.game] || ""} · ${i.stock > 0 ? `×${i.stock} in stock` : "out of stock"}</p>
+      ${i.isListing ? `<p class="qv-seller">Sold by <button class="qv-seller-name" data-chat-seller="${esc(i.seller)}">@${esc(i.seller)}</button>${i.description ? ` · ${esc(i.description)}` : ""}</p>` : ""}
       <div class="qv-row">
         <span class="qv-prices"><span class="qv-price">${money(i.price)}</span>${(() => { const s = saleInfo(i); return s ? `<s class="card-was">${money(s.was)}</s><span class="qv-save">-${s.pct}%</span>` : ""; })()}</span>
         <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${i.stock <= 0 || left <= 0 ? "disabled" : ""}>
           ${i.stock <= 0 ? "Out of stock" : left <= 0 ? "In cart" : state.cart[id] ? "Add another" : "Add to cart"}
         </button>
       </div>
+      ${IS_OWNER && i.game !== "accounts" && !i.isListing ? `
+      <form class="qv-owner" id="qvPriceForm">
+        <span class="qv-owner-lbl">Owner price</span>
+        <div class="qv-owner-row">
+          <span class="qv-owner-cur">$</span>
+          <input class="qv-owner-input" id="qvPriceInput" type="number" min="0.5" max="5000" step="0.01" value="${i.price}" aria-label="Set price">
+          <button type="submit" class="qv-owner-save">Save</button>
+          ${PRICE_OVERRIDES[id] != null ? `<button type="button" class="qv-owner-auto" id="qvPriceAuto" title="Back to the catalog price">Auto</button>` : ""}
+        </div>
+        <p class="qv-owner-note">${PRICE_OVERRIDES[id] != null ? `Manual price · catalog is ${money(i.basePrice != null ? i.basePrice : i.price)}` : "Only you see this. Sets the price buyers pay."}</p>
+      </form>` : ""}
     </div>`;
   qv.hidden = false;
   $("[data-qv-add]", qvBody)?.addEventListener("click", e => {
     addToCart(id, e.currentTarget);
     openQV(id);   // refresh button/stock state in place
   });
+  $("#qvPriceForm", qvBody)?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const v = Number($("#qvPriceInput", qvBody).value);
+    if (!(v >= 0.5 && v <= 5000)) return;
+    await setPrice(id, { price: Math.round(v * 100) / 100 });
+    openQV(id);
+  });
+  $("#qvPriceAuto", qvBody)?.addEventListener("click", async () => { await setPrice(id, { priceClear: true }); openQV(id); });
+  $$("[data-chat-seller]", qvBody).forEach(b => b.addEventListener("click", () => { closeQV(); openSellerChat(b.dataset.chatSeller); }));
+}
+
+/* Owner: set or clear an item's manual price, then re-sync so every device and
+   checkout use it. Same owner-gated endpoint as the stock control. */
+async function setPrice(id, payload) {
+  try {
+    const r = await fetch("/api/stock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-owner-key": ownerKey() },
+      body: JSON.stringify({ id, ...payload }),
+    });
+    const d = await r.json().catch(() => null);
+    if (!r.ok) { alert((d && d.error) || "Couldn't save the price."); return; }
+    if (d && d.prices) PRICE_OVERRIDES = d.prices;
+    const it = byId[id];
+    if (it) it.price = PRICE_OVERRIDES[id] != null ? Number(PRICE_OVERRIDES[id]) : (it.basePrice != null ? it.basePrice : it.price);
+    renderFeatured(); renderGameBand(); buildRarityChips(); render();
+  } catch { alert("Couldn't reach the server to save that."); }
 }
 function closeQV() { qv.hidden = true; }
 $("#qvClose").addEventListener("click", closeQV);
@@ -2896,15 +2975,16 @@ const smSaveLocal = () => { if (SM.mode === "local") save(SM_KEY, SM.st); };
 
 /* ---------- remote → unified state ---------- */
 async function smLoadRemote(status) {
-  const meta = load("cb-seller-meta", {});            // stock/desc/paused the thin API can't store
+  const meta = load("cb-seller-meta", {});            // legacy: paused flag for older listings
   let raw = { listings: [] }, scan = { balance: { available: 0, pending: 0, lifetime: 0 }, credits: [], withdrawals: [], holdDays: HOLD_DAYS };
   try { raw = await sellerApi("my-listings", {}); } catch {}
   try { scan = await sellerApi("credit-scan", {}); } catch { try { scan = await sellerApi("balance", {}); } catch {} }
   const listings = (raw.listings || []).map(l => {
-    const m = meta[l.id] || {};
-    return { id: l.id, game: l.game, name: l.name, price: l.price, created: l.created,
-      stock: m.stock == null ? 1 : m.stock, description: m.description || "",
-      image: m.image || "", seller: m.seller || "",
+    const m = meta[l.id] || {};   // paused is still a local flag (the server has no pause action)
+    return { id: l.id, game: l.game, kind: l.kind || m.kind || "", name: l.name, price: l.price, created: l.created,
+      stock: l.stock != null ? l.stock : (m.stock == null ? 1 : m.stock),
+      description: l.description || m.description || "",
+      image: l.image || m.image || "", seller: l.sellerName || m.seller || "",
       status: l.status === "sold" ? "sold" : (m.paused ? "paused" : "active") };
   });
   const sales = (scan.credits || []).map(c => {
@@ -2979,6 +3059,7 @@ function exitSellerMode() {
   document.body.classList.remove("sm-active");
   setTimeout(() => { if (!SM.open && SM.root) SM.root.hidden = true; }, 240);
   if (location.hash === "#seller") history.pushState({}, "", location.pathname + location.search);
+  if (typeof syncMarket === "function") syncMarket();   // surface any listings just created
 }
 function smGo(page) {
   SM.page = page;
@@ -3206,9 +3287,11 @@ function smOpenForm(editId) {
       <div class="sm-field-2">
         <label class="sm-field"><span>Game</span>
           <select id="smfGame">${games.map(g => `<option value="${g}" ${editing && editing.game === g ? "selected" : ""}>${GAME_LABEL[g]}</option>`).join("")}</select></label>
-        <label class="sm-field"><span>Price (USD)</span>
-          <input id="smfPrice" type="number" min="1" max="500" step="0.01" required placeholder="9.99" value="${editing ? editing.price : ""}"></label>
+        <label class="sm-field"><span>Category <em class="sm-req">required</em></span>
+          <select id="smfKind"></select></label>
       </div>
+      <label class="sm-field"><span>Price (USD)</span>
+        <input id="smfPrice" type="number" min="1" max="500" step="0.01" required placeholder="9.99" value="${editing ? editing.price : ""}"></label>
       <label class="sm-field"><span>Item name</span>
         <input id="smfName" maxlength="80" required placeholder="Start typing — pick from your game's items" list="smfNames" value="${editing ? esc(editing.name) : ""}"><datalist id="smfNames"></datalist></label>
       <div class="sm-field-2">
@@ -3253,8 +3336,15 @@ function smOpenForm(editId) {
     const g = $("#smfGame", wrap).value;
     $("#smfNames", wrap).innerHTML = CATALOG.filter(i => i.game === g && !i.bundle).map(i => `<option value="${esc(i.name)}">`).join("");
   };
-  fillNames();
-  $("#smfGame", wrap).addEventListener("change", fillNames);
+  // category options follow the chosen game (the shop's own sections, minus "Everything")
+  const fillKinds = () => {
+    const g = $("#smfGame", wrap).value;
+    const cats = (CATS[g] || []).filter(([k]) => k !== "all");
+    const sel = $("#smfKind", wrap);
+    sel.innerHTML = cats.map(([k, label]) => `<option value="${k}" ${editing && editing.kind === k ? "selected" : ""}>${esc(label)}</option>`).join("");
+  };
+  fillNames(); fillKinds();
+  $("#smfGame", wrap).addEventListener("change", () => { fillNames(); fillKinds(); });
   const net = () => {
     const p = Number($("#smfPrice", wrap).value);
     $("#smfNet", wrap).textContent = p >= 1 ? money(p * (1 - SM.st.fee)) : "—";
@@ -3266,13 +3356,15 @@ function smOpenForm(editId) {
     e.preventDefault();
     const err = $("#smfErr", wrap); err.hidden = true;
     const data = {
-      game: $("#smfGame", wrap).value, name: $("#smfName", wrap).value.trim(),
+      game: $("#smfGame", wrap).value, kind: $("#smfKind", wrap).value,
+      name: $("#smfName", wrap).value.trim(),
       price: Math.round(Number($("#smfPrice", wrap).value) * 100) / 100,
       stock: Math.max(1, Math.round(Number($("#smfStock", wrap).value) || 1)),
       description: $("#smfDesc", wrap).value.trim(),
       image: photo, seller: sellerHandle(),
     };
     if (!data.image) return smShowErr(err, "Add a photo of the item you're selling.");
+    if (!data.kind) return smShowErr(err, "Pick a category for the item.");
     if (data.name.length < 2) return smShowErr(err, "Name the item you're selling.");
     if (!(data.price >= 1 && data.price <= 500)) return smShowErr(err, "Price must be between $1 and $500.");
     const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
@@ -3538,21 +3630,25 @@ function smWizPhone(body, status) {
 }
 
 /* ================= data actions ================= */
+function smListingPayload(data) {
+  return {
+    game: data.game, kind: data.kind, name: data.name, price: data.price,
+    image: data.image, stock: data.stock, description: data.description, sellerName: data.seller,
+  };
+}
 async function smCreateListing(data) {
   if (SM.mode === "remote") {
-    const r = await sellerApi("list-create", { game: data.game, name: data.name, price: data.price });
-    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false, image: data.image, seller: data.seller });
+    await sellerApi("list-create", smListingPayload(data));   // everything now lives server-side
     SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
   } else {
-    SM.st.listings.unshift({ id: smId("L"), game: data.game, name: data.name, price: data.price, stock: data.stock, description: data.description, image: data.image, seller: data.seller, status: "active", created: Date.now() });
+    SM.st.listings.unshift({ id: smId("L"), game: data.game, kind: data.kind, name: data.name, price: data.price, stock: data.stock, description: data.description, image: data.image, seller: data.seller, status: "active", created: Date.now() });
     smSaveLocal();
   }
 }
 async function smUpdateListing(id, data) {
   if (SM.mode === "remote") {
     try { await sellerApi("list-remove", { id }); } catch {}
-    const r = await sellerApi("list-create", { game: data.game, name: data.name, price: data.price });
-    if (r.listing) smMetaSet(r.listing.id, { stock: data.stock, description: data.description, paused: false, image: data.image, seller: data.seller });
+    await sellerApi("list-create", smListingPayload(data));
     SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
   } else {
     const l = SM.st.listings.find(x => x.id === id);
@@ -3681,23 +3777,30 @@ function stockRemaining(item, sold, overrides) {
   if (ov && typeof ov.n === "number") return Math.max(0, ov.n - Math.max(0, soldN - (ov.s || 0)));
   return Math.max(0, (item.baseStock != null ? item.baseStock : Number(item.stock) || 0) - soldN);
 }
+let PRICE_OVERRIDES = {};   // owner's manual prices, id -> number
 async function syncStock() {
-  let sold, overrides;
+  let sold, overrides, prices;
   try {
     const r = await fetch("/api/stock");
     if (!r.ok) return;
     const d = await r.json();
     sold = d && d.sold;
     overrides = (d && d.overrides) || {};
+    prices = (d && d.prices) || {};
   } catch { return; }
   if (!sold || typeof sold !== "object") return;
   STOCK_OVERRIDES = overrides;
+  PRICE_OVERRIDES = prices;
 
   let changed = false;
   for (const i of CATALOG) {
     if (i.baseStock == null) i.baseStock = Number(i.stock) || 0;
+    if (i.basePrice == null) i.basePrice = Number(i.price) || 0;
     const left = stockRemaining(i, sold, overrides);
     if (i.stock !== left) { i.stock = left; changed = true; }
+    // owner-set price wins; otherwise the catalog price
+    const price = prices[i.id] != null ? Number(prices[i.id]) : i.basePrice;
+    if (i.price !== price) { i.price = price; changed = true; }
   }
   if (!changed) return;
 
@@ -3901,6 +4004,8 @@ renderBagSlot(state.game);
 refreshSpin();
 
 syncStock();
+syncMarket();                                 // pull community seller listings into the shop
+setInterval(syncMarket, 60000);               // refresh listings periodically
 syncAcctStock();
 setInterval(syncAcctStock, 30000);            // keep account availability live
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { syncStock(); syncAcctStock(); } });

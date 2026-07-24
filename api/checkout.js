@@ -127,6 +127,20 @@ module.exports = async (req, res) => {
         if (o) overrides[arr[k]] = o;
       }
     } catch { /* no store — fall back to catalog stock */ }
+
+    // Owner's manual prices (the owner price editor). Server-authoritative, so a
+    // buyer is charged exactly what the owner set — never a price from the body.
+    let priceOv = {};
+    try {
+      const r = await U.kv(["HGETALL", "price:override"]);
+      const arr = (r && r.result) || [];
+      for (let k = 0; k < arr.length; k += 2) {
+        const p = Number(arr[k + 1]);
+        if (Number.isFinite(p) && p >= 0) priceOv[arr[k]] = Math.round(p * 100) / 100;
+      }
+    } catch { /* no store — fall back to catalog price */ }
+    const priceOf = it => (priceOv[it.id] != null ? priceOv[it.id] : Number(it.price));
+
     // remaining units for an item id: manual count minus sales since it was set,
     // else the automatic catalog − sold
     const stockLeft = it => {
@@ -174,7 +188,7 @@ module.exports = async (req, res) => {
       if (item.bundle) {
         const qty = Math.max(1, Math.min(parseInt(row.q, 10) || 1, 10));
         for (let k = 0; k < qty; k++) {
-          const bag = drawBag(item.game, sold, Number(item.price), overrides);
+          const bag = drawBag(item.game, sold, priceOf(item), overrides);
           if (!bag) return res.status(400).json({ error: `The ${item.name} is out of stock right now.` });
           for (const it of bag) {
             sold[it.id] = (sold[it.id] || 0) + 1;          // reserve within this order
@@ -184,7 +198,7 @@ module.exports = async (req, res) => {
             quantity: 1,
             price_data: {
               currency: "usd",
-              unit_amount: Math.round(Number(item.price) * 100),
+              unit_amount: Math.round(priceOf(item) * 100),
               product_data: {
                 name: item.name,
                 description: `3 random ${GAME_LABEL[item.game] || item.game} items · guaranteed value`,
@@ -214,7 +228,7 @@ module.exports = async (req, res) => {
         quantity: qty,
         price_data: {
           currency: "usd",
-          unit_amount: Math.round(Number(item.price) * 100),   // server price, authoritative
+          unit_amount: Math.round(priceOf(item) * 100),   // owner price if set, else catalog — always server-side
           product_data: {
             name: item.name,
             description: `${GAME_LABEL[item.game] || item.game} · ${item.rarity}`,

@@ -21,6 +21,7 @@ const { getSold } = require("../lib/sold.js");
 const U = require("../lib/users.js");
 
 const OVERRIDE_KEY = "stock:override";
+const PRICE_KEY = "price:override";
 
 function sameSecret(a, b) {
   const x = Buffer.from(String(a)), y = Buffer.from(String(b));
@@ -55,6 +56,20 @@ async function readOverrides() {
     return out;
   } catch { return {}; }
 }
+/* the owner's manual prices, id -> number. Public: the shop and checkout both
+   need them, and a price isn't a secret. */
+async function readPrices() {
+  try {
+    const r = await U.kv(["HGETALL", PRICE_KEY]);
+    const arr = (r && r.result) || [];
+    const out = {};
+    for (let i = 0; i < arr.length; i += 2) {
+      const p = Number(arr[i + 1]);
+      if (Number.isFinite(p) && p >= 0) out[arr[i]] = Math.round(p * 100) / 100;
+    }
+    return out;
+  } catch { return {}; }
+}
 
 module.exports = async (req, res) => {
   /* ---------- owner: set or clear a manual stock count ---------- */
@@ -66,6 +81,18 @@ module.exports = async (req, res) => {
     const id = String(body.id || "").slice(0, 60);
     if (!id) return res.status(400).json({ error: "id required" });
     try {
+      // ----- manual price (owner price editor) -----
+      if (body.priceClear) {
+        await U.kv(["HDEL", PRICE_KEY, id]);
+        return res.status(200).json({ ok: true, prices: await readPrices() });
+      }
+      if (body.price != null) {
+        const p = Math.round(Number(body.price) * 100) / 100;
+        if (!(p >= 0.5 && p <= 5000)) return res.status(400).json({ error: "Price must be between $0.50 and $5000." });
+        await U.kv(["HSET", PRICE_KEY, id, String(p)]);
+        return res.status(200).json({ ok: true, prices: await readPrices() });
+      }
+      // ----- manual stock -----
       if (body.clear) {
         await U.kv(["HDEL", OVERRIDE_KEY, id]);
       } else {
@@ -80,24 +107,24 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, overrides: await readOverrides() });
     } catch (e) {
       console.error("stock override error:", e);
-      return res.status(500).json({ error: "Couldn't save the stock change." });
+      return res.status(500).json({ error: "Couldn't save the change." });
     }
   }
 
   if (req.method !== "GET") return res.status(405).json({ error: "GET or POST only" });
 
-  /* ---------- public: sold tally + manual overrides ---------- */
-  const overrides = await readOverrides();
+  /* ---------- public: sold tally + manual stock + manual prices ---------- */
+  const [overrides, prices] = await Promise.all([readOverrides(), readPrices()]);
   const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return res.status(200).json({ sold: {}, overrides });
+  if (!key) return res.status(200).json({ sold: {}, overrides, prices });
 
   try {
     const sold = await getSold(new Stripe(key));
     // no CDN cache: overrides must flip the shop the instant the owner sets them
     res.setHeader("Cache-Control", "no-store");
-    return res.status(200).json({ sold, overrides });
+    return res.status(200).json({ sold, overrides, prices });
   } catch (e) {
     console.error("stock error:", e);
-    return res.status(200).json({ sold: {}, overrides });
+    return res.status(200).json({ sold: {}, overrides, prices });
   }
 };

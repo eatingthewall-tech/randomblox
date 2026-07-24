@@ -58,6 +58,35 @@ module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (!U.haveStore()) return res.status(501).json({ error: "Store not connected." });
 
+  /* PUBLIC: the marketplace feed for the shop. Any visitor can read it — it only
+     returns fields a buyer needs (never the seller's email, never balances), so
+     seller listings can appear in the shop for everyone even while the seller
+     dashboard itself stays owner-only in test mode. */
+  if (req.method === "GET" && req.query && req.query.action === "market") {
+    try {
+      const ids = ((await U.kv(["SMEMBERS", "sl:active"])).result) || [];
+      const rows = [];
+      for (const id of ids) {
+        const r = await U.kv(["GET", `sl:${id}`]);
+        if (!r || !r.result) continue;
+        try {
+          const l = JSON.parse(r.result);
+          if (l.status !== "active") continue;
+          rows.push({
+            id: l.id, sellerName: l.sellerName || (l.seller ? String(l.seller).split("@")[0] : "seller"),
+            game: l.game, kind: l.kind || "", name: l.name, price: l.price,
+            image: l.image || "", stock: l.stock || 1, description: l.description || "", created: l.created || 0,
+          });
+        } catch {}
+      }
+      rows.sort((a, b) => b.created - a.created);
+      return res.status(200).json({ listings: rows });
+    } catch (e) {
+      console.error("market read error:", e);
+      return res.status(200).json({ listings: [] });
+    }
+  }
+
   /* test-mode gate: owner only, checked before anything else */
   if (!PUBLIC && !ownerOK(req)) return res.status(404).json({ error: "Not found." });
 
@@ -167,8 +196,17 @@ module.exports = async (req, res) => {
       if (name.length < 2) return res.status(400).json({ error: "Name the item you're selling." });
       const price = round2(Number(body.price));
       if (!(price >= 1 && price <= 500)) return res.status(400).json({ error: "Price must be between $1 and $500." });
+      // subcategory (which shop section it lands in) is required so the listing
+      // shows up in the right place; image + stock make it a real shop card.
+      const kind = clip(body.kind, 20).trim().toLowerCase();
+      if (!kind) return res.status(400).json({ error: "Pick a category for the item." });
+      const image = typeof body.image === "string" && /^data:image\//.test(body.image) ? body.image.slice(0, 900000) : "";
+      if (!image) return res.status(400).json({ error: "Add a photo of the item." });
+      const stock = Math.max(1, Math.min(999, parseInt(body.stock, 10) || 1));
+      const description = clip(body.description, 240).trim();
+      const sellerName = clip(body.sellerName, 24).trim() || (email ? email.split("@")[0] : "seller");
       const id = "L" + crypto.randomBytes(6).toString("hex");
-      const listing = { id, seller: email, game, name, price, created: Date.now(), status: "active" };
+      const listing = { id, seller: email, sellerName, game, kind, name, price, image, stock, description, created: Date.now(), status: "active" };
       await U.kv(["SET", `sl:${id}`, JSON.stringify(listing)]);
       await U.kv(["SADD", "sl:active", id]);
       return res.status(200).json({ listing });
