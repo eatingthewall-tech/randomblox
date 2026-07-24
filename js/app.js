@@ -82,7 +82,8 @@ async function syncMarket() {
       id: l.id, game: l.game, kind: (l.kind || ""), name: l.name,
       price: Math.round(Number(l.price) * 100) / 100, img: l.image,
       rarity: l.rarity || "Seller", stock: Math.max(0, parseInt(l.stock, 10) || 1),
-      isListing: true, seller: l.sellerName || "seller", description: l.description || "",
+      isListing: true, seller: l.sellerName || "seller", sellerId: l.sellerId || "",
+      description: l.description || "",
     }));
   for (const l of SELLER_LISTINGS) byId[l.id] = l;
   renderFeatured(); renderGameBand(); buildRarityChips(); render();
@@ -643,7 +644,7 @@ function cardHTML(i) {
       <div class="card-name">${i.name}</div>
       <div class="card-tags">
         ${listing
-          ? `<button class="pill pill-seller" data-chat-seller="${esc(i.seller)}" title="Message @${esc(i.seller)}">@${esc(i.seller)}</button>`
+          ? `<button class="pill pill-seller" data-chat-seller="${esc(i.seller)}" data-seller-id="${esc(i.sellerId || "")}" title="Message @${esc(i.seller)}">@${esc(i.seller)}</button>`
           : `<span class="pill" style="--pill-bg:var(--pill-${pill}-bg);--pill-ink:var(--pill-${pill}-ink)">${i.rarity}</span>`}
         ${variant}${fx}
       </div>
@@ -710,7 +711,7 @@ function bindBuyButtons(root) {
   }));
   // tap a seller's name on a listing card to message them
   $$("[data-chat-seller]", root).forEach(b => b.addEventListener("click", e => {
-    e.stopPropagation(); openSellerChat(b.dataset.chatSeller);
+    e.stopPropagation(); openSellerChat(b.dataset.sellerId, b.dataset.chatSeller);
   }));
 }
 
@@ -2528,7 +2529,7 @@ function openQV(id) {
       </div>
       <h2 class="qv-name">${i.name}</h2>
       <p class="qv-sub">${GAME_LABEL[i.game] || ""} · ${i.stock > 0 ? `×${i.stock} in stock` : "out of stock"}</p>
-      ${i.isListing ? `<p class="qv-seller">Sold by <button class="qv-seller-name" data-chat-seller="${esc(i.seller)}">@${esc(i.seller)}</button>${i.description ? ` · ${esc(i.description)}` : ""}</p>` : ""}
+      ${i.isListing ? `<p class="qv-seller">Sold by <button class="qv-seller-name" data-chat-seller="${esc(i.seller)}" data-seller-id="${esc(i.sellerId || "")}">@${esc(i.seller)}</button>${i.description ? ` · ${esc(i.description)}` : ""}</p>` : ""}
       <div class="qv-row">
         <span class="qv-prices"><span class="qv-price">${money(i.price)}</span>${(() => { const s = saleInfo(i); return s ? `<s class="card-was">${money(s.was)}</s><span class="qv-save">-${s.pct}%</span>` : ""; })()}</span>
         <button class="card-buy ${state.cart[id] ? "in-cart" : ""}" data-qv-add="${id}" ${i.stock <= 0 || left <= 0 ? "disabled" : ""}>
@@ -2560,7 +2561,7 @@ function openQV(id) {
     openQV(id);
   });
   $("#qvPriceAuto", qvBody)?.addEventListener("click", async () => { await setPrice(id, { priceClear: true }); openQV(id); });
-  $$("[data-chat-seller]", qvBody).forEach(b => b.addEventListener("click", () => { closeQV(); openSellerChat(b.dataset.chatSeller); }));
+  $$("[data-chat-seller]", qvBody).forEach(b => b.addEventListener("click", () => { closeQV(); openSellerChat(b.dataset.sellerId, b.dataset.chatSeller); }));
 }
 
 /* Owner: set or clear an item's manual price, then re-sync so every device and
@@ -2849,11 +2850,12 @@ setTimeout(refreshSellerEntry, 800);   // AUTH_API/owner resolve async — re-ch
    self-contained local store so the whole experience stays live and
    demonstrable. Illustrative rows only ever exist in that local
    preview mode; over a real backend you only ever see real data. */
-const SELLER_FEE = 0.10, HOLD_DAYS = 3;
+const SELLER_FEE = 0.20, HOLD_DAYS = 3;
 const SM_NAV = [
   ["dashboard", "Dashboard", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`],
   ["listings", "Listings", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>`],
   ["sales", "Sales", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3.5-4 3 2.5L21 6"/></svg>`],
+  ["messages", "Messages", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6Z"/></svg>`],
   ["payouts", "Payouts", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12.5" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 14.5h4"/></svg>`],
   ["settings", "Settings", `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 7 2.6h.1A1.6 1.6 0 0 0 8.8 1a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 15 2.6a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.1 1.5h.1a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.1 1z"/></svg>`],
 ];
@@ -3050,11 +3052,13 @@ async function enterSellerMode(page) {
   smRenderLoading();
   await smDetect();
   smRender();
+  smStartInboxBadge();
   if (location.hash !== "#seller") history.pushState({ sm: 1 }, "", "#seller");
 }
 function exitSellerMode() {
   if (!SM.open) return;
   SM.open = false;
+  smStopInboxPolls();
   SM.root.classList.remove("is-in");
   document.body.classList.remove("sm-active");
   setTimeout(() => { if (!SM.open && SM.root) SM.root.hidden = true; }, 240);
@@ -3103,7 +3107,7 @@ function smBuildRoot() {
   $("#smAcct", el).addEventListener("click", () => openAccount());
   // build nav (side + bottom)
   const navHTML = (compact) => SM_NAV.map(([id, label, ic]) =>
-    `<li><button class="sm-nav-b" data-page="${id}"><span class="sm-nav-ic">${ic}</span><span class="sm-nav-l">${label}</span></button></li>`).join("");
+    `<li><button class="sm-nav-b" data-page="${id}"><span class="sm-nav-ic">${ic}${id === "messages" ? `<b class="sm-nav-badge" hidden></b>` : ""}</span><span class="sm-nav-l">${label}</span></button></li>`).join("");
   $("#smSideNav", el).innerHTML = navHTML();
   $("#smBottom", el).innerHTML = `<ul>${navHTML(true)}</ul>`;
   el.querySelectorAll("[data-page]").forEach(b => b.addEventListener("click", () => smGo(b.dataset.page)));
@@ -3134,7 +3138,7 @@ function smRender() {
   if (SM.wizard) { smSyncNav(); smSideFoot(); return smWizardView(); }
   smSyncNav(); smSideFoot();
   const m = $("#smMain", SM.root);
-  ({ dashboard: smDashboard, listings: smListings, sales: smSales, payouts: smPayouts, settings: smSettings }[SM.page] || smDashboard)(m);
+  ({ dashboard: smDashboard, listings: smListings, sales: smSales, messages: smMessages, payouts: smPayouts, settings: smSettings }[SM.page] || smDashboard)(m);
 }
 
 /* ---------- page header ---------- */
@@ -3219,7 +3223,6 @@ function smListings(m) {
   smWire(m);
 }
 function smListingCard(l) {
-  const net = money(l.price * (1 - SM.st.fee));
   const handle = l.seller || sellerHandle();
   const ini = (handle || "?").trim()[0].toUpperCase();
   return `<article class="sm-card sm-listing ${l.status === "paused" ? "is-paused" : ""}">
@@ -3241,7 +3244,7 @@ function smListingCard(l) {
       <button class="sm-seller-name" data-chat-seller="${esc(handle)}" title="Message ${esc(handle)}">@${esc(handle)}</button>
     </div>` : ""}
     <div class="sm-listing-foot">
-      <span class="sm-mut sm-small">You receive ${net} after fee</span>
+      <span class="sm-mut sm-small">${l.stock} in stock · live</span>
       <div class="sm-listing-acts">
         <button class="sm-icb" data-edit="${l.id}" title="Edit" aria-label="Edit listing">${smIcon("edit")}</button>
         <button class="sm-icb" data-pause="${l.id}" title="${l.status === "paused" ? "Resume" : "Pause"}" aria-label="${l.status === "paused" ? "Resume" : "Pause"} listing">${smIcon(l.status === "paused" ? "play" : "pause")}</button>
@@ -3296,11 +3299,8 @@ function smOpenForm(editId) {
         <input id="smfPrice" type="number" min="1" max="500" step="0.01" required placeholder="9.99" value="${editing ? editing.price : ""}"></label>
       <label class="sm-field"><span>Item name</span>
         <input id="smfName" maxlength="80" required placeholder="Start typing — pick from your game's items" list="smfNames" value="${editing ? esc(editing.name) : ""}"><datalist id="smfNames"></datalist></label>
-      <div class="sm-field-2">
-        <label class="sm-field"><span>Stock</span>
-          <input id="smfStock" type="number" min="1" max="999" step="1" required placeholder="1" value="${editing ? editing.stock : "1"}"></label>
-        <div class="sm-field"><span>You receive</span><output class="sm-field-out" id="smfNet">—</output></div>
-      </div>
+      <label class="sm-field"><span>Stock</span>
+        <input id="smfStock" type="number" min="1" max="999" step="1" required placeholder="1" value="${editing ? editing.stock : "1"}"></label>
       <label class="sm-field"><span>Description <em class="sm-opt">optional</em></span>
         <textarea id="smfDesc" maxlength="240" rows="3" placeholder="Delivery speed, bundle deals, anything a buyer should know.">${editing ? esc(editing.description || "") : ""}</textarea></label>
       <p class="sm-err" id="smfErr" hidden></p>
@@ -3361,12 +3361,6 @@ function smOpenForm(editId) {
   };
   fillNames(); fillKinds(); fillRarities();
   $("#smfGame", wrap).addEventListener("change", () => { fillNames(); fillKinds(); fillRarities(); });
-  const net = () => {
-    const p = Number($("#smfPrice", wrap).value);
-    $("#smfNet", wrap).textContent = p >= 1 ? money(p * (1 - SM.st.fee)) : "—";
-  };
-  net();
-  $("#smfPrice", wrap).addEventListener("input", net);
 
   $("#smForm", wrap).addEventListener("submit", async e => {
     e.preventDefault();
@@ -3450,6 +3444,126 @@ function smSales(m, tab) {
   m.querySelectorAll("[data-deliver]").forEach(b => b.addEventListener("click", () => smMarkDelivered(b.dataset.deliver, m)));
 }
 
+/* ================= MESSAGES (buyer↔seller inbox) =================
+   Each buyer who messages this seller from a listing is one conversation, kept
+   entirely separate from Chanceblox support. Threads are session-scoped on the
+   server, so a seller only ever sees their own. */
+function smAgo(ts) {
+  if (!ts) return "";
+  const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (s < 60) return "just now";
+  const mn = Math.floor(s / 60); if (mn < 60) return mn + "m";
+  const h = Math.floor(mn / 60); if (h < 24) return h + "h";
+  const d = Math.floor(h / 24); if (d < 7) return d + "d";
+  return new Date(ts).toLocaleDateString([], { month: "short", day: "numeric" });
+}
+const SM_SEND_IC = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>`;
+
+function smMessages(m) {
+  // preview / not-signed-in mode has no server threads to show
+  if (SM.mode !== "remote") {
+    m.innerHTML = smHead("Messages", "Chats from buyers about your listings land here.")
+      + smEmptyBig("No messages yet", "Once you're a verified seller and a buyer messages you from one of your listings, the conversation shows up right here — separate from Chanceblox support.", "");
+    return;
+  }
+  m.innerHTML = smHead("Messages", "Buyers messaging you about your listings. Problems with an order? Those go to Chanceblox support.")
+    + `<section class="sm-card sm-panel" id="smInboxWrap"><div class="sm-load"><span class="sm-spin"></span></div></section>`;
+  smInboxLoad(m);
+}
+async function smInboxLoad(m) {
+  let threads = [];
+  try { const d = await sellerApi("inbox"); threads = Array.isArray(d.threads) ? d.threads : []; } catch {}
+  SM._inboxThreads = threads;
+  const wrap = m && $("#smInboxWrap", m);
+  if (!wrap || SM.page !== "messages") return;
+  if (!threads.length) {
+    wrap.innerHTML = smEmpty("No messages yet", "When a buyer messages you from one of your listings, the conversation shows up here.");
+  } else {
+    wrap.innerHTML = `<ul class="sm-inbox">` + threads.map(t => {
+      const ini = ((t.name || "B").trim()[0] || "B").toUpperCase();
+      return `<li><button class="sm-inbox-row ${t.unread ? "is-unread" : ""}" data-thread="${esc(t.thread)}">
+        <span class="sm-inbox-av">${esc(ini)}</span>
+        <span class="sm-inbox-mid"><b>${esc(t.name || "Buyer")}</b><i>${esc(t.preview || "New message")}</i></span>
+        <span class="sm-inbox-side"><time>${esc(smAgo(t.last))}</time>${t.unread ? `<span class="sm-inbox-dot" aria-label="Unread"></span>` : ""}</span>
+      </button></li>`;
+    }).join("") + `</ul>`;
+    wrap.querySelectorAll("[data-thread]").forEach(b => b.addEventListener("click", () => smInboxOpen(b.dataset.thread)));
+  }
+  smInboxUpdateBadge(threads.reduce((n, t) => n + (t.unread ? 1 : 0), 0));
+}
+function smInboxOpen(thread) {
+  const meta = (SM._inboxThreads || []).find(t => t.thread === thread) || {};
+  const name = meta.name || "Buyer";
+  const ini = ((name.trim()[0]) || "B").toUpperCase();
+  SM._convo = thread; SM._convoN = -1;
+  const m = $("#smMain", SM.root);
+  m.innerHTML = `
+    <div class="sm-head sm-convo-head">
+      <button class="sm-btn sm-btn-ghost sm-convo-back" id="smConvoBack">${smIcon("arrow", "sm-flip")}Messages</button>
+      <div class="sm-convo-who"><span class="sm-inbox-av">${esc(ini)}</span><b>@${esc(name)}</b></div>
+    </div>
+    <section class="sm-card sm-convo">
+      <div class="chat-log sm-convo-log" id="smConvoLog" aria-live="polite"><div class="sm-load"><span class="sm-spin"></span></div></div>
+      <form class="chat-form sm-convo-form" id="smConvoForm" autocomplete="off">
+        <input class="chat-input" id="smConvoInput" type="text" maxlength="500" placeholder="Reply to @${esc(name)}…" aria-label="Your reply">
+        <button class="chat-send" type="submit" aria-label="Send reply">${SM_SEND_IC}</button>
+      </form>
+    </section>`;
+  $("#smConvoBack", m).addEventListener("click", () => { smStopConvoPoll(); smGo("messages"); });
+  const input = $("#smConvoInput", m), log = $("#smConvoLog", m);
+  $("#smConvoForm", m).addEventListener("submit", async e => {
+    e.preventDefault();
+    const t = input.value.trim(); if (!t) return;
+    input.value = "";
+    try { await sellerApi("inbox-send", { thread, text: t }); } catch (ex) { alert(ex.message || "Couldn't send that."); return; }
+    await smConvoRepaint(log, thread);
+  });
+  smConvoRepaint(log, thread, true);
+  smStopConvoPoll();
+  SM._convoPoll = setInterval(() => {
+    if (!SM.open || SM.page !== "messages" || SM._convo !== thread) { smStopConvoPoll(); return; }
+    smConvoRepaint(log, thread);
+  }, 4000);
+}
+async function smConvoRepaint(log, thread, first) {
+  let msgs = [];
+  try { const d = await sellerApi("inbox-read", { thread }); msgs = Array.isArray(d.messages) ? d.messages : []; } catch { if (first) log.innerHTML = ""; return; }
+  if (!log.isConnected || SM._convo !== thread) return;
+  if (msgs.length === SM._convoN && !first) return;
+  const grew = SM._convoN >= 0 && msgs.length > SM._convoN;
+  const newFromBuyer = grew && msgs.slice(SM._convoN).some(x => (x.who || "buyer") !== "seller");
+  SM._convoN = msgs.length;
+  renderMsgs(log, msgs, "seller", "");   // seller's own replies on the right, buyer on the left
+  if (newFromBuyer) ringBell();
+}
+function smStopConvoPoll() { if (SM._convoPoll) { clearInterval(SM._convoPoll); SM._convoPoll = null; } SM._convo = null; }
+
+/* nav unread badge: a light background poll while seller mode is open */
+function smInboxUpdateBadge(n) {
+  if (!SM.root) return;
+  SM.root.querySelectorAll(".sm-nav-badge").forEach(b => {
+    if (n > 0) { b.textContent = n > 9 ? "9+" : String(n); b.hidden = false; }
+    else b.hidden = true;
+  });
+}
+async function smInboxBadgePoll() {
+  if (!SM.open || SM.mode !== "remote") return;
+  let threads = [];
+  try { const d = await sellerApi("inbox"); threads = Array.isArray(d.threads) ? d.threads : []; } catch { return; }
+  if (SM.page !== "messages") SM._inboxThreads = threads;   // don't stomp an in-view render mid-interaction
+  smInboxUpdateBadge(threads.reduce((n, t) => n + (t.unread ? 1 : 0), 0));
+}
+function smStartInboxBadge() {
+  smStopInboxPolls();
+  if (SM.mode !== "remote") return;
+  smInboxBadgePoll();
+  SM._badgePoll = setInterval(smInboxBadgePoll, 15000);
+}
+function smStopInboxPolls() {
+  smStopConvoPoll();
+  if (SM._badgePoll) { clearInterval(SM._badgePoll); SM._badgePoll = null; }
+}
+
 /* ================= PAYOUTS ================= */
 function smPayouts(m) {
   const st = SM.st, b = st.balance;
@@ -3471,10 +3585,12 @@ function smPayouts(m) {
           <div class="sm-methods">${WD_METHODS.map(x => `<button type="button" class="sm-method ${x.id === method ? "is-on" : ""}" data-m="${x.id}">${x.label}</button>`).join("")}</div>
           <label class="sm-field" id="smWdDestField" ${md.id === "credit" ? "hidden" : ""}><span id="smWdHint">${md.hint}</span>
             <input id="smWdDest" maxlength="120" placeholder="${md.ph}"></label>
-          <label class="sm-field"><span>Amount <em class="sm-opt">min $5.00</em></span>
-            <input id="smWdAmt" type="number" min="5" step="0.01" max="${b.available}" placeholder="${b.available >= 5 ? b.available.toFixed(2) : "5.00"}"></label>
+          <label class="sm-field"><span>Amount <em class="sm-opt">min $5.00 · max ${money(b.available)}</em></span>
+            <input id="smWdAmt" type="number" inputmode="decimal" min="5" step="0.01" max="${b.available}" placeholder="${b.available >= 5 ? b.available.toFixed(2) : "5.00"}">
+            <button type="button" class="sm-wd-max" id="smWdMax">Max</button></label>
+          <p class="sm-wd-net" id="smWdNet">You'll receive <b>—</b></p>
           <p class="sm-err" id="smWdErr" hidden></p>
-          <button type="submit" class="sm-btn sm-btn-primary sm-block" ${b.available < 5 ? "disabled" : ""}>${b.available < 5 ? "Nothing to withdraw yet" : "Request withdrawal"}</button>
+          <button type="submit" class="sm-btn sm-btn-primary sm-block" id="smWdSubmit" ${b.available < 5 ? "disabled" : ""}>${b.available < 5 ? "Nothing to withdraw yet" : "Request withdrawal"}</button>
           <p class="sm-mut sm-small sm-center">Requests are paid out by hand, usually within a day.</p>
         </form>
       </section>
@@ -3500,15 +3616,33 @@ function smPayouts(m) {
     $("#smWdDest", m).placeholder = meta.ph;
   };
   m.querySelectorAll(".sm-method").forEach(x => x.addEventListener("click", () => applyMethod(x.dataset.m)));
+
+  /* Live cap: you can never enter more than your available balance. The number
+     is clamped as you type, the "You'll receive" line mirrors it, and the button
+     locks out anything below $5 or above the balance. The server re-checks too. */
+  const amtEl = $("#smWdAmt", m), netEl = $("#smWdNet", m), subEl = $("#smWdSubmit", m);
+  const clampAmt = () => {
+    let v = Number(amtEl.value);
+    if (!Number.isFinite(v) || v < 0) v = 0;
+    if (v > b.available) { v = b.available; amtEl.value = b.available.toFixed(2); }   // hard cap
+    const valid = v >= 5 && v <= b.available;
+    netEl.innerHTML = v >= 5 ? `You'll receive <b>${money(Math.round(v * 100) / 100)}</b>` : `You'll receive <b>—</b>`;
+    if (b.available >= 5) { subEl.disabled = !valid; subEl.textContent = "Request withdrawal"; }
+    return v;
+  };
+  amtEl.addEventListener("input", clampAmt);
+  $("#smWdMax", m).addEventListener("click", () => { amtEl.value = b.available.toFixed(2); clampAmt(); amtEl.focus(); });
+  clampAmt();
+
   $("#smWd", m).addEventListener("submit", async e => {
     e.preventDefault();
     const err = $("#smWdErr", m); err.hidden = true;
-    const amount = Math.round(Number($("#smWdAmt", m).value) * 100) / 100;
+    const amount = clampAmt();
     const details = ($("#smWdDest", m).value || "").trim();
     if (!(amount >= 5)) return smShowErr(err, "Minimum withdrawal is $5.00.");
-    if (amount > b.available) return smShowErr(err, `Only ${money(b.available)} is available — the rest is still in the hold.`);
+    if (amount > b.available) return smShowErr(err, `You can only withdraw up to ${money(b.available)}.`);
     if (cur !== "credit" && details.length < 3) return smShowErr(err, "Enter where to send it.");
-    const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
+    const btn = subEl; btn.disabled = true;
     try { await smWithdraw({ method: cur, details, amount }); smGo("payouts"); }
     catch (ex) { btn.disabled = false; smShowErr(err, ex.message); }
   });
@@ -3736,17 +3870,106 @@ function smWire(m) {
     if (confirm("Delete this listing? This can't be undone.")) smDeleteListing(b.dataset.del);
   }));
   // tap a seller's name to message them — leaves seller mode and opens the chat
-  m.querySelectorAll("[data-chat-seller]").forEach(b => b.addEventListener("click", () => openSellerChat(b.dataset.chatSeller)));
+  m.querySelectorAll("[data-chat-seller]").forEach(b => b.addEventListener("click", () => openSellerChat(b.dataset.sellerId, b.dataset.chatSeller)));
 }
 
-/* Message a seller. Buyers reach a seller through the site's live chat; this
-   leaves the seller area (if open) and pops the chat open, primed for them. */
-function openSellerChat(handle) {
+/* ---------- per-seller live chat ----------
+   A buyer messaging a seller talks to THAT seller, not Chanceblox support. Each
+   seller has a stable id (from the market feed); the thread is smsg:<sellerId>:
+   <visitorId>, so every buyer↔seller pair is its own conversation. The seller
+   reads and replies from their dashboard Inbox; the owner's support console never
+   sees these. If we don't have a seller id (e.g. the seller previewing their own
+   listing), fall back to opening support. */
+const SC = { thread: "", handle: "", poll: null, lastN: -1, el: null };
+function scKey() { return "rbx-schat-" + SC.thread; }
+function scSeed(handle) {
+  return `You're messaging <b>@${esc(handle)}</b> directly about their listings. `
+    + `Having a problem with an order or a seller? Use Chanceblox support — the purple chat bubble.`;
+}
+function buildSellerChatWidget() {
+  const w = document.createElement("div");
+  w.className = "chat-widget seller-chat-widget";
+  w.id = "sellerChatWidget";
+  w.hidden = true;
+  w.innerHTML = `
+    <div class="chat-widget-head">
+      <span class="cw-av sc-av" id="scAv" aria-hidden="true">@</span>
+      <div class="cw-brand"><b id="scName">Seller</b><i><span class="cw-dot"></span>Replies when they're online</i></div>
+      <button class="icon-btn cw-close" id="sellerChatClose" aria-label="Close chat">✕</button>
+    </div>
+    <div class="chat-log" id="scLog" aria-live="polite"></div>
+    <form class="chat-form" id="scForm" autocomplete="off">
+      ${ATTACH_HTML}
+      <input class="chat-input" id="scInput" type="text" maxlength="280" placeholder="Message the seller…" aria-label="Your message">
+      <button class="chat-send" type="submit" aria-label="Send message"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
+    </form>`;
+  document.body.appendChild(w);
+  const input = $("#scInput", w), form = $("#scForm", w);
+  $("#sellerChatClose", w).addEventListener("click", closeSellerChat);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const t = input.value.trim(); if (!t) return;
+    pushChat(scKey(), t, "buyer"); input.value = "";      // local echo + offline fallback
+    await scRepaint();
+    await chatApiPost(SC.thread, visitorName(), "buyer", t);
+    await scRepaint();
+  });
+  bindChatAttach(form, async dataUrl => {
+    await chatApiPost(SC.thread, visitorName(), "buyer", "", dataUrl);
+    await scRepaint();
+  });
+  SC.el = w;
+  return w;
+}
+async function scRepaint() {
+  const log = $("#scLog", SC.el);
+  const seed = scSeed(SC.handle);
+  const api = await chatApiGet(SC.thread);
+  if (api) { renderMsgs(log, api, "buyer", seed); save(scKey(), api); SC.lastN = api.length; }
+  else paintChat(log, scKey(), "buyer", seed);
+}
+function closeSellerChat() {
+  if (SC.poll) { clearInterval(SC.poll); SC.poll = null; }
+  if (SC.el) SC.el.hidden = true;
+}
+function openSellerChat(sellerId, handle) {
+  handle = handle || "seller";
+  // no seller id — a seller previewing their own listing, or a stale card. Send
+  // them to support rather than a chat that can't route anywhere.
+  if (!sellerId) {
+    const wasOpen = SM.open;
+    if (wasOpen) exitSellerMode();
+    setTimeout(() => {
+      const fab = $("#chatFab"), widget = $("#chatWidget");
+      if (fab && widget && widget.hidden) fab.click();
+    }, wasOpen ? 260 : 0);
+    return;
+  }
   const wasOpen = SM.open;
   if (wasOpen) exitSellerMode();
   setTimeout(() => {
-    const fab = $("#chatFab"), widget = $("#chatWidget");
-    if (fab && widget && widget.hidden) fab.click();
+    // keep support and seller chat from overlapping
+    const supFab = $("#chatFab"), supWidget = $("#chatWidget");
+    if (supFab && supWidget && !supWidget.hidden) supFab.click();
+
+    const w = SC.el || buildSellerChatWidget();
+    SC.thread = `smsg:${sellerId}:${VISITOR}`;
+    SC.handle = handle; SC.lastN = -1;
+    $("#scName", w).textContent = "@" + handle;
+    $("#scAv", w).textContent = (handle.trim()[0] || "@").toUpperCase();
+    w.hidden = false;
+    scRepaint().then(() => { $("#scInput", w).focus(); });
+    if (SC.poll) clearInterval(SC.poll);
+    SC.poll = setInterval(async () => {
+      const api = await chatApiGet(SC.thread);
+      if (api && api.length !== SC.lastN) {
+        const grew = SC.lastN >= 0 && api.length > SC.lastN;
+        const newFromSeller = grew && api.slice(SC.lastN).some(m => (m.who || "buyer") === "seller");
+        renderMsgs($("#scLog", w), api, "buyer", scSeed(SC.handle));
+        save(scKey(), api); SC.lastN = api.length;
+        if (newFromSeller) ringBell();
+      }
+    }, 3000);
   }, wasOpen ? 260 : 0);
 }
 

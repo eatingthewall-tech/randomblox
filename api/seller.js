@@ -22,7 +22,7 @@ const Stripe = require("stripe");
 const crypto = require("crypto");
 const U = require("../lib/users.js");
 
-const SELL_FEE = 0.10;                       // marketplace keeps 10% of each sale
+const SELL_FEE = 0.20;                       // marketplace keeps 20% of each sale
 const HOLD_MS = 3 * 24 * 3600 * 1000;        // 3-day dispute hold
 const PUBLIC = process.env.SELLER_PUBLIC === "true";
 const GAMES = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies" };
@@ -47,6 +47,10 @@ function ownerOK(req) {
 }
 const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 const round2 = n => Math.round(n * 100) / 100;
+// stable, non-PII id for a seller — buyers use it to open a chat that routes to
+// this exact seller, without ever exposing the seller's email.
+const sellerSid = e => crypto.createHash("sha256").update(String(e || "").trim().toLowerCase()).digest("hex").slice(0, 12);
+const SMSG = (sid, vid) => `smsg:${sid}:${vid}`;
 
 /* ---------- the quiz (answers only ever live server-side) ---------- */
 const QUIZ = [
@@ -82,6 +86,7 @@ module.exports = async (req, res) => {
           if (l.status !== "active") continue;
           rows.push({
             id: l.id, sellerName: l.sellerName || (l.seller ? String(l.seller).split("@")[0] : "seller"),
+            sellerId: l.seller ? sellerSid(l.seller) : "",   // buyers chat this seller by this id
             game: l.game, kind: l.kind || "", rarity: l.rarity || "", name: l.name, price: l.price,
             image: l.image || "", stock: l.stock || 1, description: l.description || "", created: l.created || 0,
           });
@@ -133,6 +138,62 @@ module.exports = async (req, res) => {
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
     body = body || {};
     const action = req.method === "GET" ? (req.query && req.query.action) : body.action;
+
+    /* ---------- seller inbox: buyer↔seller chats, scoped to THIS seller ----------
+       Buyers post to smsg:<mySid>:<visitorId> through /api/chat; here the seller
+       (identified by their login) lists, reads and replies to only their own
+       threads. Reuses the shared chat store; the owner's support console never
+       sees these (api/chat hides smsg threads from the owner). */
+    const mySid = sellerSid(email);
+    const ownThread = t => typeof t === "string" && t.indexOf(`smsg:${mySid}:`) === 0;
+
+    if (action === "inbox") {
+      const h = await U.kv(["HGETALL", "chat:threads"]);
+      const arr = (h && h.result) || [];
+      const rh = await U.kv(["HGETALL", `seller:read:${email}`]);
+      const ra = (rh && rh.result) || [];
+      const read = {};
+      if (Array.isArray(ra)) for (let i = 0; i < ra.length; i += 2) read[ra[i]] = Number(ra[i + 1]);
+      const threads = [];
+      for (let i = 0; i < arr.length; i += 2) {
+        if (!ownThread(arr[i])) continue;
+        let meta; try { meta = JSON.parse(arr[i + 1]); } catch { continue; }
+        threads.push({
+          thread: arr[i], name: meta.name || "Buyer", last: meta.last || 0,
+          preview: meta.preview || "", who: meta.who || "buyer",
+          unread: meta.who !== "seller" && (meta.last || 0) > (read[arr[i]] || 0),
+        });
+      }
+      threads.sort((a, b) => (b.last || 0) - (a.last || 0));
+      return res.status(200).json({ threads });
+    }
+
+    if (action === "inbox-read") {
+      const thread = clip(body.thread || (req.query && req.query.thread), 90);
+      if (!ownThread(thread)) return res.status(403).json({ error: "Not your chat." });
+      const l = await U.kv(["LRANGE", `chat:m:${thread}`, "0", "-1"]);
+      const messages = ((l && l.result) || []).map(s => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean);
+      const lastTs = messages.length ? messages[messages.length - 1].when : Date.now();
+      await U.kv(["HSET", `seller:read:${email}`, thread, String(lastTs)]);   // opening = read
+      return res.status(200).json({ messages });
+    }
+
+    if (action === "inbox-send") {
+      const thread = clip(body.thread, 90);
+      if (!ownThread(thread)) return res.status(403).json({ error: "Not your chat." });
+      const text = clip(body.text, 500).trim();
+      if (!text) return res.status(400).json({ error: "Say something first." });
+      const msg = { t: text, who: "seller", when: Date.now() };
+      await U.kv(["RPUSH", `chat:m:${thread}`, JSON.stringify(msg)]);
+      await U.kv(["LTRIM", `chat:m:${thread}`, "-300", "-1"]);
+      let meta = {};
+      const prev = await U.kv(["HGET", "chat:threads", thread]);
+      if (prev && prev.result) { try { meta = JSON.parse(prev.result); } catch {} }
+      meta = { ...meta, last: msg.when, who: "seller", kind: "seller", preview: `You: ${text}`.slice(0, 80) };
+      await U.kv(["HSET", "chat:threads", thread, JSON.stringify(meta)]);
+      await U.kv(["HSET", `seller:read:${email}`, thread, String(msg.when)]);
+      return res.status(200).json({ ok: true });
+    }
 
     /* ---------- status: everything the UI needs in one call ---------- */
     if (action === "status") {

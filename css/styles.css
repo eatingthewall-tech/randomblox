@@ -2017,6 +2017,11 @@ a.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-soft);
 .chat-widget .chat-log { flex: 1; min-height: 0; max-height: none; background: var(--bg); }
 .chat-widget .chat-form { background: var(--bg-2); }
 
+/* per-seller chat: a distinct header + lettered avatar so a buyer can tell a
+   seller conversation apart from Chanceblox support at a glance */
+.seller-chat-widget .chat-widget-head { background: linear-gradient(95deg, #0ea5a3, #0891b2); }
+.sc-av { font: 800 1.02rem var(--font); text-transform: uppercase; }
+
 /* owner console: website-chat avatar */
 .own-av-web { background: linear-gradient(135deg, #22b8cf, #4263eb); }
 .own-av-web svg { width: 20px; height: 20px; }
@@ -2787,6 +2792,45 @@ html[data-theme="light"] .sm-field-out { background: #efe9fa; }
 .sm-empty-big b { font: 800 1.3rem var(--font-display); margin-bottom: 8px; }
 .sm-empty-big p { color: var(--ink-2); max-width: 40ch; margin: 0 0 20px; line-height: 1.55; }
 
+/* ---------- messages / inbox ---------- */
+.sm-nav-ic { position: relative; }
+.sm-nav-badge {
+  position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px; padding: 0 4px;
+  display: grid; place-items: center; border-radius: 999px;
+  background: #ef4444; color: #fff; font: 700 .64rem var(--font); line-height: 1;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.sm-panel:has(> #smInboxWrap), #smInboxWrap { padding: 0; }
+.sm-inbox { list-style: none; margin: 0; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.sm-inbox-row {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  border: none; background: none; cursor: pointer; padding: 12px 12px; border-radius: 12px;
+  color: var(--ink); transition: background .15s;
+}
+.sm-inbox-row:hover { background: var(--brand-soft-2); }
+.sm-inbox-av {
+  flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+  color: #fff; font: 800 1rem var(--font); text-transform: uppercase;
+  background: linear-gradient(145deg, #0ea5a3, #0891b2);
+}
+.sm-inbox-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sm-inbox-mid b { font: 700 .92rem var(--font); color: var(--ink); }
+.sm-inbox-mid i { font-style: normal; font-size: .82rem; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sm-inbox-row.is-unread .sm-inbox-mid b { color: var(--ink); }
+.sm-inbox-row.is-unread .sm-inbox-mid i { color: var(--ink-2); font-weight: 600; }
+.sm-inbox-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.sm-inbox-side time { font-size: .72rem; color: var(--ink-3); }
+.sm-inbox-dot { width: 9px; height: 9px; border-radius: 999px; background: #ef4444; box-shadow: 0 0 0 3px color-mix(in srgb, #ef4444 22%, transparent); }
+
+.sm-convo-head { display: flex; align-items: center; gap: 14px; }
+.sm-convo-back .sm-flip { transform: rotate(180deg); }
+.sm-convo-who { display: flex; align-items: center; gap: 10px; }
+.sm-convo-who .sm-inbox-av { width: 34px; height: 34px; border-radius: 10px; font-size: .9rem; }
+.sm-convo-who b { font: 700 1rem var(--font); }
+.sm-convo { padding: 0; overflow: hidden; display: flex; flex-direction: column; height: min(560px, calc(100vh - 260px)); }
+.sm-convo-log { flex: 1; min-height: 0; overflow-y: auto; background: var(--bg); padding: 16px; }
+.sm-convo-form { background: var(--bg-2); border-top: 1px solid var(--line); }
+
 /* ---------- verification steps ---------- */
 .sm-steps { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
 .sm-step { display: flex; align-items: center; gap: 9px; font: 650 .88rem var(--font); color: var(--ink-3); border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 15px; }
@@ -2891,3 +2935,15 @@ button.coq-tile:hover { border-color: var(--brand-up); background: var(--brand-s
 }
 .coq-tile-code.is-copied { border-color: var(--go); background: color-mix(in oklab, var(--go) 12%, transparent); }
 .coq-tile-code.is-copied .coq-tx i::after { content: " ✓ copied"; color: var(--go); font-weight: 700; }
+
+/* seller payouts: live max + "you'll receive" */
+.sm-field { position: relative; }
+.sm-wd-max {
+  position: absolute; right: 8px; bottom: 8px;
+  background: var(--brand-soft); color: var(--brand-up);
+  border: 1px solid var(--line-2); border-radius: 8px; padding: 4px 10px;
+  font: 700 .72rem var(--font); cursor: pointer;
+}
+.sm-wd-max:hover { background: var(--brand-soft-2); }
+.sm-wd-net { margin: 8px 0 2px; font: 600 .84rem var(--font); color: var(--ink-2); }
+.sm-wd-net b { color: var(--go); }

@@ -51,6 +51,9 @@ module.exports = async (req, res) => {
         const arr = (h && h.result) || [];
         const threads = [];
         for (let i = 0; i < arr.length; i += 2) {
+          // smsg:* threads are private buyer↔seller chats — they belong to the
+          // seller's own inbox, not the Chanceblox support console.
+          if (typeof arr[i] === "string" && arr[i].indexOf("smsg:") === 0) continue;
           try { threads.push({ thread: arr[i], ...JSON.parse(arr[i + 1]) }); } catch {}
         }
         threads.sort((a, b) => (b.last || 0) - (a.last || 0));
@@ -154,7 +157,7 @@ module.exports = async (req, res) => {
       // chat is obvious at a glance instead of just "someone messaged"
       const meta = {
         name, last: msg.when, who,
-        kind: thread.indexOf("web:") === 0 ? "web" : "order",
+        kind: thread.indexOf("smsg:") === 0 ? "seller" : (thread.indexOf("web:") === 0 ? "web" : "order"),
         preview: clip(text || (imgId ? "📷 Photo" : ""), 80),
       };
       await kv(["HSET", "chat:threads", thread, JSON.stringify(meta)]);
