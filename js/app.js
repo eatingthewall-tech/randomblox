@@ -79,9 +79,9 @@ async function syncMarket() {
   SELLER_LISTINGS = listings
     .filter(l => l.game && l.name && l.image && Number(l.price) > 0)
     .map(l => ({
-      id: l.id, game: l.game, kind: (l.kind || "gear"), name: l.name,
+      id: l.id, game: l.game, kind: (l.kind || ""), name: l.name,
       price: Math.round(Number(l.price) * 100) / 100, img: l.image,
-      rarity: "Seller", stock: Math.max(0, parseInt(l.stock, 10) || 1),
+      rarity: l.rarity || "Seller", stock: Math.max(0, parseInt(l.stock, 10) || 1),
       isListing: true, seller: l.sellerName || "seller", description: l.description || "",
     }));
   for (const l of SELLER_LISTINGS) byId[l.id] = l;
@@ -3287,9 +3287,11 @@ function smOpenForm(editId) {
       <div class="sm-field-2">
         <label class="sm-field"><span>Game</span>
           <select id="smfGame">${games.map(g => `<option value="${g}" ${editing && editing.game === g ? "selected" : ""}>${GAME_LABEL[g]}</option>`).join("")}</select></label>
-        <label class="sm-field"><span>Category <em class="sm-req">required</em></span>
-          <select id="smfKind"></select></label>
+        <label class="sm-field"><span>Rarity <em class="sm-req">required</em></span>
+          <select id="smfRarity"></select></label>
       </div>
+      <label class="sm-field"><span>Category <em class="sm-opt">optional</em></span>
+        <select id="smfKind"></select></label>
       <label class="sm-field"><span>Price (USD)</span>
         <input id="smfPrice" type="number" min="1" max="500" step="0.01" required placeholder="9.99" value="${editing ? editing.price : ""}"></label>
       <label class="sm-field"><span>Item name</span>
@@ -3341,10 +3343,24 @@ function smOpenForm(editId) {
     const g = $("#smfGame", wrap).value;
     const cats = (CATS[g] || []).filter(([k]) => k !== "all");
     const sel = $("#smfKind", wrap);
-    sel.innerHTML = cats.map(([k, label]) => `<option value="${k}" ${editing && editing.kind === k ? "selected" : ""}>${esc(label)}</option>`).join("");
+    sel.innerHTML = `<option value="">No category</option>` +
+      cats.map(([k, label]) => `<option value="${k}" ${editing && editing.kind === k ? "selected" : ""}>${esc(label)}</option>`).join("");
   };
-  fillNames(); fillKinds();
-  $("#smfGame", wrap).addEventListener("change", () => { fillNames(); fillKinds(); });
+  // the rarities the chosen game actually uses, in the shop's rarity order
+  const gameRarities = g => {
+    const set = new Set(CATALOG.filter(i => i.game === g && !i.bundle && !i.ownerOnly && !i.isListing).map(i => i.rarity));
+    return RARITY_ORDER.filter(r => set.has(r));
+  };
+  const fillRarities = () => {
+    const g = $("#smfGame", wrap).value;
+    const rs = gameRarities(g);
+    const has = editing && rs.includes(editing.rarity);
+    $("#smfRarity", wrap).innerHTML =
+      `<option value="" disabled ${has ? "" : "selected"}>Choose rarity…</option>` +
+      rs.map(r => `<option value="${esc(r)}" ${has && editing.rarity === r ? "selected" : ""}>${esc(r)}</option>`).join("");
+  };
+  fillNames(); fillKinds(); fillRarities();
+  $("#smfGame", wrap).addEventListener("change", () => { fillNames(); fillKinds(); fillRarities(); });
   const net = () => {
     const p = Number($("#smfPrice", wrap).value);
     $("#smfNet", wrap).textContent = p >= 1 ? money(p * (1 - SM.st.fee)) : "—";
@@ -3357,6 +3373,7 @@ function smOpenForm(editId) {
     const err = $("#smfErr", wrap); err.hidden = true;
     const data = {
       game: $("#smfGame", wrap).value, kind: $("#smfKind", wrap).value,
+      rarity: $("#smfRarity", wrap).value,
       name: $("#smfName", wrap).value.trim(),
       price: Math.round(Number($("#smfPrice", wrap).value) * 100) / 100,
       stock: Math.max(1, Math.round(Number($("#smfStock", wrap).value) || 1)),
@@ -3364,7 +3381,7 @@ function smOpenForm(editId) {
       image: photo, seller: sellerHandle(),
     };
     if (!data.image) return smShowErr(err, "Add a photo of the item you're selling.");
-    if (!data.kind) return smShowErr(err, "Pick a category for the item.");
+    if (!data.rarity) return smShowErr(err, "Pick the item's rarity.");
     if (data.name.length < 2) return smShowErr(err, "Name the item you're selling.");
     if (!(data.price >= 1 && data.price <= 500)) return smShowErr(err, "Price must be between $1 and $500.");
     const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
@@ -3632,7 +3649,7 @@ function smWizPhone(body, status) {
 /* ================= data actions ================= */
 function smListingPayload(data) {
   return {
-    game: data.game, kind: data.kind, name: data.name, price: data.price,
+    game: data.game, kind: data.kind, rarity: data.rarity, name: data.name, price: data.price,
     image: data.image, stock: data.stock, description: data.description, sellerName: data.seller,
   };
 }
@@ -3641,7 +3658,7 @@ async function smCreateListing(data) {
     await sellerApi("list-create", smListingPayload(data));   // everything now lives server-side
     SM.st = await smLoadRemote(SM._status || { fee: SELLER_FEE });
   } else {
-    SM.st.listings.unshift({ id: smId("L"), game: data.game, kind: data.kind, name: data.name, price: data.price, stock: data.stock, description: data.description, image: data.image, seller: data.seller, status: "active", created: Date.now() });
+    SM.st.listings.unshift({ id: smId("L"), game: data.game, kind: data.kind, rarity: data.rarity, name: data.name, price: data.price, stock: data.stock, description: data.description, image: data.image, seller: data.seller, status: "active", created: Date.now() });
     smSaveLocal();
   }
 }

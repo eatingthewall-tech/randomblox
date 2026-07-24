@@ -26,6 +26,14 @@ const SELL_FEE = 0.10;                       // marketplace keeps 10% of each sa
 const HOLD_MS = 3 * 24 * 3600 * 1000;        // 3-day dispute hold
 const PUBLIC = process.env.SELLER_PUBLIC === "true";
 const GAMES = { mm2: "Murder Mystery 2", am: "Adopt Me", nfl: "NFL Universe", baddies: "Baddies" };
+// the rarities each game actually uses — a listing must pick one so it filters
+// under the shop's rarity bar (Diamond/Amethyst/… for NFL, etc.)
+const RARITIES = {
+  mm2: ["Godly", "Ancient", "Chroma", "Legendary", "Vintage", "Rare", "Uncommon", "Common"],
+  am: ["Legendary", "Rare", "Egg", "Vehicle", "Toy"],
+  nfl: ["Diamond", "Amethyst", "Ruby", "Gold", "Silver"],
+  baddies: ["Epic", "Legend", "Rare", "Basic"],
+};
 const METHODS = ["robux", "credit", "cashapp", "paypal", "crypto"];
 
 function sameSecret(a, b) {
@@ -74,7 +82,7 @@ module.exports = async (req, res) => {
           if (l.status !== "active") continue;
           rows.push({
             id: l.id, sellerName: l.sellerName || (l.seller ? String(l.seller).split("@")[0] : "seller"),
-            game: l.game, kind: l.kind || "", name: l.name, price: l.price,
+            game: l.game, kind: l.kind || "", rarity: l.rarity || "", name: l.name, price: l.price,
             image: l.image || "", stock: l.stock || 1, description: l.description || "", created: l.created || 0,
           });
         } catch {}
@@ -196,17 +204,18 @@ module.exports = async (req, res) => {
       if (name.length < 2) return res.status(400).json({ error: "Name the item you're selling." });
       const price = round2(Number(body.price));
       if (!(price >= 1 && price <= 500)) return res.status(400).json({ error: "Price must be between $1 and $500." });
-      // subcategory (which shop section it lands in) is required so the listing
-      // shows up in the right place; image + stock make it a real shop card.
+      // Rarity is required so the listing filters under the shop's rarity bar.
+      const rarity = clip(body.rarity, 20).trim();
+      if (!(RARITIES[game] || []).includes(rarity)) return res.status(400).json({ error: "Pick the item's rarity." });
+      // Category is optional now — used only for the section tabs if provided.
       const kind = clip(body.kind, 20).trim().toLowerCase();
-      if (!kind) return res.status(400).json({ error: "Pick a category for the item." });
       const image = typeof body.image === "string" && /^data:image\//.test(body.image) ? body.image.slice(0, 900000) : "";
       if (!image) return res.status(400).json({ error: "Add a photo of the item." });
       const stock = Math.max(1, Math.min(999, parseInt(body.stock, 10) || 1));
       const description = clip(body.description, 240).trim();
       const sellerName = clip(body.sellerName, 24).trim() || (email ? email.split("@")[0] : "seller");
       const id = "L" + crypto.randomBytes(6).toString("hex");
-      const listing = { id, seller: email, sellerName, game, kind, name, price, image, stock, description, created: Date.now(), status: "active" };
+      const listing = { id, seller: email, sellerName, game, kind, rarity, name, price, image, stock, description, created: Date.now(), status: "active" };
       await U.kv(["SET", `sl:${id}`, JSON.stringify(listing)]);
       await U.kv(["SADD", "sl:active", id]);
       return res.status(200).json({ listing });
